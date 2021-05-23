@@ -117,7 +117,6 @@ function updateTransactions() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const data = JSON.parse(this.responseText);
-            console.log(data);
             if ('message' in data) {
                 console.log(data['message'])
             }

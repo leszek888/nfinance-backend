@@ -72,7 +72,6 @@ class TransactionsTest(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertTrue('message' in response.json)
 
-
     def test_reject_transaction_with_wrong_date(self):
         transaction = self.create_transaction_json(date = 'wrong')
 
@@ -83,6 +82,20 @@ class TransactionsTest(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertTrue('message' in response.json)
 
+    def test_reject_transaction_with_wrong_amounts(self):
+        transaction = self.create_transaction_json(entries = [
+                                                        {'account' : 'Debit',
+                                                         'amount' : 'e' },
+                                                        {'account' : 'Credit',
+                                                         'amount' : '-e' }
+                                                   ])
+
+        response = self.app.post('/transaction/new',
+                                 headers={"Content-Type":"application/json"},
+                                 data=transaction)
+
+        self.assertEqual(200, response.status_code)
+        self.assertTrue('message' in response.json)
 
     def test_reject_unbalanced_transaction(self):
         transaction = self.create_transaction_json(entries = [
