@@ -47,37 +47,54 @@ function createTransactionInput() {
 }
 
 function drawTransactions(transactions) {
-    let content = '';
-
     const transactions_table = document.createElement('div');
+
+    const table_header_row = document.createElement('div');
+    const table_header_date = document.createElement('div');
+    const table_header_payee = document.createElement('div');
+    const table_header_account = document.createElement('div');
+    const table_header_amount = document.createElement('div');
+
+    table_header_date.innerText = 'Date';
+    table_header_payee.innerText = 'Payee';
+    table_header_account.innerText = 'Account';
+    table_header_amount.innerText = 'Amount';
+
+    table_header_amount.classList.add('transactions-amount-header');
+    table_header_row.classList.add('transactions-header');
+
+    table_header_row.appendChild(table_header_date);
+    table_header_row.appendChild(table_header_payee);
+    table_header_row.appendChild(table_header_account);
+    table_header_row.appendChild(table_header_amount);
+
+    transactions_table.appendChild(table_header_row);
 
     for (let transaction of transactions['transactions']) {
         const transaction_row = document.createElement('div');
         const transaction_header = document.createElement('div');
         const transaction_entries = document.createElement('div');
 
-        const transaction_header_id = document.createElement('div');
         const transaction_header_date = document.createElement('div');
         const transaction_header_payee = document.createElement('div');
 
-        transaction_header.classList.add('transaction-row');
+        transaction_row.id = transaction.id;
+        transaction_row.classList.add('transaction-row-wrapper');
+        transaction_header.classList.add('transaction-header-wrapper');
+        transaction_entries.classList.add('transaction-entries-wrapper');
 
         transaction_row.appendChild(transaction_header);
         transaction_row.appendChild(transaction_entries);
 
-        transaction_header.appendChild(transaction_header_id);
         transaction_header.appendChild(transaction_header_date);
         transaction_header.appendChild(transaction_header_payee);
 
-        const transaction_header_id_input = createTransactionInput();
         const transaction_header_date_input = createTransactionInput();
         const transaction_header_payee_input = createTransactionInput();
 
-        transaction_header_id_input.value = transaction.id;
         transaction_header_date_input.value = transaction.date;
         transaction_header_payee_input.value = transaction.payee;
 
-        transaction_header_id.appendChild(transaction_header_id_input);
         transaction_header_date.appendChild(transaction_header_date_input);
         transaction_header_payee.appendChild(transaction_header_payee_input);
 
@@ -89,10 +106,9 @@ function drawTransactions(transactions) {
             const transaction_entries_account_input = createTransactionInput();
             const transaction_entries_amount_input = createTransactionInput();
 
-            transaction_entries_row.classList.add('entry-row');
-
             transaction_entries_account_input.value = entry.account;
             transaction_entries_amount_input.value = entry.amount;
+            transaction_entries_amount_input.classList.add('entry-amount');
 
             transaction_entries_account.appendChild(transaction_entries_account_input);
             transaction_entries_amount.appendChild(transaction_entries_amount_input);
@@ -104,27 +120,13 @@ function drawTransactions(transactions) {
         }
 
         transactions_table.appendChild(transaction_row);
-
-        /*
-        content += '<tr>';
-        content += '<td>ID: '+transaction.id+'</td>';
-        content += '<td>'+transaction.date+'</td>';
-        content += '<td>'+transaction.payee+'</td>';
-        content += '<td><table>';
-        for (let entry of transaction.entries) {
-            content += '<tr>';
-            content += '<td>' + entry.account + '</td>';
-            content += '<td>' + entry.amount.toLocaleString(undefined, {minimumFractionDigits: 2}) + '</td>';
-            content += '</tr>';
-        }
-        content += '</table></td>';
-        content += '</tr>';
-        */
     }
 
     while (transactions_div.firstChild) {
         transactions_div.removeChild(transactions_div.lastChild);
     }
+
+    transactions_div.classList.add('transactions-table');
     transactions_div.appendChild(transactions_table);
 }
 
