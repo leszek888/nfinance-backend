@@ -99,6 +99,13 @@ def create_transaction():
         balance_amount = Decimal(0.0)
 
         for entry in entries:
+            entry_amount = None
+
+            try:
+                entry_amount = Decimal(entry.get('amount', 0.0))
+            except InvalidOperation:
+                return jsonify({'message' : 'Couldnt read the amount. Transaction rejected.'})
+
             balance_amount += Decimal(entry.get('amount', 0.0))
 
             if len(entry.get('account', '')) == 0:
