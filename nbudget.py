@@ -62,6 +62,9 @@ def get_balance(balance_id):
 def create_transaction():
     data = request.get_json()
 
+    return jsonify(saveTransaction(data))
+
+    '''
     # Validate Balance
     if 'balance_id' in data:
         balance = Balance.query.filter_by(public_id=data['balance_id']).first()
@@ -135,6 +138,17 @@ def create_transaction():
 
     return jsonify({'message' : 'Transaction saved.'})
 
+'''
+@app.route('/transaction/edit', methods=['PUT'])
+@cross_origin()
+def edit_transaction():
+    data = request.get_json()
+
+    if 'id' not in data:
+        return jsonify({'error' : 'Transaction ID not specified. Query aborted.'})
+    else:
+        return jsonify(saveTransaction(data))
+
 @app.route('/transaction/list/<balance_id>', methods=['GET'])
 @cross_origin()
 def get_transactions(balance_id):
@@ -166,4 +180,86 @@ def get_transactions(balance_id):
 @app.route('/')
 def index():
     return "Index"
+
+def saveTransaction(transaction):
+    # Validate Balance
+    if 'balance_id' in transaction:
+        balance = Balance.query.filter_by(public_id=transaction['balance_id']).first()
+        if not balance:
+            return {'error' : 'Balance not found. Transaction rejected.'}
+    else:
+        return {'error' : 'Balance not found. Transaction rejected.'}
+
+    # Validate Payee
+    if 'payee' in transaction:
+        if len(transaction['payee']) == 0:
+            return {'error' : 'Payee not specified. Transaction rejected.'}
+    else:
+        return {'error' : 'Payee not specified. Transaction rejected.'}
+
+    # Validate Date
+    if 'date' in transaction:
+        date = transaction['date']
+        date = date.split('-')
+
+        if len(date) == 3:
+            try:
+                date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+            except ValueError:
+                return {'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'}
+        else:
+            return {'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'}
+    else:
+        return {'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'}
+
+    entries = None
+    # Validate Entries
+    if 'entries' in transaction:
+        entries = transaction['entries']
+        balance_amount = Decimal(0.0)
+
+        for entry in entries:
+            entry_amount = None
+            formatted_amount = str(entry.get('amount', 0.0)).replace(',', '.')
+
+            try:
+                entry_amount = Decimal(formatted_amount)
+            except InvalidOperation:
+                return {'error' : 'Couldnt read the amount. Transaction rejected.'}
+
+            balance_amount += Decimal(entry_amount)
+
+            if len(entry.get('account', '')) == 0:
+                return {'error' : 'Account not specified. Transaction rejected.'}
+
+        if balance_amount != Decimal(0.0):
+            return {'error' : 'Transaction not balanced. Transaction rejected.'}
+    else:
+        return {'error' : 'Entries not specified. Transaction rejected.'}
+
+    # Submit Transaction
+    submitted_transaction = None
+    if 'id' in transaction:
+        submitted_transaction = Transactions.query.filter_by(id=transaction['id']).first()
+        if submitted_transaction:
+            submitted_transaction.payee = transaction['payee']
+            submitted_transaction.date = date
+        old_entries = Entry.query.filter_by(transaction_id=transaction['id']).all()
+        for old_entry in old_entries:
+            db.session.delete(old_entry)
+    else:
+        submitted_transaction = Transactions(balance_id = transaction['balance_id'],
+                              payee = transaction['payee'],
+                              date = date)
+        db.session.add(submitted_transaction)
+    db.session.commit()
+
+    if entries is not None:
+        for entry in entries:
+            new_entry = Entry(transaction_id = submitted_transaction.id,
+                              account = entry['account'],
+                              amount = entry['amount'])
+            db.session.add(new_entry)
+    db.session.commit()
+    return {'message' : 'Transaction saved.'}
 

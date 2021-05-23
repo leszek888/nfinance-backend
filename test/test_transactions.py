@@ -22,7 +22,8 @@ class TransactionsTest(unittest.TestCase):
     def create_transaction_json(self, balance_id = None,
                                 payee = 'Payee',
                                 date = datetime.date(2020, 1, 1),
-                                entries = None):
+                                entries = None,
+                                transaction_id = None):
         if balance_id is None:
             balance_id = self.balance.json['balance_id']
 
@@ -38,6 +39,10 @@ class TransactionsTest(unittest.TestCase):
             'date' : str(date),
             'entries' : entries
         }
+
+        if transaction_id is not None:
+            transaction['id'] = transaction_id
+
         return json.dumps(transaction)
 
     def test_validate_valid_transaction(self):
@@ -126,6 +131,41 @@ class TransactionsTest(unittest.TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertTrue('error' in response.json)
+
+    def test_update_existing_transactions(self):
+        transaction = self.create_transaction_json()
+
+        response = self.app.post('/transaction/new',
+                                 headers={"Content-Type":"application/json"},
+                                 data=transaction)
+
+        transaction_id = Transactions.query.first().id;
+        changed_transaction = self.create_transaction_json( payee = "EDITED PAYEE",
+                                                            date = "2020-12-31",
+                                                            entries = [
+                                                                {'account' : 'EDITED Debit',
+                                                                 'amount': '100' },
+                                                                {'account' : 'EDITED Credit',
+                                                                 'amount': '-60' },
+                                                                {'account' : 'EDITED Second',
+                                                                 'amount': '-40' }
+                                                            ],
+                                                            transaction_id = transaction_id
+                                                           )
+
+        new_response = self.app.put('/transaction/edit',
+                                 headers={"Content-Type":"application/json"},
+                                 data=changed_transaction)
+
+        transaction = Transactions.query.filter_by(id=transaction_id).first()
+        entries = Entry.query.filter_by(transaction_id=transaction_id).all()
+
+        self.assertEqual(200, new_response.status_code)
+        self.assertEqual(1, len(Transactions.query.all()))
+        self.assertEqual(transaction.payee, "EDITED PAYEE")
+        self.assertEqual(str(transaction.date), "2020-12-31")
+        self.assertEqual(3, len(entries))
+
 
     def test_list_all_transaction(self):
         for i in range(0, 5):

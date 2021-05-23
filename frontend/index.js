@@ -13,8 +13,10 @@ if (BALANCE_ID == null) {
 
 function fetchBalance() {
     BALANCE_ID = document.getElementById('balance_id_input').value;
-    updateContentWithBalance();
-    updateTransactions();
+    if (BALANCE_ID.length == 36) {
+        updateContentWithBalance();
+        updateTransactions();
+    }
 }
 
 function updateContentWithBalance() {
