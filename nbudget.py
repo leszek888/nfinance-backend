@@ -163,6 +163,7 @@ def get_transactions(balance_id):
 
     for transaction in transactions:
         fetched_transaction = {}
+        fetched_transaction['id'] = transaction.id
         fetched_transaction['date'] = str(transaction.date)
         fetched_transaction['payee'] = transaction.payee
         entries = Entry.query.filter_by(transaction_id=transaction.id).all()

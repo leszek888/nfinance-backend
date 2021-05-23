@@ -2,3 +2,15 @@ td {
     border: solid 1px black;
 }
 
+.transaction-input {
+    border: solid 1px #aaaaaa;
+    margin: 2px;
+}
+
+.transaction-row {
+    display: flex;
+}
+
+.entry-row {
+    display: flex;
+}

@@ -2,6 +2,8 @@ let BALANCE_ID = null
 const main_div = document.getElementById("main_content");
 const transactions_div = document.getElementById("transactions_div");
 
+let EDITED_TRANSACTION = null;
+
 if (BALANCE_ID == null) {
     let content = '';
     content += '<input type="button" onclick="getNewBalance()" value="Create New Balance" /><br /><br />';
@@ -37,13 +39,75 @@ function updateContentWithBalance() {
     main_div.innerHTML = content;
 }
 
+function createTransactionInput() {
+    const input = document.createElement('input');
+    input.classList.add('transaction-input');
+
+    return input;
+}
+
 function drawTransactions(transactions) {
     let content = '';
 
-    content += '<table>';
+    const transactions_table = document.createElement('div');
 
     for (let transaction of transactions['transactions']) {
+        const transaction_row = document.createElement('div');
+        const transaction_header = document.createElement('div');
+        const transaction_entries = document.createElement('div');
+
+        const transaction_header_id = document.createElement('div');
+        const transaction_header_date = document.createElement('div');
+        const transaction_header_payee = document.createElement('div');
+
+        transaction_header.classList.add('transaction-row');
+
+        transaction_row.appendChild(transaction_header);
+        transaction_row.appendChild(transaction_entries);
+
+        transaction_header.appendChild(transaction_header_id);
+        transaction_header.appendChild(transaction_header_date);
+        transaction_header.appendChild(transaction_header_payee);
+
+        const transaction_header_id_input = createTransactionInput();
+        const transaction_header_date_input = createTransactionInput();
+        const transaction_header_payee_input = createTransactionInput();
+
+        transaction_header_id_input.value = transaction.id;
+        transaction_header_date_input.value = transaction.date;
+        transaction_header_payee_input.value = transaction.payee;
+
+        transaction_header_id.appendChild(transaction_header_id_input);
+        transaction_header_date.appendChild(transaction_header_date_input);
+        transaction_header_payee.appendChild(transaction_header_payee_input);
+
+        for (const entry of transaction.entries) {
+            const transaction_entries_row = document.createElement('div');
+            const transaction_entries_account = document.createElement('div');
+            const transaction_entries_amount = document.createElement('div');
+
+            const transaction_entries_account_input = createTransactionInput();
+            const transaction_entries_amount_input = createTransactionInput();
+
+            transaction_entries_row.classList.add('entry-row');
+
+            transaction_entries_account_input.value = entry.account;
+            transaction_entries_amount_input.value = entry.amount;
+
+            transaction_entries_account.appendChild(transaction_entries_account_input);
+            transaction_entries_amount.appendChild(transaction_entries_amount_input);
+
+            transaction_entries_row.appendChild(transaction_entries_account);
+            transaction_entries_row.appendChild(transaction_entries_amount);
+
+            transaction_entries.appendChild(transaction_entries_row);
+        }
+
+        transactions_table.appendChild(transaction_row);
+
+        /*
         content += '<tr>';
+        content += '<td>ID: '+transaction.id+'</td>';
         content += '<td>'+transaction.date+'</td>';
         content += '<td>'+transaction.payee+'</td>';
         content += '<td><table>';
@@ -55,10 +119,13 @@ function drawTransactions(transactions) {
         }
         content += '</table></td>';
         content += '</tr>';
+        */
     }
 
-    content += '</table>';
-    transactions_div.innerHTML = content;
+    while (transactions_div.firstChild) {
+        transactions_div.removeChild(transactions_div.lastChild);
+    }
+    transactions_div.appendChild(transactions_table);
 }
 
 function send_transaction() {
