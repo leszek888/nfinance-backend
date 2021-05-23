@@ -51,11 +51,11 @@ def get_balance(balance_id):
         balance = Balance.query.filter_by(public_id=balance_id).first()
 
         if not balance:
-            return jsonify({'message' : 'Balance not found.'})
+            return jsonify({'error' : 'Balance not found.'})
         else:
             return jsonify({'balance_id' : balance.public_id})
 
-    return jsonify({'message' : 'Balance not found.'})
+    return jsonify({'error' : 'Balance not found.'})
 
 @app.route('/transaction/new', methods=['POST'])
 @cross_origin()
@@ -66,16 +66,16 @@ def create_transaction():
     if 'balance_id' in data:
         balance = Balance.query.filter_by(public_id=data['balance_id']).first()
         if not balance:
-            return jsonify({'message' : 'Balance not found. Transaction rejected.'})
+            return jsonify({'error' : 'Balance not found. Transaction rejected.'})
     else:
-        return jsonify({'message' : 'Balance not found. Transaction rejected.'})
+        return jsonify({'error' : 'Balance not found. Transaction rejected.'})
 
     # Validate Payee
     if 'payee' in data:
         if len(data['payee']) == 0:
-            return jsonify({'message' : 'Payee not specified. Transaction rejected.'})
+            return jsonify({'error' : 'Payee not specified. Transaction rejected.'})
     else:
-        return jsonify({'message' : 'Payee not specified. Transaction rejected.'})
+        return jsonify({'error' : 'Payee not specified. Transaction rejected.'})
 
     # Validate Date
     if 'date' in data:
@@ -86,11 +86,11 @@ def create_transaction():
             try:
                 date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
             except ValueError:
-                return jsonify({'message' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'})
+                return jsonify({'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'})
         else:
-            return jsonify({'message' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'})
+            return jsonify({'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'})
     else:
-        return jsonify({'message' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'})
+        return jsonify({'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'})
 
     entries = None
     # Validate Entries
@@ -100,21 +100,22 @@ def create_transaction():
 
         for entry in entries:
             entry_amount = None
+            formatted_amount = str(entry.get('amount', 0.0)).replace(',', '.')
 
             try:
-                entry_amount = Decimal(entry.get('amount', 0.0))
+                entry_amount = Decimal(formatted_amount)
             except InvalidOperation:
-                return jsonify({'message' : 'Couldnt read the amount. Transaction rejected.'})
+                return jsonify({'error' : 'Couldnt read the amount. Transaction rejected.'})
 
-            balance_amount += Decimal(entry.get('amount', 0.0))
+            balance_amount += Decimal(entry_amount)
 
             if len(entry.get('account', '')) == 0:
-                return jsonify({'message' : 'Account not specified. Transaction rejected.'})
+                return jsonify({'error' : 'Account not specified. Transaction rejected.'})
 
         if balance_amount != Decimal(0.0):
-            return jsonify({'message' : 'Transaction not balanced. Transaction rejected.'})
+            return jsonify({'error' : 'Transaction not balanced. Transaction rejected.'})
     else:
-        return jsonify({'message' : 'Entries not specified. Transaction rejected.'})
+        return jsonify({'error' : 'Entries not specified. Transaction rejected.'})
 
 
     # Submit Transaction
@@ -138,10 +139,10 @@ def create_transaction():
 @cross_origin()
 def get_transactions(balance_id):
     if len(balance_id) != 36:
-        return jsonify({'message' : 'Wrong Balance Format.'})
+        return jsonify({'error' : 'Wrong Balance Format.'})
 
     if not Balance.query.filter_by(public_id=balance_id).first():
-        return jsonify({'message' : 'Balance not found.'})
+        return jsonify({'error' : 'Balance not found.'})
 
     transactions = Transactions.query.filter_by(balance_id=balance_id).all()
     formatted_transactions = []

@@ -60,7 +60,7 @@ class TransactionsTest(unittest.TestCase):
                                  data=transaction)
 
         self.assertEqual(200, response.status_code)
-        self.assertTrue('message' in response.json)
+        self.assertTrue('error' in response.json)
 
     def test_reject_transaction_without_payee(self):
         transaction = self.create_transaction_json(payee = '')
@@ -70,7 +70,7 @@ class TransactionsTest(unittest.TestCase):
                                  data=transaction)
 
         self.assertEqual(200, response.status_code)
-        self.assertTrue('message' in response.json)
+        self.assertTrue('error' in response.json)
 
     def test_reject_transaction_with_wrong_date(self):
         transaction = self.create_transaction_json(date = 'wrong')
@@ -80,7 +80,7 @@ class TransactionsTest(unittest.TestCase):
                                  data=transaction)
 
         self.assertEqual(200, response.status_code)
-        self.assertTrue('message' in response.json)
+        self.assertTrue('error' in response.json)
 
     def test_reject_transaction_with_wrong_amounts(self):
         transaction = self.create_transaction_json(entries = [
@@ -95,7 +95,22 @@ class TransactionsTest(unittest.TestCase):
                                  data=transaction)
 
         self.assertEqual(200, response.status_code)
-        self.assertTrue('message' in response.json)
+        self.assertTrue('error' in response.json)
+
+    def test_allow_amounts_with_both_commas_and_dots(self):
+        transaction = self.create_transaction_json(entries = [
+                                                        {'account' : 'Debit',
+                                                         'amount' : '32.25' },
+                                                        {'account' : 'Credit',
+                                                         'amount' : '-32,25' }
+                                                   ])
+
+        response = self.app.post('/transaction/new',
+                                 headers={"Content-Type":"application/json"},
+                                 data=transaction)
+
+        self.assertEqual(200, response.status_code)
+        self.assertFalse('error' in response.json)
 
     def test_reject_unbalanced_transaction(self):
         transaction = self.create_transaction_json(entries = [
@@ -110,7 +125,7 @@ class TransactionsTest(unittest.TestCase):
                                  data=transaction)
 
         self.assertEqual(200, response.status_code)
-        self.assertTrue('message' in response.json)
+        self.assertTrue('error' in response.json)
 
     def test_list_all_transaction(self):
         for i in range(0, 5):
@@ -122,7 +137,7 @@ class TransactionsTest(unittest.TestCase):
         self.assertEqual(10, len(Entry.query.all()))
         response = self.app.get('/transaction/list/'+self.balance.json['balance_id'])
         self.assertEqual(200, response.status_code)
-        if 'message' in response.json:
-            print(response.json['message'])
-        self.assertFalse('message' in response.json)
+        if 'error' in response.json:
+            print(response.json['error'])
+        self.assertFalse('error' in response.json)
         self.assertEqual(5, len(response.json['transactions']))

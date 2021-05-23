@@ -40,5 +40,5 @@ class BalanceTest(unittest.TestCase):
         response = self.app.get('/balance/wrong-format')
 
         self.assertEqual(0, len(Balance.query.all()))
-        self.assertTrue('message' in response.json)
+        self.assertTrue('error' in response.json)
 
