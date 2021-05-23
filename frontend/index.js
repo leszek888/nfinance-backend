@@ -63,6 +63,8 @@ function drawTransactions(transactions) {
     table_header_amount.classList.add('transactions-amount-header');
     table_header_row.classList.add('transactions-header');
 
+    transactions_table.classList.add('transactions-rows-wrapper');
+
     table_header_row.appendChild(table_header_date);
     table_header_row.appendChild(table_header_payee);
     table_header_row.appendChild(table_header_account);

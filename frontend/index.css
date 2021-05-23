@@ -1,5 +1,6 @@
 .transaction-input {
-    border: solid 1px #ccc;
+    border: solid 1px transparent;
+    background: transparent;
     padding: 4px;
     width: 100%;
     outline: none;
@@ -7,13 +8,23 @@
 
 .transaction-input:focus {
     border-color: #555;
+    background-color: #fefefe;
     width: 100%;
+}
+
+.transactions-rows-wrapper > div:nth-child(odd) {
 }
 
 .transaction-row-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    padding-bottom: 1em;
+    padding-bottom: 0.5em;
+    padding-top: 0.5em;
+    border-top: 1px solid #777777;
+}
+
+.transaction-row-wrapper:hover {
+    background-color: #f4f6fa;
 }
 
 .transaction-header-wrapper {
