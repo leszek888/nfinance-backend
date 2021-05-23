@@ -41,7 +41,6 @@ function drawTransactions(transactions) {
     content += '<table>';
 
     for (let transaction of transactions['transactions']) {
-        console.log(transaction);
         content += '<tr>';
         content += '<td>'+transaction.date+'</td>';
         content += '<td>'+transaction.payee+'</td>';
@@ -75,43 +74,18 @@ function send_transaction() {
                               'payee' : payee,
                               'date' : date,
                               'entries' : [ entry1, entry2 ] };
-        console.log(transaction);
         sendTransaction(transaction);
     }
 }
-
-/*
-getParameters = () => {
-    address = window.location.search;
-    param_list = new URLSearchParams(address);
-
-    let map = new Map();
-
-    param_list.forEach((value, key) => { map.set(key, value); })
-
-    return map;
-}
-
-const params = getParameters();
-
-if (params) {
-    console.log(params.get('balance_id'));
-    main_div.innerHTML = '';
-    main_div.innerHTML += '<a href="add_transaction.html?balance_id='+params.get('balance_id')+
-               '">Add Transaction</a>';
-}
-else {
-    console.log("No params");
-    main_div.innerHTML = '';
-}
-*/
 
 function getNewBalance() {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-            let data = JSON.parse(this.responseText);
+            const data = JSON.parse(this.responseText);
+            if ('message' in data) {
+                console.log(data['message'])
+            }
             BALANCE_ID = data['balance_id'];
             updateContentWithBalance();
         }
@@ -125,6 +99,10 @@ function sendTransaction(trans) {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
+            const data = JSON.parse(this.responseText);
+            if ('message' in data) {
+                console.log(data['message'])
+            }
             updateTransactions();
         }
     };
@@ -138,7 +116,13 @@ function updateTransactions() {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            drawTransactions(JSON.parse(this.responseText));
+            const data = JSON.parse(this.responseText);
+            console.log(data);
+            if ('message' in data) {
+                console.log(data['message'])
+            }
+            else
+                drawTransactions(JSON.parse(this.responseText));
         }
     };
 
