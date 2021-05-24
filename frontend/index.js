@@ -57,6 +57,13 @@ function createTransactionButton(text) {
     return button;
 }
 
+function addEntry(event) {
+    const parent = event.currentTarget.parentNode.parentNode;
+    const last_element = event.currentTarget.parentNode;
+
+    parent.insertBefore(drawEntryRow('',''), last_element);
+}
+
 function editTransaction(event) {
     EDITED_TRANSACTION = event.currentTarget;
 
@@ -107,6 +114,27 @@ function saveTransaction(event) {
 function cancelEditing() {
     if (LOADED_TRANSACTIONS)
         drawTransactions(LOADED_TRANSACTIONS);
+}
+
+function drawEntryRow(account, amount) {
+    const transaction_entries_row = document.createElement('div');
+    const transaction_entries_account = document.createElement('div');
+    const transaction_entries_amount = document.createElement('div');
+
+    const transaction_entries_account_input = createTransactionInput();
+    const transaction_entries_amount_input = createTransactionInput();
+
+    transaction_entries_account_input.value = account;
+    transaction_entries_amount_input.value = amount;
+    transaction_entries_amount_input.classList.add('entry-amount');
+
+    transaction_entries_account.appendChild(transaction_entries_account_input);
+    transaction_entries_amount.appendChild(transaction_entries_amount_input);
+
+    transaction_entries_row.appendChild(transaction_entries_account);
+    transaction_entries_row.appendChild(transaction_entries_amount);
+
+    return transaction_entries_row;
 }
 
 function drawTransactions(transactions) {
@@ -168,25 +196,16 @@ function drawTransactions(transactions) {
         transaction_header_payee.appendChild(transaction_header_payee_input);
 
         for (const entry of transaction.entries) {
-            const transaction_entries_row = document.createElement('div');
-            const transaction_entries_account = document.createElement('div');
-            const transaction_entries_amount = document.createElement('div');
-
-            const transaction_entries_account_input = createTransactionInput();
-            const transaction_entries_amount_input = createTransactionInput();
-
-            transaction_entries_account_input.value = entry.account;
-            transaction_entries_amount_input.value = entry.amount;
-            transaction_entries_amount_input.classList.add('entry-amount');
-
-            transaction_entries_account.appendChild(transaction_entries_account_input);
-            transaction_entries_amount.appendChild(transaction_entries_amount_input);
-
-            transaction_entries_row.appendChild(transaction_entries_account);
-            transaction_entries_row.appendChild(transaction_entries_amount);
-
-            transaction_entries.appendChild(transaction_entries_row);
+            transaction_entries.appendChild(drawEntryRow(entry.account, entry.amount));
         }
+
+        const transaction_entries_row = document.createElement('div');
+        const transaction_entries_add_button = createTransactionButton('Add Entry');
+
+        transaction_entries_add_button.addEventListener('click', addEntry);
+
+        transaction_entries_row.appendChild(transaction_entries_add_button);
+        transaction_entries.appendChild(transaction_entries_row);
 
         const transaction_buttons_div = document.createElement('div');
         const transaction_save_button = createTransactionButton('Save'); 
@@ -259,8 +278,8 @@ function sendTransaction(trans) {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const data = JSON.parse(this.responseText);
-            if ('message' in data) {
-                console.log(data['message'])
+            if ('error' in data) {
+                console.log(data['error'])
             }
             updateTransactions();
         }
@@ -276,8 +295,8 @@ function updateTransactions() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const data = JSON.parse(this.responseText);
-            if ('message' in data) {
-                console.log(data['message'])
+            if ('error' in data) {
+                console.log(data['error'])
             }
             else {
                 LOADED_TRANSACTIONS = JSON.parse(this.responseText);
@@ -298,8 +317,8 @@ function deleteTransaction() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const data = JSON.parse(this.responseText);
-            if ('message' in data) {
-                console.log(data['message'])
+            if ('error' in data) {
+                console.log(data['error'])
             }
             updateTransactions();
         }

@@ -64,18 +64,6 @@ def create_transaction():
 
     return jsonify(saveTransaction(data))
 
-'''
-@app.route('/transaction/edit', methods=['PUT'])
-@cross_origin()
-def edit_transaction():
-    data = request.get_json()
-
-    if 'id' not in data:
-        return jsonify({'error' : 'Transaction ID not specified. Query aborted.'})
-    else:
-        return jsonify(saveTransaction(data))
-'''
-
 @app.route('/transaction/list/<balance_id>', methods=['GET'])
 @cross_origin()
 def get_transactions(balance_id):
@@ -171,6 +159,9 @@ def saveTransaction(transaction):
         balance_amount = Decimal(0.0)
 
         for entry in entries:
+            if len(entry['account']) == 0 and len(entry['amount']) == 0:
+                continue
+
             entry_amount = None
             entry['amount'] = str(entry.get('amount', 0.0)).replace(',', '.')
 
@@ -208,6 +199,9 @@ def saveTransaction(transaction):
 
     if entries is not None:
         for entry in entries:
+            if len(entry['account']) == 0 and len(entry['amount']) == 0:
+                continue
+
             new_entry = Entry(transaction_id = submitted_transaction.id,
                               account = entry['account'],
                               amount = entry['amount'])

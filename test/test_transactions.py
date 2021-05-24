@@ -102,6 +102,25 @@ class TransactionsTest(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertTrue('error' in response.json)
 
+    def test_ignore_empty_entries_when_validating_transaction(self):
+        transaction = self.create_transaction_json(entries = [
+                                                        {'account' : 'Debit',
+                                                         'amount' : '5' },
+                                                        {'account' : 'Credit',
+                                                         'amount' : '-5' },
+                                                        {'account' : '',
+                                                         'amount' : ''},
+                                                   ])
+
+        response = self.app.post('/transaction/save',
+                                 headers={"Content-Type":"application/json"},
+                                 data=transaction)
+
+        self.assertEqual(200, response.status_code)
+        self.assertFalse('error' in response.json)
+        self.assertEqual(1, len(Transactions.query.all()))
+        self.assertEqual(2, len(Entry.query.all()))
+
     def test_allow_amounts_with_both_commas_and_dots(self):
         transaction = self.create_transaction_json(entries = [
                                                         {'account' : 'Debit',
