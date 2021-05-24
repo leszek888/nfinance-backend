@@ -96,6 +96,10 @@ function drawAccounts(accounts) {
     let depth = 0;
     accounts = parseAccounts(accounts['accounts']);
 
+    while (accounts_div.firstChild) {
+        accounts_div.removeChild(accounts_div.lastChild);
+    }
+
     const accounts_table = document.createElement('div');
     accounts_table.classList.add('accounts-wrapper');
 

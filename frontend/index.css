@@ -49,12 +49,9 @@ body {
     background-color: #f3f3f3;
 }
 
-/*
 .account-depth-0 {
-    background-color: #ccddff;
     font-weight: bold;
 }
-*/
 
 .account-row {
     display: grid;
