@@ -1,10 +1,29 @@
-.transaction-input:disabled {
+.transaction-row-wrapper input {
     border: solid 1px transparent;
     background: transparent;
     padding: 4px;
     width: 100%;
     outline: none;
     color: #222;
+    pointer-events: none;
+}
+
+.transaction-row-wrapper .transaction-button {
+    visibility: hidden;
+}
+
+.edited-transaction input {
+    border: solid 1px #888;
+    background: white;
+    padding: 4px;
+    width: 100%;
+    outline: none;
+    color: #222;
+    pointer-events: auto;
+}
+
+.edited-transaction .transaction-button {
+    visibility: visible;
 }
 
 .transaction-input:focus {
@@ -19,6 +38,7 @@
     padding-bottom: 0.5em;
     padding-top: 0.5em;
     border-top: 1px solid #777777;
+    position: relative;
 }
 
 .transaction-row-wrapper:hover {
@@ -65,4 +85,14 @@
 
 .transactions-amount-header {
     text-align: right;
+}
+
+.edited-transaction {
+    background-color: #f4f6fa;
+}
+
+.transaction-buttons-wrapper {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
 }

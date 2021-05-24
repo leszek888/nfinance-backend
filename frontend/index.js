@@ -2,6 +2,7 @@ let BALANCE_ID = null
 const main_div = document.getElementById("main_content");
 const transactions_div = document.getElementById("transactions_div");
 
+let DISPLAYED_TRANSACTIONS = null;
 let EDITED_TRANSACTION = null;
 
 if (BALANCE_ID == null) {
@@ -42,13 +43,61 @@ function updateContentWithBalance() {
 function createTransactionInput() {
     const input = document.createElement('input');
     input.classList.add('transaction-input');
-    input.disabled = true;
+    // input.disabled = true;
 
     return input;
 }
 
+function createTransactionButton(text) {
+    const button = document.createElement('button');
+    button.classList.add('transaction-button');
+    button.innerText = text;
+
+    return button;
+}
+
 function editTransaction(event) {
-    // TODO
+    EDITED_TRANSACTION = event.currentTarget;
+
+    const inputs = transactions_div.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.disabled = true;
+    });
+
+    EDITED_TRANSACTION.querySelectorAll('input').forEach(input => {
+        input.disabled = false;
+    });
+
+    DISPLAYED_TRANSACTIONS.forEach(transaction => {
+        transaction.classList.remove('edited-transaction');
+    });
+    EDITED_TRANSACTION.classList.add('edited-transaction');
+}
+
+function saveTransaction(event) {
+    transaction_row = event.currentTarget.parentNode.parentNode;
+
+    const inputs = transaction_row.querySelectorAll('input');
+    let values = []
+
+    inputs.forEach(input => {
+        values.push(input.value);
+    });
+
+    let transaction = {};
+    transaction['id'] = transaction_row.id;
+    transaction['balance_id'] = BALANCE_ID;
+    transaction['date'] = values[0];
+    transaction['payee'] = values[1];
+    transaction['entries'] = [];
+
+    for (let i=2; i!=values.length; i+=2) {
+        let entry = {};
+        entry['account'] = values[i];
+        entry['amount'] = values[i+1];
+        transaction['entries'].push(entry);
+    }
+    sendTransaction(transaction);
 }
 
 function drawTransactions(transactions) {
@@ -84,10 +133,13 @@ function drawTransactions(transactions) {
 
         const transaction_header_date = document.createElement('div');
         const transaction_header_payee = document.createElement('div');
+        const transaction_header_buttons = document.createElement('div');
 
         transaction_row.id = transaction.id;
-        transaction_row.addEventListener('click', editTransaction);
+        transaction_row.addEventListener('mousedown', editTransaction);
         transaction_row.classList.add('transaction-row-wrapper');
+        transaction_row.classList.add('transaction-row');
+
         transaction_header.classList.add('transaction-header-wrapper');
         transaction_entries.classList.add('transaction-entries-wrapper');
 
@@ -96,10 +148,10 @@ function drawTransactions(transactions) {
 
         transaction_header.appendChild(transaction_header_date);
         transaction_header.appendChild(transaction_header_payee);
+        transaction_header.appendChild(transaction_header_buttons);
 
         const transaction_header_date_input = createTransactionInput();
         const transaction_header_payee_input = createTransactionInput();
-
         transaction_header_date_input.value = transaction.date;
         transaction_header_payee_input.value = transaction.payee;
 
@@ -115,7 +167,7 @@ function drawTransactions(transactions) {
             const transaction_entries_amount_input = createTransactionInput();
 
             transaction_entries_account_input.value = entry.account;
-            transaction_entries_amount_input.value = entry.amount.toFixed(2);
+            transaction_entries_amount_input.value = entry.amount;
             transaction_entries_amount_input.classList.add('entry-amount');
 
             transaction_entries_account.appendChild(transaction_entries_account_input);
@@ -127,6 +179,14 @@ function drawTransactions(transactions) {
             transaction_entries.appendChild(transaction_entries_row);
         }
 
+        const transaction_buttons_div = document.createElement('div');
+        const transaction_save_button = createTransactionButton('Save'); 
+
+        transaction_save_button.addEventListener('click', saveTransaction);
+        transaction_buttons_div.classList.add('transaction-buttons-wrapper');
+        transaction_buttons_div.appendChild(transaction_save_button);
+
+        transaction_row.appendChild(transaction_buttons_div);
         transactions_table.appendChild(transaction_row);
     }
 
@@ -186,7 +246,7 @@ function sendTransaction(trans) {
         }
     };
 
-    xhttp.open("POST", "http://localhost:5000/transaction/new", true);
+    xhttp.open("POST", "http://localhost:5000/transaction/save", true);
     xhttp.setRequestHeader("Content-Type", "application/json");
     xhttp.send(JSON.stringify(trans));
 }
@@ -199,8 +259,11 @@ function updateTransactions() {
             if ('message' in data) {
                 console.log(data['message'])
             }
-            else
+            else {
+                console.log(JSON.parse(this.responseText));
                 drawTransactions(JSON.parse(this.responseText));
+                DISPLAYED_TRANSACTIONS = transactions_div.querySelectorAll(".transaction-row");
+            }
         }
     };
 

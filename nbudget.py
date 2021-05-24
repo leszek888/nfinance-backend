@@ -57,86 +57,12 @@ def get_balance(balance_id):
 
     return jsonify({'error' : 'Balance not found.'})
 
-@app.route('/transaction/new', methods=['POST'])
+@app.route('/transaction/save', methods=['POST'])
 @cross_origin()
 def create_transaction():
     data = request.get_json()
 
     return jsonify(saveTransaction(data))
-
-    '''
-    # Validate Balance
-    if 'balance_id' in data:
-        balance = Balance.query.filter_by(public_id=data['balance_id']).first()
-        if not balance:
-            return jsonify({'error' : 'Balance not found. Transaction rejected.'})
-    else:
-        return jsonify({'error' : 'Balance not found. Transaction rejected.'})
-
-    # Validate Payee
-    if 'payee' in data:
-        if len(data['payee']) == 0:
-            return jsonify({'error' : 'Payee not specified. Transaction rejected.'})
-    else:
-        return jsonify({'error' : 'Payee not specified. Transaction rejected.'})
-
-    # Validate Date
-    if 'date' in data:
-        date = data['date']
-        date = date.split('-')
-
-        if len(date) == 3:
-            try:
-                date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
-            except ValueError:
-                return jsonify({'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'})
-        else:
-            return jsonify({'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'})
-    else:
-        return jsonify({'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'})
-
-    entries = None
-    # Validate Entries
-    if 'entries' in data:
-        entries = data['entries']
-        balance_amount = Decimal(0.0)
-
-        for entry in entries:
-            entry_amount = None
-            formatted_amount = str(entry.get('amount', 0.0)).replace(',', '.')
-
-            try:
-                entry_amount = Decimal(formatted_amount)
-            except InvalidOperation:
-                return jsonify({'error' : 'Couldnt read the amount. Transaction rejected.'})
-
-            balance_amount += Decimal(entry_amount)
-
-            if len(entry.get('account', '')) == 0:
-                return jsonify({'error' : 'Account not specified. Transaction rejected.'})
-
-        if balance_amount != Decimal(0.0):
-            return jsonify({'error' : 'Transaction not balanced. Transaction rejected.'})
-    else:
-        return jsonify({'error' : 'Entries not specified. Transaction rejected.'})
-
-
-    # Submit Transaction
-    transaction = Transactions(balance_id = data['balance_id'],
-                              payee = data['payee'],
-                              date = date)
-    db.session.add(transaction)
-    db.session.commit()
-
-    if entries is not None:
-        for entry in entries:
-            new_entry = Entry(transaction_id = transaction.id,
-                              account = entry['account'],
-                              amount = entry['amount'])
-            db.session.add(new_entry)
-    db.session.commit()
-
-    return jsonify({'message' : 'Transaction saved.'})
 
 '''
 @app.route('/transaction/edit', methods=['PUT'])
@@ -148,6 +74,7 @@ def edit_transaction():
         return jsonify({'error' : 'Transaction ID not specified. Query aborted.'})
     else:
         return jsonify(saveTransaction(data))
+'''
 
 @app.route('/transaction/list/<balance_id>', methods=['GET'])
 @cross_origin()
@@ -245,14 +172,14 @@ def saveTransaction(transaction):
 
         for entry in entries:
             entry_amount = None
-            formatted_amount = str(entry.get('amount', 0.0)).replace(',', '.')
+            entry['amount'] = str(entry.get('amount', 0.0)).replace(',', '.')
 
             try:
-                entry_amount = Decimal(formatted_amount)
+                entry_amount = Decimal(entry['amount'])
             except InvalidOperation:
                 return {'error' : 'Couldnt read the amount. Transaction rejected.'}
 
-            balance_amount += Decimal(entry_amount)
+            balance_amount += entry_amount
 
             if len(entry.get('account', '')) == 0:
                 return {'error' : 'Account not specified. Transaction rejected.'}
