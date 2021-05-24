@@ -50,9 +50,12 @@ body {
     background-color: #f4f6fa;
 }
 
+.transaction-row-wrapper div {
+}
+
 .transaction-header-wrapper {
     display: grid;
-    grid-template-columns: 1fr 4fr;
+    grid-template-columns: 4fr 8fr;
     padding: 2px;
 }
 
@@ -63,7 +66,7 @@ body {
 
 .transaction-entries-wrapper > div {
     display: grid;
-    grid-template-columns: 10fr 3fr 1fr;
+    grid-template-columns: 8fr 3fr 1fr;
     padding: 2px;
 }
 
@@ -78,7 +81,7 @@ body {
 
 .transactions-header {
     display: grid;
-    grid-template-columns: 4fr 16fr 15fr 5fr;
+    grid-template-columns: 4fr 8fr 8fr 3fr 1fr;
 }
 
 .transactions-header > div {

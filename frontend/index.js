@@ -1,3 +1,5 @@
+"use strict";
+
 let BALANCE_ID = null
 const main_div = document.getElementById("main_content");
 const transactions_div = document.getElementById("transactions_div");
@@ -35,7 +37,7 @@ function displayPopup(message) {
         setTimeout(function() {
             document.body.removeChild(popup);
         }, 2000);
-    }, 2000);
+    }, 3000);
 
     if ('error' in message) {
         popup.classList.add('error-message');
@@ -102,7 +104,6 @@ function editTransaction(event) {
         input.disabled = false;
     });
 
-    console.log(DISPLAYED_TRANSACTIONS);
     DISPLAYED_TRANSACTIONS.forEach(transaction => {
         transaction.classList.remove('edited-transaction');
     });
@@ -157,6 +158,9 @@ function removeEntry(event) {
 }
 
 function drawEntryRow(account, amount) {
+    if (amount) {
+        amount = amount.toFixed(2);
+    }
     const transaction_entries_row = document.createElement('div');
     const transaction_entries_account = document.createElement('div');
     const transaction_entries_amount = document.createElement('div');
@@ -191,6 +195,7 @@ function drawTransactions(transactions) {
     const table_header_payee = document.createElement('div');
     const table_header_account = document.createElement('div');
     const table_header_amount = document.createElement('div');
+    const table_header_filler = document.createElement('div');
 
     table_header_date.innerText = 'Date';
     table_header_payee.innerText = 'Payee';
@@ -206,6 +211,7 @@ function drawTransactions(transactions) {
     table_header_row.appendChild(table_header_payee);
     table_header_row.appendChild(table_header_account);
     table_header_row.appendChild(table_header_amount);
+    table_header_row.appendChild(table_header_filler);
 
     transactions_table.appendChild(table_header_row);
 
@@ -319,8 +325,6 @@ function getNewBalance() {
 }
 
 function sendTransaction(trans) {
-    console.log('Sending transaction:');
-    console.log(trans);
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -358,8 +362,6 @@ function updateTransactions() {
 
 function deleteTransaction() {
     const trans = createTransactionFromInputs(EDITED_TRANSACTION);
-    console.log("DELETING:");
-    console.log(trans);
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
