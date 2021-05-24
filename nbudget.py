@@ -34,6 +34,7 @@ class Transactions(db.Model):
 class Entry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     transaction_id = db.Column(db.Integer)
+    balance_id = db.Column(db.Integer)
     account = db.Column(db.String(50))
     amount = db.Column(db.String)
 
@@ -113,8 +114,8 @@ def deleteTransaction():
 
             db.session.delete(transaction)
             db.session.commit()
-            return {'message' : 'Transaction deleted.'}
-    return {'error' : 'Query not understood.'}
+            return jsonify({'message' : 'Transaction deleted.'})
+    return jsonify({'error' : 'Query not understood.'})
 
 
 @app.route('/')
@@ -209,9 +210,36 @@ def saveTransaction(transaction):
                 continue
 
             new_entry = Entry(transaction_id = submitted_transaction.id,
+                              balance_id = transaction['balance_id'],
                               account = entry['account'],
                               amount = entry['amount'])
             db.session.add(new_entry)
     db.session.commit()
     return {'message' : 'Transaction saved.'}
 
+@app.route('/accounts', methods=['GET'])
+@cross_origin()
+def getAccounts():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({'error': 'No balance specified.'})
+
+    if 'balance_id' not in data:
+        return jsonify({'error': 'No balance specified.'})
+
+    entries = Entry.query.filter_by(balance_id=data['balance_id'])
+
+    accounts = []
+
+    for entry in entries:
+        account_found = False
+        for account in accounts:
+            if account['name'] == entry.account:
+                account['balance'] += entry.amount
+                account_found = True
+        if not account_found:
+            accounts.append({'name':entry.account,
+                             'balance':entry.amount})
+
+    return {'accounts' : accounts}

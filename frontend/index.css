@@ -40,7 +40,6 @@ body {
 .transaction-row-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    padding-bottom: 0.5em;
     padding-top: 0.5em;
     border-top: 1px solid #777777;
     position: relative;
@@ -86,7 +85,7 @@ body {
 
 .transactions-header > div {
     padding: 2px;
-    background-color: #555599;
+    background-color: #224466;
     color: #f6f6f6;
     font-family: arial, helvetica, sans-serif;
 }
