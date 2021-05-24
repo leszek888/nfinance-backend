@@ -36,7 +36,24 @@ class Entry(db.Model):
     transaction_id = db.Column(db.Integer)
     balance_id = db.Column(db.Integer)
     account = db.Column(db.String(50))
-    amount = db.Column(db.String)
+    amount = db.Column(db.Numeric)
+
+def getFormattedDecimal(num):
+    dec = str(num).split('.')
+    formatted_number = None
+
+    if len(dec) > 1:
+        dec[1] = dec[1].rstrip('0')
+        formatted_number = dec[0] + '.' + dec[1]
+
+        if len(dec[1]) == 0:
+            formatted_number += '00'
+        if len(dec[1]) == 1:
+            formatted_number += '0'
+    else:
+        formatted_number = dec[0] + '.00'
+
+    return formatted_number
 
 @app.route('/balance/<balance_id>', methods=['GET'])
 @cross_origin()
@@ -87,7 +104,7 @@ def get_transactions(balance_id):
         for entry in entries:
             fetched_entries.append({
                 'account' : entry.account,
-                'amount' : entry.amount
+                'amount' : getFormattedDecimal(entry.amount)
             })
         fetched_transaction['entries'] = fetched_entries
         formatted_transactions.append(fetched_transaction)
@@ -217,7 +234,7 @@ def saveTransaction(transaction):
     db.session.commit()
     return {'message' : 'Transaction saved.'}
 
-@app.route('/accounts', methods=['GET'])
+@app.route('/accounts', methods=['POST'])
 @cross_origin()
 def getAccounts():
     data = request.get_json()
@@ -241,5 +258,8 @@ def getAccounts():
         if not account_found:
             accounts.append({'name':entry.account,
                              'balance':entry.amount})
+
+    for account in accounts:
+        account['balance'] = getFormattedDecimal(account['balance'])
 
     return {'accounts' : accounts}

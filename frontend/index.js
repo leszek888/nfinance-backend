@@ -1,9 +1,10 @@
 "use strict";
 
-let BALANCE_ID = null
 const main_div = document.getElementById("main_content");
 const transactions_div = document.getElementById("transactions_div");
+const accounts_div = document.getElementById("accounts_div");
 
+let BALANCE_ID = null
 let DISPLAYED_TRANSACTIONS = null;
 let EDITED_TRANSACTION = null;
 let LOADED_TRANSACTIONS = null;
@@ -23,6 +24,14 @@ function fetchBalance() {
         updateContentWithBalance();
         updateTransactions();
     }
+}
+
+function drawAccounts(accounts) {
+    let content = ''
+    accounts['accounts'].forEach(account => {
+        content += account['name'] + ', ' + account['balance'] + '<br />';
+    });
+    accounts_div.innerHTML = content;
 }
 
 function displayPopup(message) {
@@ -158,9 +167,6 @@ function removeEntry(event) {
 }
 
 function drawEntryRow(account, amount) {
-    if (amount) {
-        amount = amount.toFixed(2);
-    }
     const transaction_entries_row = document.createElement('div');
     const transaction_entries_account = document.createElement('div');
     const transaction_entries_amount = document.createElement('div');
@@ -352,12 +358,36 @@ function updateTransactions() {
             else {
                 LOADED_TRANSACTIONS = JSON.parse(this.responseText);
                 drawTransactions(LOADED_TRANSACTIONS);
+                updateAccounts();
             }
         }
     };
 
     xhttp.open("GET", "http://localhost:5000/transaction/list/"+BALANCE_ID, true);
     xhttp.send();
+}
+
+function updateAccounts() {
+    const xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            const data = JSON.parse(this.responseText);
+            if ('error' in data || 'message' in data) {
+                displayPopup(data);
+            }
+            else {
+                drawAccounts(data);
+            }
+        }
+    };
+
+    let balance = {};
+    balance['balance_id'] = BALANCE_ID;
+
+    xhttp.open("POST", "http://localhost:5000/accounts", true);
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.send(JSON.stringify(balance));
 }
 
 function deleteTransaction() {
