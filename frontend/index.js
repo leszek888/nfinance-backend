@@ -23,6 +23,32 @@ function fetchBalance() {
     }
 }
 
+function displayPopup(message) {
+    const popup = document.createElement('div');
+    const msg = document.createElement('span');
+    
+    popup.classList.add('popup-message');
+    popup.classList.add('animated');
+
+    setTimeout(function() {
+        popup.classList.add('fadeOut');
+        setTimeout(function() {
+            document.body.removeChild(popup);
+        }, 2000);
+    }, 2000);
+
+    if ('error' in message) {
+        popup.classList.add('error-message');
+        msg.innerHTML = '<b>ERROR:</b> '+message['error'];
+    }
+    else if ('message' in message) {
+        msg.innerHTML = '<b>INFO:</b> '+message['message'];
+    }
+
+    popup.appendChild(msg);
+    document.body.appendChild(popup);
+}
+
 function updateContentWithBalance() {
     let conent = '';
     content = '';
@@ -259,9 +285,10 @@ function getNewBalance() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const data = JSON.parse(this.responseText);
-            if ('message' in data) {
-                console.log(data['message'])
+            if ('error' in data || 'message' in data) {
+                displayPopup(data);
             }
+
             BALANCE_ID = data['balance_id'];
             updateContentWithBalance();
         }
@@ -278,8 +305,8 @@ function sendTransaction(trans) {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const data = JSON.parse(this.responseText);
-            if ('error' in data) {
-                console.log(data['error'])
+            if ('error' in data || 'message' in data) {
+                displayPopup(data);
             }
             updateTransactions();
         }
@@ -295,8 +322,8 @@ function updateTransactions() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const data = JSON.parse(this.responseText);
-            if ('error' in data) {
-                console.log(data['error'])
+            if ('error' in data || 'message' in data) {
+                displayPopup(data);
             }
             else {
                 LOADED_TRANSACTIONS = JSON.parse(this.responseText);
@@ -317,8 +344,8 @@ function deleteTransaction() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const data = JSON.parse(this.responseText);
-            if ('error' in data) {
-                console.log(data['error'])
+            if ('error' in data || 'message' in data) {
+                displayPopup(data);
             }
             updateTransactions();
         }

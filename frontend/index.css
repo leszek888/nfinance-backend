@@ -1,3 +1,8 @@
+body {
+    font-family: arial, verdana, sans-serif;
+    font-size: 11pt;
+}
+
 .transaction-row-wrapper input {
     border: solid 1px transparent;
     background: transparent;
@@ -95,4 +100,44 @@
     position: absolute;
     bottom: 2px;
     left: 2px;
+}
+
+.popup-message {
+    position: fixed;
+    top: 5px;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 30%;
+    padding: 5px;
+    background-color: #eeffee;
+    border: solid 5px #44aa44;
+    transition: all 2s;
+    visibility: visible;
+}
+
+.error-message {
+    border-color: #aa4444;
+    background-color: #ffdddd;
+}
+
+.animated {
+    -webkit-animation-duration: 1s;animation-duration: 1s;
+    -webkit-animation-fill-mode: both;animation-fill-mode: both;
+}
+
+@-webkit-keyframes fadeOut {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}
+ 
+@keyframes fadeOut {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}
+ 
+.fadeOut {
+    -webkit-animation-name: fadeOut;
+    animation-name: fadeOut;
 }
