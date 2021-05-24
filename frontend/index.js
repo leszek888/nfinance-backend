@@ -18,6 +18,10 @@ if (BALANCE_ID == null) {
     main_div.innerHTML = content;
 }
 
+function formatNumber(number) {
+    return Intl.NumberFormat('de-DE', {style: 'currency', currency: 'EUR'}).format(number);
+}
+
 function parseAccounts(accounts) {
     let parsed_accounts = [];
 
@@ -65,6 +69,8 @@ function fetchBalance() {
 function traverseAccounts(account, depth, parent) {
     const account_row = drawAccountRow(account['name'], account['balance']);
     account_row.style.paddingLeft = depth * 20;
+    if (depth > 1)
+        account_row.style.color = '#666666';
     account_row.classList.add('account-depth-'+depth);
     parent.appendChild(account_row);
 
@@ -83,7 +89,7 @@ function drawAccountRow(account_name, balance, parent) {
     account_row_balance.classList.add('entry-amount');
     account_row.classList.add('account-row');
     account_row_name.innerText = account_name;
-    account_row_balance.innerText = balance;
+    account_row_balance.innerText = formatNumber(balance);
 
     account_row.appendChild(account_row_name);
     account_row.appendChild(account_row_balance);
