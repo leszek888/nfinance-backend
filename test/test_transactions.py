@@ -153,6 +153,25 @@ class TransactionsTest(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertFalse('error' in response.json)
 
+    def test_allow_transaction_with_one_missing_amount_and_calc_the_balance_out(self):
+        transaction = self.create_transaction_json(entries = [
+                                                        {'account' : 'Debit',
+                                                         'amount' : '32.25' },
+                                                        {'account' : 'Credit',
+                                                         'amount' : '' }
+                                                   ])
+
+        response = self.app.post('/transaction/save',
+                                 headers={"Content-Type":"application/json"},
+                                 data=transaction)
+
+        balanced_entry = Entry.query.filter_by(account='Credit').first()
+
+        self.assertEqual(200, response.status_code)
+        self.assertFalse('error' in response.json)
+        self.assertEqual(-32.25, balanced_entry.amount)
+
+
     def test_reject_unbalanced_transaction(self):
         transaction = self.create_transaction_json(entries = [
                                                         {'account' : 'Debit',

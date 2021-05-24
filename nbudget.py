@@ -172,6 +172,8 @@ def saveTransaction(transaction):
 
     entries = None
     valid_entries = 0
+    missing_amount = None
+
     # Validate Entries
     if 'entries' in transaction:
         entries = transaction['entries']
@@ -184,6 +186,14 @@ def saveTransaction(transaction):
             entry_amount = None
             entry['amount'] = str(entry.get('amount', 0.0)).replace(',', '.')
 
+            if len(entry['amount']) == 0:
+                if missing_amount == None:
+                    missing_amount = entry
+                    valid_entries += 1
+                    continue
+                else:
+                    return {'error' : 'Couldnt read the amount. Transaction rejected.'}
+
             try:
                 entry_amount = Decimal(entry['amount'])
             except InvalidOperation:
@@ -194,6 +204,10 @@ def saveTransaction(transaction):
             if len(entry.get('account', '')) == 0:
                 return {'error' : 'Account not specified. Transaction rejected.'}
             valid_entries += 1
+
+        if missing_amount:
+            missing_amount['amount'] = balance_amount * -1
+            balance_amount += missing_amount['amount']
 
         if balance_amount != Decimal(0.0):
             return {'error' : 'Transaction not balanced. Transaction rejected.'}

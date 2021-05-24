@@ -45,6 +45,22 @@ body {
     position: relative;
 }
 
+.accounts-wrapper > div:nth-child(odd) {
+    background-color: #f3f3f3;
+}
+
+/*
+.account-depth-0 {
+    background-color: #ccddff;
+    font-weight: bold;
+}
+*/
+
+.account-row {
+    display: grid;
+    grid-template-columns: 7fr 1fr;
+}
+
 .transaction-row-wrapper:hover {
     background-color: #f4f6fa;
 }
@@ -76,6 +92,15 @@ body {
 .transactions-table {
     margin: auto;
     width: 1260px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+#accounts_div {
+    margin: auto;
+    width: 1260px;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 .transactions-header {

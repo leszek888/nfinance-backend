@@ -18,6 +18,42 @@ if (BALANCE_ID == null) {
     main_div.innerHTML = content;
 }
 
+function parseAccounts(accounts) {
+    let parsed_accounts = [];
+
+    accounts.forEach(account => {
+        let sub_accounts = account['name'].split(':');
+
+        addAccount(sub_accounts, parseFloat(account['balance']), parsed_accounts);
+    });
+
+    return parsed_accounts;
+}
+
+function addAccount(accounts, balance, array) {
+
+    let account = {};
+    let account_found = false;
+    
+    account['name'] = accounts.shift();
+    account['balance'] = balance;
+    account['sub_accounts'] = [];
+
+    array.forEach(element => {
+        if (element['name'] == account['name']) {
+            account_found = true;
+            element['balance'] += account['balance'];
+            addAccount(accounts, balance, element['sub_accounts']);
+        }
+    });
+
+    if (!account_found) {
+        array.push(account);
+        if (accounts.length > 0)
+            addAccount(accounts, balance, account['sub_accounts']);
+    }
+}
+
 function fetchBalance() {
     BALANCE_ID = document.getElementById('balance_id_input').value;
     if (BALANCE_ID.length == 36) {
@@ -26,12 +62,50 @@ function fetchBalance() {
     }
 }
 
+function traverseAccounts(account, depth, parent) {
+    const account_row = drawAccountRow(account['name'], account['balance']);
+    account_row.style.paddingLeft = depth * 20;
+    account_row.classList.add('account-depth-'+depth);
+    parent.appendChild(account_row);
+
+    if (account['sub_accounts'].length > 0) {
+        account['sub_accounts'].forEach(sub_account => {
+            traverseAccounts(sub_account, depth+1, parent);
+        });
+    }
+}
+
+function drawAccountRow(account_name, balance, parent) {
+    const account_row = document.createElement('div');
+    const account_row_name = document.createElement('div');
+    const account_row_balance = document.createElement('div');
+
+    account_row_balance.classList.add('entry-amount');
+    account_row.classList.add('account-row');
+    account_row_name.innerText = account_name;
+    account_row_balance.innerText = balance;
+
+    account_row.appendChild(account_row_name);
+    account_row.appendChild(account_row_balance);
+    
+    return account_row;
+}
+
 function drawAccounts(accounts) {
-    let content = ''
-    accounts['accounts'].forEach(account => {
-        content += account['name'] + ', ' + account['balance'] + '<br />';
+    let content = '';
+    let depth = 0;
+    accounts = parseAccounts(accounts['accounts']);
+
+    const accounts_table = document.createElement('div');
+    accounts_table.classList.add('accounts-wrapper');
+
+    accounts.forEach(account => {
+        traverseAccounts(account, 0, accounts_table);
     });
-    accounts_div.innerHTML = content;
+
+    console.log(accounts_table);
+
+    accounts_div.appendChild(accounts_table);
 }
 
 function displayPopup(message) {
