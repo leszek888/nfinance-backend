@@ -63,7 +63,7 @@ body {
 
 .transaction-entries-wrapper > div {
     display: grid;
-    grid-template-columns: 3fr 1fr;
+    grid-template-columns: 10fr 3fr 1fr;
     padding: 2px;
 }
 

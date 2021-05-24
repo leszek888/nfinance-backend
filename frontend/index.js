@@ -142,23 +142,43 @@ function cancelEditing() {
         drawTransactions(LOADED_TRANSACTIONS);
 }
 
+function removeEntry(event) {
+    const entries_table = event.currentTarget.parentNode.parentNode.parentNode;
+    const clicked_entry = event.currentTarget.parentNode.parentNode;
+    const entries_amount = entries_table.children.length;
+    if (entries_amount > 3)
+        entries_table.removeChild(clicked_entry);
+    else {
+        const inputs = clicked_entry.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.value = '';
+        });
+    }
+}
+
 function drawEntryRow(account, amount) {
     const transaction_entries_row = document.createElement('div');
     const transaction_entries_account = document.createElement('div');
     const transaction_entries_amount = document.createElement('div');
+    const transaction_entries_delete = document.createElement('div');
 
     const transaction_entries_account_input = createTransactionInput();
     const transaction_entries_amount_input = createTransactionInput();
+    const transaction_entries_delete_button = createTransactionButton('X');
 
     transaction_entries_account_input.value = account;
     transaction_entries_amount_input.value = amount;
     transaction_entries_amount_input.classList.add('entry-amount');
 
+    transaction_entries_delete_button.addEventListener('click', removeEntry);
+
     transaction_entries_account.appendChild(transaction_entries_account_input);
     transaction_entries_amount.appendChild(transaction_entries_amount_input);
+    transaction_entries_delete.appendChild(transaction_entries_delete_button);
 
     transaction_entries_row.appendChild(transaction_entries_account);
     transaction_entries_row.appendChild(transaction_entries_amount);
+    transaction_entries_row.appendChild(transaction_entries_delete);
 
     return transaction_entries_row;
 }

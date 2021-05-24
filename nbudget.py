@@ -153,6 +153,7 @@ def saveTransaction(transaction):
         return {'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'}
 
     entries = None
+    valid_entries = 0
     # Validate Entries
     if 'entries' in transaction:
         entries = transaction['entries']
@@ -174,11 +175,16 @@ def saveTransaction(transaction):
 
             if len(entry.get('account', '')) == 0:
                 return {'error' : 'Account not specified. Transaction rejected.'}
+            valid_entries += 1
 
         if balance_amount != Decimal(0.0):
             return {'error' : 'Transaction not balanced. Transaction rejected.'}
     else:
         return {'error' : 'Entries not specified. Transaction rejected.'}
+
+    if valid_entries < 2:
+        return {'error' : 'At least 2 entries have to be specified. Transaction rejected.'}
+
 
     # Submit Transaction
     submitted_transaction = None
