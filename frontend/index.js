@@ -4,6 +4,7 @@ const transactions_div = document.getElementById("transactions_div");
 
 let DISPLAYED_TRANSACTIONS = null;
 let EDITED_TRANSACTION = null;
+let LOADED_TRANSACTIONS = null;
 
 if (BALANCE_ID == null) {
     let content = '';
@@ -74,10 +75,8 @@ function editTransaction(event) {
     EDITED_TRANSACTION.classList.add('edited-transaction');
 }
 
-function saveTransaction(event) {
-    transaction_row = event.currentTarget.parentNode.parentNode;
-
-    const inputs = transaction_row.querySelectorAll('input');
+function createTransactionFromInputs(row) {
+    const inputs = row.querySelectorAll('input');
     let values = []
 
     inputs.forEach(input => {
@@ -85,7 +84,7 @@ function saveTransaction(event) {
     });
 
     let transaction = {};
-    transaction['id'] = transaction_row.id;
+    transaction['id'] = row.id;
     transaction['balance_id'] = BALANCE_ID;
     transaction['date'] = values[0];
     transaction['payee'] = values[1];
@@ -97,7 +96,16 @@ function saveTransaction(event) {
         entry['amount'] = values[i+1];
         transaction['entries'].push(entry);
     }
-    sendTransaction(transaction);
+    return transaction;
+}
+
+function saveTransaction(event) {
+    sendTransaction(createTransactionFromInputs(event.currentTarget.parentNode.parentNode));
+}
+
+function cancelEditing() {
+    if (LOADED_TRANSACTIONS)
+        drawTransactions(LOADED_TRANSACTIONS);
 }
 
 function drawTransactions(transactions) {
@@ -181,10 +189,14 @@ function drawTransactions(transactions) {
 
         const transaction_buttons_div = document.createElement('div');
         const transaction_save_button = createTransactionButton('Save'); 
+        const transaction_cancel_button = createTransactionButton('Cancel'); 
 
         transaction_save_button.addEventListener('click', saveTransaction);
+        transaction_cancel_button.addEventListener('click', cancelEditing);
+
         transaction_buttons_div.classList.add('transaction-buttons-wrapper');
         transaction_buttons_div.appendChild(transaction_save_button);
+        transaction_buttons_div.appendChild(transaction_cancel_button);
 
         transaction_row.appendChild(transaction_buttons_div);
         transactions_table.appendChild(transaction_row);
@@ -235,6 +247,8 @@ function getNewBalance() {
 }
 
 function sendTransaction(trans) {
+    console.log('Sending transaction:');
+    console.log(trans);
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -260,8 +274,8 @@ function updateTransactions() {
                 console.log(data['message'])
             }
             else {
-                console.log(JSON.parse(this.responseText));
-                drawTransactions(JSON.parse(this.responseText));
+                LOADED_TRANSACTIONS = JSON.parse(this.responseText);
+                drawTransactions(LOADED_TRANSACTIONS);
                 DISPLAYED_TRANSACTIONS = transactions_div.querySelectorAll(".transaction-row");
             }
         }
