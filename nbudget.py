@@ -85,7 +85,7 @@ def get_transactions(balance_id):
     if not Balance.query.filter_by(public_id=balance_id).first():
         return jsonify({'error' : 'Balance not found.'})
 
-    transactions = Transactions.query.filter_by(balance_id=balance_id).order_by(date).order_by(id);
+    transactions = Transactions.query.filter_by(balance_id=balance_id).order_by(Transactions.date.desc()).order_by(Transactions.id.desc());
     formatted_transactions = []
 
     for transaction in transactions:
