@@ -166,6 +166,31 @@ class TransactionsTest(unittest.TestCase):
         self.assertEqual(str(transaction.date), "2020-12-31")
         self.assertEqual(3, len(entries))
 
+    def test_delete_transaction(self):
+        transaction = self.create_transaction_json()
+
+        response = self.app.post('/transaction/new',
+                                 headers={"Content-Type":"application/json"},
+                                 data=transaction)
+
+        response = self.app.post('/transaction/new',
+                                 headers={"Content-Type":"application/json"},
+                                 data=transaction)
+
+        self.assertEqual(2, len(Transactions.query.all()))
+        self.assertEqual(4, len(Entry.query.all()))
+
+        transaction_to_delete = json.dumps({ 'id' : Transactions.query.first().id,
+                                  'balance_id' : Transactions.query.first().balance_id })
+
+        response = self.app.delete('/transaction/delete',
+                                 headers={"Content-Type":"application/json"},
+                                 data=transaction_to_delete)
+
+        self.assertEqual(200, response.status_code)
+        self.assertFalse('error' in response.json)
+        self.assertEqual(1, len(Transactions.query.all()))
+        self.assertEqual(2, len(Entry.query.all()))
 
     def test_list_all_transaction(self):
         for i in range(0, 5):

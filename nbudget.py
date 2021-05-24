@@ -178,6 +178,30 @@ def get_transactions(balance_id):
 
     return jsonify({'transactions' : formatted_transactions})
 
+@app.route('/transaction/delete', methods=['DELETE'])
+@cross_origin()
+def deleteTransaction():
+    data = request.get_json()
+
+    if 'balance_id' in data:
+        balance = Balance.query.filter_by(public_id=data['balance_id']).first()
+        if not balance:
+            return {'error' : 'Balance not found.'}
+    if 'id' in data:
+        transaction = Transactions.query.filter_by(id=data['id']).first()
+        if not transaction:
+            return {'error' : 'Transaction not found.'}
+        else:
+            entries = Entry.query.filter_by(transaction_id=data['id'])
+            for entry in entries:
+                db.session.delete(entry)
+
+            db.session.delete(transaction)
+            db.session.commit()
+            return {'message' : 'Transaction deleted.'}
+    return {'error' : 'Query not understood.'}
+
+
 @app.route('/')
 def index():
     return "Index"

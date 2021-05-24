@@ -46,6 +46,10 @@ function createTransactionInput() {
     return input;
 }
 
+function editTransaction(event) {
+    // TODO
+}
+
 function drawTransactions(transactions) {
     const transactions_table = document.createElement('div');
 
@@ -81,6 +85,7 @@ function drawTransactions(transactions) {
         const transaction_header_payee = document.createElement('div');
 
         transaction_row.id = transaction.id;
+        transaction_row.addEventListener('click', editTransaction);
         transaction_row.classList.add('transaction-row-wrapper');
         transaction_header.classList.add('transaction-header-wrapper');
         transaction_entries.classList.add('transaction-entries-wrapper');
@@ -109,7 +114,7 @@ function drawTransactions(transactions) {
             const transaction_entries_amount_input = createTransactionInput();
 
             transaction_entries_account_input.value = entry.account;
-            transaction_entries_amount_input.value = entry.amount;
+            transaction_entries_amount_input.value = entry.amount.toFixed(2);
             transaction_entries_amount_input.classList.add('entry-amount');
 
             transaction_entries_account.appendChild(transaction_entries_account_input);
