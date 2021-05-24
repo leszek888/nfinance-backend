@@ -191,13 +191,16 @@ function drawTransactions(transactions) {
         const transaction_buttons_div = document.createElement('div');
         const transaction_save_button = createTransactionButton('Save'); 
         const transaction_cancel_button = createTransactionButton('Cancel'); 
+        const transaction_delete_button = createTransactionButton('Delete'); 
 
         transaction_save_button.addEventListener('click', saveTransaction);
         transaction_cancel_button.addEventListener('click', cancelEditing);
+        transaction_delete_button.addEventListener('click', deleteTransaction);
 
         transaction_buttons_div.classList.add('transaction-buttons-wrapper');
         transaction_buttons_div.appendChild(transaction_save_button);
         transaction_buttons_div.appendChild(transaction_cancel_button);
+        transaction_buttons_div.appendChild(transaction_delete_button);
 
         transaction_row.appendChild(transaction_buttons_div);
         transactions_table.appendChild(transaction_row);
@@ -285,4 +288,24 @@ function updateTransactions() {
 
     xhttp.open("GET", "http://localhost:5000/transaction/list/"+BALANCE_ID, true);
     xhttp.send();
+}
+
+function deleteTransaction() {
+    const trans = createTransactionFromInputs(EDITED_TRANSACTION);
+    console.log("DELETING:");
+    console.log(trans);
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            const data = JSON.parse(this.responseText);
+            if ('message' in data) {
+                console.log(data['message'])
+            }
+            updateTransactions();
+        }
+    };
+
+    xhttp.open("DELETE", "http://localhost:5000/transaction/delete", true);
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.send(JSON.stringify(trans));
 }
