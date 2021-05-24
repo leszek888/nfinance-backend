@@ -1,18 +1,16 @@
-.transaction-input {
+.transaction-input:disabled {
     border: solid 1px transparent;
     background: transparent;
     padding: 4px;
     width: 100%;
     outline: none;
+    color: #222;
 }
 
 .transaction-input:focus {
     border-color: #555;
     background-color: #fefefe;
     width: 100%;
-}
-
-.transactions-rows-wrapper > div:nth-child(odd) {
 }
 
 .transaction-row-wrapper {

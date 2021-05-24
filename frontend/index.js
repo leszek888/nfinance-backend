@@ -42,6 +42,7 @@ function updateContentWithBalance() {
 function createTransactionInput() {
     const input = document.createElement('input');
     input.classList.add('transaction-input');
+    input.disabled = true;
 
     return input;
 }
