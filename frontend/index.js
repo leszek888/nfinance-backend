@@ -69,6 +69,7 @@ function editTransaction(event) {
         input.disabled = false;
     });
 
+    console.log(DISPLAYED_TRANSACTIONS);
     DISPLAYED_TRANSACTIONS.forEach(transaction => {
         transaction.classList.remove('edited-transaction');
     });
@@ -208,6 +209,8 @@ function drawTransactions(transactions) {
 
     transactions_div.classList.add('transactions-table');
     transactions_div.appendChild(transactions_table);
+
+    DISPLAYED_TRANSACTIONS = transactions_div.querySelectorAll(".transaction-row");
 }
 
 function send_transaction() {
@@ -276,7 +279,6 @@ function updateTransactions() {
             else {
                 LOADED_TRANSACTIONS = JSON.parse(this.responseText);
                 drawTransactions(LOADED_TRANSACTIONS);
-                DISPLAYED_TRANSACTIONS = transactions_div.querySelectorAll(".transaction-row");
             }
         }
     };
