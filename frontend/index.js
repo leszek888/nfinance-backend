@@ -105,7 +105,7 @@ function fetchBalance() {
 
 function traverseAccounts(account, depth, parent) {
     const account_row = drawAccountRow(account['name'], account['balance']);
-    account_row.style.paddingLeft = depth * 20;
+    account_row.style.paddingLeft = (depth+1)+'em';
     if (depth > 1)
         account_row.style.color = '#666666';
     account_row.classList.add('account-depth-'+depth);
@@ -207,8 +207,10 @@ function validateNumberInput(event) {
     if (validateFormattedNumber(input_field.value)) {
         input_field.value = formatNumber(input_field.value);
     }
-    else if (input_field.value.length > 0)
+    else if (input_field.value.length > 0) {
         input_field.classList.add('has-error');
+        return false;
+    }
 
     fillOutUnbalancedAmount();
 }
@@ -219,6 +221,7 @@ function fillOutUnbalancedAmount() {
     let unbalanced_amount = 0;
 
     amounts.forEach(amount => {
+        amount.placeholder = '';
         if (amount.value.length == 0 && first_free_field == null) {
             first_free_field = amount;
         }

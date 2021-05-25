@@ -3,6 +3,10 @@ body {
     font-size: 11pt;
 }
 
+input {
+    font-size: 11pt;
+}
+
 .transaction-row-wrapper input {
     border: solid 1px transparent;
     background: transparent;
@@ -66,6 +70,10 @@ body {
 }
 
 .account-row {
+    font-size: 14pt;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-right: 1em;
     display: grid;
     grid-template-columns: 7fr 1fr;
 }
@@ -100,14 +108,14 @@ body {
 
 .transactions-table {
     margin: auto;
-    width: 1260px;
+    width: 990px;
     margin-top: 1em;
     margin-bottom: 1em;
 }
 
 #accounts_div {
     margin: auto;
-    width: 500px;
+    width: 460px;
     margin-top: 1em;
     margin-bottom: 1em;
 }
