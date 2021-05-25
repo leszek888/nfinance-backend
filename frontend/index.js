@@ -21,13 +21,14 @@ if (BALANCE_ID == null) {
 }
 
 function formatNumber(number) {
-    console.log('formatting number: ' + number);
+    if (number.toString().length == 0)
+        return '';
+
     number = convertStringToFloat(number);
     return Intl.NumberFormat(NUMBER_LOCALE, {minimumFractionDigits: 2, maximumFractionDigits: 8}).format(number);
 }
 
 function validateFormattedNumber(number) {
-    console.log('validating: ' + number);
     number = number.replaceAll(' ', '');
     if (number.match(/^-?(([1-9]\d{0,2}(\.\d{3})*)|([1-9]\d*|0))(,\d+)?$/)) {
         return true;
@@ -36,14 +37,14 @@ function validateFormattedNumber(number) {
 }
 
 function convertStringToFloat(number) {
-    console.log('converting: ' + number);
+    number = number.toString().replaceAll(' ', '');
     if (validateFormattedNumber(number)) {
-        number = number.replaceAll(' ', '').replaceAll('.','').replaceAll(',','.');
+        number = number.replaceAll('.','').replaceAll(',','.');
     }
-    else {
-        number = parseFloat(number);
+    if (number.length == 0) {
+        return '';
     }
-    return number;
+    return parseFloat(number);
 }
 
 function parseAccounts(accounts) {
@@ -137,8 +138,6 @@ function drawAccounts(accounts) {
         traverseAccounts(account, 0, accounts_table);
     });
 
-    console.log(accounts_table);
-
     accounts_div.appendChild(accounts_table);
 }
 
@@ -197,12 +196,42 @@ function createTransactionInput() {
 function validateNumberInput(event) {
     const input_field = event.currentTarget;
 
+    input_field.classList.remove('has-error');
+
     if (validateFormattedNumber(input_field.value)) {
-        input_field.classList.remove('has-error');
         input_field.value = formatNumber(input_field.value);
     }
-    else
+    else if (input_field.value.length > 0)
         input_field.classList.add('has-error');
+
+    fillOutUnbalancedAmount();
+}
+
+function fillOutUnbalancedAmount() {
+    const amounts = EDITED_TRANSACTION.querySelectorAll('.entry-amount');
+    let first_free_field = null;
+    let unbalanced_amount = 0;
+
+    amounts.forEach(amount => {
+        if (amount.value.length == 0 && first_free_field == null) {
+            first_free_field = amount;
+        }
+        if (validateFormattedNumber(amount.value)) {
+            unbalanced_amount += convertStringToFloat(amount.value);
+        }
+    });
+
+    unbalanced_amount *= -1;
+
+    if (unbalanced_amount != 0) {
+        if (first_free_field != null)
+            first_free_field.placeholder = formatNumber(unbalanced_amount);
+        else {
+            addEntry();
+            fillOutUnbalancedAmount();
+        }
+
+    }
 }
 
 function createNumberInput() {
@@ -221,11 +250,10 @@ function createTransactionButton(text) {
     return button;
 }
 
-function addEntry(event) {
-    const parent = event.currentTarget.parentNode.parentNode;
-    const last_element = event.currentTarget.parentNode;
+function addEntry() {
+    const parent = EDITED_TRANSACTION.querySelector('.transaction-entries-wrapper');
 
-    parent.insertBefore(drawEntryRow('',''), last_element);
+    parent.insertBefore(drawEntryRow('',''), parent.lastChild);
 }
 
 function editTransaction(event) {
