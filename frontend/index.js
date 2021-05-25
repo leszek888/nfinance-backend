@@ -16,6 +16,7 @@ if (BALANCE_ID == null) {
     content += '<input type="button" onclick="getNewBalance()" value="Create New Balance" /><br /><br />';
     content += '<input type="text" id="balance_id_input" placeholder="Balance ID" />';
     content += '<input type="button" onclick="fetchBalance()" value="Load Balance" /><br />';
+    content += '<input type="button" onclick="addNewTransaction()" value="New Transaction" /><br />';
 
     main_div.innerHTML = content;
 }
@@ -81,6 +82,17 @@ function addAccount(accounts, balance, array) {
         if (accounts.length > 0)
             addAccount(accounts, balance, account['sub_accounts']);
     }
+}
+
+function addNewTransaction() {
+    const table = transactions_div.querySelector('.transactions-rows-wrapper');
+    const empty_transaction = {'date':'', 'payee':'', 'entries': [
+        {'account': '', 'amount':''},
+        {'account': '', 'amount':''},
+    ]};
+    const transaction_row = drawTransactionRow(empty_transaction);
+    table.insertBefore(transaction_row, table.children[1]);
+    editTransactionRow(transaction_row);
 }
 
 function fetchBalance() {
@@ -180,7 +192,7 @@ function updateContentWithBalance() {
             '<input id="am_1" type="text" placeholder="Amount 1" value="5" /><br />' +
             '<input id="acc_2" type="text" placeholder="Account 2" value="Credit" />' +
             '<input id="am_2" type="text" placeholder="Amount 2" value="-5" /><br />' +
-            '<input type="button" onclick="send_transaction()" value="Send Transaction"></input><br />';
+            '<input type="button" onclick="addNewTransaction()" value="Send Transaction"></input><br />';
 
     main_div.innerHTML = content;
 }
@@ -257,7 +269,11 @@ function addEntry() {
 }
 
 function editTransaction(event) {
-    EDITED_TRANSACTION = event.currentTarget;
+    editTransactionRow(event.currentTarget);
+}
+
+function editTransactionRow(transaction_row) {
+    EDITED_TRANSACTION = transaction_row;
 
     const inputs = transactions_div.querySelectorAll('input');
     inputs.forEach(input => {
@@ -283,7 +299,10 @@ function createTransactionFromInputs(row) {
     });
 
     let transaction = {};
-    transaction['id'] = row.id;
+    if (row.id != 'undefined') {
+        console.log("Should be called");
+        transaction['id'] = row.id;
+    }
     transaction['balance_id'] = BALANCE_ID;
     transaction['date'] = values[0];
     transaction['payee'] = values[1];
@@ -319,6 +338,7 @@ function removeEntry(event) {
             input.value = '';
         });
     }
+    fillOutUnbalancedAmount();
 }
 
 function drawEntryRow(account, amount) {
@@ -346,6 +366,69 @@ function drawEntryRow(account, amount) {
     transaction_entries_row.appendChild(transaction_entries_delete);
 
     return transaction_entries_row;
+}
+
+function drawTransactionRow(transaction) {
+    const transaction_row = document.createElement('div');
+    const transaction_header = document.createElement('div');
+    const transaction_entries = document.createElement('div');
+
+    const transaction_header_date = document.createElement('div');
+    const transaction_header_payee = document.createElement('div');
+    const transaction_header_buttons = document.createElement('div');
+
+    transaction_row.id = transaction.id;
+    transaction_row.addEventListener('mousedown', editTransaction);
+    transaction_row.classList.add('transaction-row-wrapper');
+    transaction_row.classList.add('transaction-row');
+
+    transaction_header.classList.add('transaction-header-wrapper');
+    transaction_entries.classList.add('transaction-entries-wrapper');
+
+    transaction_row.appendChild(transaction_header);
+    transaction_row.appendChild(transaction_entries);
+
+    transaction_header.appendChild(transaction_header_date);
+    transaction_header.appendChild(transaction_header_payee);
+    transaction_header.appendChild(transaction_header_buttons);
+
+    const transaction_header_date_input = createTransactionInput();
+    const transaction_header_payee_input = createTransactionInput();
+    transaction_header_date_input.value = transaction.date;
+    transaction_header_payee_input.value = transaction.payee;
+
+    transaction_header_date.appendChild(transaction_header_date_input);
+    transaction_header_payee.appendChild(transaction_header_payee_input);
+
+    for (const entry of transaction.entries) {
+        transaction_entries.appendChild(drawEntryRow(entry.account, entry.amount));
+    }
+
+    const transaction_entries_row = document.createElement('div');
+    const transaction_entries_add_button = createTransactionButton('Add Entry');
+
+    transaction_entries_add_button.addEventListener('click', addEntry);
+
+    transaction_entries_row.appendChild(transaction_entries_add_button);
+    transaction_entries.appendChild(transaction_entries_row);
+
+    const transaction_buttons_div = document.createElement('div');
+    const transaction_save_button = createTransactionButton('Save'); 
+    const transaction_cancel_button = createTransactionButton('Cancel'); 
+    const transaction_delete_button = createTransactionButton('Delete'); 
+
+    transaction_save_button.addEventListener('click', saveTransaction);
+    transaction_cancel_button.addEventListener('click', cancelEditing);
+    transaction_delete_button.addEventListener('click', deleteTransaction);
+
+    transaction_buttons_div.classList.add('transaction-buttons-wrapper');
+    transaction_buttons_div.appendChild(transaction_save_button);
+    transaction_buttons_div.appendChild(transaction_cancel_button);
+    transaction_buttons_div.appendChild(transaction_delete_button);
+
+    transaction_row.appendChild(transaction_buttons_div);
+
+    return transaction_row;
 }
 
 function drawTransactions(transactions) {
@@ -377,65 +460,7 @@ function drawTransactions(transactions) {
     transactions_table.appendChild(table_header_row);
 
     for (let transaction of transactions['transactions']) {
-        const transaction_row = document.createElement('div');
-        const transaction_header = document.createElement('div');
-        const transaction_entries = document.createElement('div');
-
-        const transaction_header_date = document.createElement('div');
-        const transaction_header_payee = document.createElement('div');
-        const transaction_header_buttons = document.createElement('div');
-
-        transaction_row.id = transaction.id;
-        transaction_row.addEventListener('mousedown', editTransaction);
-        transaction_row.classList.add('transaction-row-wrapper');
-        transaction_row.classList.add('transaction-row');
-
-        transaction_header.classList.add('transaction-header-wrapper');
-        transaction_entries.classList.add('transaction-entries-wrapper');
-
-        transaction_row.appendChild(transaction_header);
-        transaction_row.appendChild(transaction_entries);
-
-        transaction_header.appendChild(transaction_header_date);
-        transaction_header.appendChild(transaction_header_payee);
-        transaction_header.appendChild(transaction_header_buttons);
-
-        const transaction_header_date_input = createTransactionInput();
-        const transaction_header_payee_input = createTransactionInput();
-        transaction_header_date_input.value = transaction.date;
-        transaction_header_payee_input.value = transaction.payee;
-
-        transaction_header_date.appendChild(transaction_header_date_input);
-        transaction_header_payee.appendChild(transaction_header_payee_input);
-
-        for (const entry of transaction.entries) {
-            transaction_entries.appendChild(drawEntryRow(entry.account, entry.amount));
-        }
-
-        const transaction_entries_row = document.createElement('div');
-        const transaction_entries_add_button = createTransactionButton('Add Entry');
-
-        transaction_entries_add_button.addEventListener('click', addEntry);
-
-        transaction_entries_row.appendChild(transaction_entries_add_button);
-        transaction_entries.appendChild(transaction_entries_row);
-
-        const transaction_buttons_div = document.createElement('div');
-        const transaction_save_button = createTransactionButton('Save'); 
-        const transaction_cancel_button = createTransactionButton('Cancel'); 
-        const transaction_delete_button = createTransactionButton('Delete'); 
-
-        transaction_save_button.addEventListener('click', saveTransaction);
-        transaction_cancel_button.addEventListener('click', cancelEditing);
-        transaction_delete_button.addEventListener('click', deleteTransaction);
-
-        transaction_buttons_div.classList.add('transaction-buttons-wrapper');
-        transaction_buttons_div.appendChild(transaction_save_button);
-        transaction_buttons_div.appendChild(transaction_cancel_button);
-        transaction_buttons_div.appendChild(transaction_delete_button);
-
-        transaction_row.appendChild(transaction_buttons_div);
-        transactions_table.appendChild(transaction_row);
+        transactions_table.appendChild(drawTransactionRow(transaction));
     }
 
     while (transactions_div.firstChild) {
@@ -497,6 +522,7 @@ function sendTransaction(trans) {
         }
     };
 
+    console.log(trans);
     xhttp.open("POST", "http://localhost:5000/transaction/save", true);
     xhttp.setRequestHeader("Content-Type", "application/json");
     xhttp.send(JSON.stringify(trans));
