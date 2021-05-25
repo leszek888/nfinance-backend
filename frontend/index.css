@@ -27,6 +27,9 @@ body {
     pointer-events: auto;
 }
 
+.has-error {
+    border-color: red !important;
+}
 .edited-transaction .transaction-button {
     visibility: visible;
 }
@@ -150,7 +153,6 @@ body {
     -webkit-animation-duration: 1s;animation-duration: 1s;
     -webkit-animation-fill-mode: both;animation-fill-mode: both;
 }
-
 @-webkit-keyframes fadeOut {
     0% {opacity: 1;}
     100% {opacity: 0;}

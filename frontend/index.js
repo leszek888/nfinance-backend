@@ -4,6 +4,8 @@ const main_div = document.getElementById("main_content");
 const transactions_div = document.getElementById("transactions_div");
 const accounts_div = document.getElementById("accounts_div");
 
+const NUMBER_LOCALE = 'de-DE';
+
 let BALANCE_ID = null
 let DISPLAYED_TRANSACTIONS = null;
 let EDITED_TRANSACTION = null;
@@ -19,7 +21,29 @@ if (BALANCE_ID == null) {
 }
 
 function formatNumber(number) {
-    return Intl.NumberFormat('de-DE', {style: 'currency', currency: 'EUR'}).format(number);
+    console.log('formatting number: ' + number);
+    number = convertStringToFloat(number);
+    return Intl.NumberFormat(NUMBER_LOCALE, {minimumFractionDigits: 2, maximumFractionDigits: 8}).format(number);
+}
+
+function validateFormattedNumber(number) {
+    console.log('validating: ' + number);
+    number = number.replaceAll(' ', '');
+    if (number.match(/^-?(([1-9]\d{0,2}(\.\d{3})*)|([1-9]\d*|0))(,\d+)?$/)) {
+        return true;
+    }
+    return false;
+}
+
+function convertStringToFloat(number) {
+    console.log('converting: ' + number);
+    if (validateFormattedNumber(number)) {
+        number = number.replaceAll(' ', '').replaceAll('.','').replaceAll(',','.');
+    }
+    else {
+        number = parseFloat(number);
+    }
+    return number;
 }
 
 function parseAccounts(accounts) {
@@ -170,6 +194,25 @@ function createTransactionInput() {
     return input;
 }
 
+function validateNumberInput(event) {
+    const input_field = event.currentTarget;
+
+    if (validateFormattedNumber(input_field.value)) {
+        input_field.classList.remove('has-error');
+        input_field.value = formatNumber(input_field.value);
+    }
+    else
+        input_field.classList.add('has-error');
+}
+
+function createNumberInput() {
+    const input = document.createElement('input');
+    input.addEventListener('focusout', validateNumberInput);
+    input.classList.add('transaction-input');
+
+    return input;
+}
+
 function createTransactionButton(text) {
     const button = document.createElement('button');
     button.classList.add('transaction-button');
@@ -257,11 +300,11 @@ function drawEntryRow(account, amount) {
     const transaction_entries_delete = document.createElement('div');
 
     const transaction_entries_account_input = createTransactionInput();
-    const transaction_entries_amount_input = createTransactionInput();
+    const transaction_entries_amount_input = createNumberInput();
     const transaction_entries_delete_button = createTransactionButton('X');
 
     transaction_entries_account_input.value = account;
-    transaction_entries_amount_input.value = amount;
+    transaction_entries_amount_input.value = formatNumber(amount);
     transaction_entries_amount_input.classList.add('entry-amount');
 
     transaction_entries_delete_button.addEventListener('click', removeEntry);
