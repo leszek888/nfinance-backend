@@ -186,13 +186,7 @@ function updateContentWithBalance() {
     content += BALANCE_ID;
 
     content += '<br />' +
-            '<input id="payee" type="text" placeholder="Date" value="Payee" /><br />' +
-            '<input id="date" type="text" placeholder="Payee" value="2020-05-01" /><br />' +
-            '<input id="acc_1" type="text" placeholder="Account 1" value="Debit" />' +
-            '<input id="am_1" type="text" placeholder="Amount 1" value="5" /><br />' +
-            '<input id="acc_2" type="text" placeholder="Account 2" value="Credit" />' +
-            '<input id="am_2" type="text" placeholder="Amount 2" value="-5" /><br />' +
-            '<input type="button" onclick="addNewTransaction()" value="Send Transaction"></input><br />';
+            '<input type="button" onclick="addNewTransaction()" value="New Transaction"></input><br />';
 
     main_div.innerHTML = content;
 }
@@ -324,6 +318,8 @@ function saveTransaction(event) {
 function cancelEditing() {
     if (LOADED_TRANSACTIONS)
         drawTransactions(LOADED_TRANSACTIONS);
+    else
+        drawTransactions(null);
 }
 
 function removeEntry(event) {
@@ -366,6 +362,15 @@ function drawEntryRow(account, amount) {
     transaction_entries_row.appendChild(transaction_entries_delete);
 
     return transaction_entries_row;
+}
+
+function drawEmptyTransactionRow() {
+    const transaction_row = document.createElement('div');
+    transaction_row.classList.add('empty-transaction-row');
+    transaction_row.classList.add('transaction-row');
+
+    transaction_row.innerText = 'No transactions found.';
+    return transaction_row;
 }
 
 function drawTransactionRow(transaction) {
@@ -459,8 +464,13 @@ function drawTransactions(transactions) {
 
     transactions_table.appendChild(table_header_row);
 
-    for (let transaction of transactions['transactions']) {
-        transactions_table.appendChild(drawTransactionRow(transaction));
+    if (transactions) {
+        for (let transaction of transactions['transactions']) {
+            transactions_table.appendChild(drawTransactionRow(transaction));
+        }
+    }
+    else {
+        transactions_table.appendChild(drawEmptyTransactionRow());
     }
 
     while (transactions_div.firstChild) {
@@ -503,6 +513,7 @@ function getNewBalance() {
 
             BALANCE_ID = data['balance_id'];
             updateContentWithBalance();
+            drawTransactions(null);
         }
     };
 

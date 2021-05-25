@@ -17,6 +17,14 @@ body {
     visibility: hidden;
 }
 
+.empty-transaction-row {
+    vertical-align: middle;
+    border: 0px;
+    color: #888888;
+    padding: 1em;
+    text-align: center;
+}
+
 .edited-transaction input {
     border: solid 1px #888;
     background: white;
