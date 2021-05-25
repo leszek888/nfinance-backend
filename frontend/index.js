@@ -294,7 +294,6 @@ function createTransactionFromInputs(row) {
 
     let transaction = {};
     if (row.id != 'undefined') {
-        console.log("Should be called");
         transaction['id'] = row.id;
     }
     transaction['balance_id'] = BALANCE_ID;
@@ -305,7 +304,7 @@ function createTransactionFromInputs(row) {
     for (let i=2; i!=values.length; i+=2) {
         let entry = {};
         entry['account'] = values[i];
-        entry['amount'] = values[i+1];
+        entry['amount'] = convertStringToFloat(values[i+1]);
         transaction['entries'].push(entry);
     }
     return transaction;
