@@ -1,15 +1,38 @@
 "use strict";
 
-const main_div = document.getElementById("main_content");
-const transactions_div = document.createElement('div');
-const accounts_div = document.createElement('div');
-
+let main_div = null;
+let transactions_div = null;
+let accoutns_div = null;
 const NUMBER_LOCALE = 'de-DE';
-
 let BALANCE_ID = null
 let DISPLAYED_TRANSACTIONS = null;
 let EDITED_TRANSACTION = null;
 let LOADED_TRANSACTIONS = null;
+
+function initialize() {
+    main_div = document.getElementById("main_content");
+    transactions_div = document.createElement('div');
+    accounts_div = document.createElement('div');
+
+    if (getCookie('balance_id')) {
+        BALANCE_ID = getCookie('balance_id');
+        fetchBalance();
+    }
+    else {
+        console.log('Not logged in.');
+        window.location.replace('login.html');
+    }
+
+    if (BALANCE_ID == null) {
+        let content = '';
+        content += '<input type="button" onclick="getNewBalance()" value="Create New Balance" /><br /><br />';
+        content += '<input type="text" id="balance_id_input" placeholder="Balance ID" />';
+        content += '<input type="button" onclick="fetchBalance()" value="Load Balance" /><br />';
+        content += '<input type="button" onclick="addNewTransaction()" value="New Transaction" /><br />';
+
+        main_div.innerHTML = content;
+    }
+}
 
 function displayTransactions() {
     while (main_div.firstChild)
@@ -22,6 +45,7 @@ function displayBalance() {
         main_div.removeChild(main_div.lastChild);
     main_div.appendChild(accounts_div);
 }
+
 function getCookie(name) {
     const document_cookie = document.cookie;
     let cookie_value = null;
@@ -35,25 +59,6 @@ function getCookie(name) {
     });
 
     return cookie_value;
-}
-
-if (getCookie('balance_id')) {
-    BALANCE_ID = getCookie('balance_id');
-    fetchBalance();
-}
-else {
-    console.log('Not logged in.');
-    window.location.replace('login.html');
-}
-
-if (BALANCE_ID == null) {
-    let content = '';
-    content += '<input type="button" onclick="getNewBalance()" value="Create New Balance" /><br /><br />';
-    content += '<input type="text" id="balance_id_input" placeholder="Balance ID" />';
-    content += '<input type="button" onclick="fetchBalance()" value="Load Balance" /><br />';
-    content += '<input type="button" onclick="addNewTransaction()" value="New Transaction" /><br />';
-
-    main_div.innerHTML = content;
 }
 
 function formatNumber(number) {
@@ -227,9 +232,26 @@ function updateContentWithBalance() {
 
 function createTransactionInput() {
     const input = document.createElement('input');
-    input.type = 'text';
+
+    input.classList.add('data-field');
     input.classList.add('transaction-input');
-    // input.disabled = true;
+
+    return input;
+}
+
+function createTransactionTextInput() {
+    const input = createTransactionInput();
+
+    input.type = 'text';
+
+    return input;
+}
+
+function createTransactionNumberInput() {
+    const input = createTransactionTextInput();
+
+    input.classList.add('entry-amount');
+    input.addEventListener('focusout', validateNumberInput);
 
     return input;
 }
@@ -276,14 +298,6 @@ function fillOutUnbalancedAmount() {
         }
 
     }
-}
-
-function createNumberInput() {
-    const input = document.createElement('input');
-    input.addEventListener('focusout', validateNumberInput);
-    input.classList.add('transaction-input');
-
-    return input;
 }
 
 function createTransactionButton(text) {
@@ -384,13 +398,12 @@ function drawEntryRow(account, amount) {
     const transaction_entries_amount = document.createElement('div');
     const transaction_entries_delete = document.createElement('div');
 
-    const transaction_entries_account_input = createTransactionInput();
-    const transaction_entries_amount_input = createNumberInput();
+    const transaction_entries_account_input = createTransactionTextInput();
+    const transaction_entries_amount_input = createTransactionNumberInput();
     const transaction_entries_delete_button = createTransactionButton('X');
 
     transaction_entries_account_input.value = account;
     transaction_entries_amount_input.value = formatNumber(amount);
-    transaction_entries_amount_input.classList.add('entry-amount');
 
     transaction_entries_delete_button.addEventListener('click', removeEntry);
 
@@ -416,12 +429,14 @@ function drawEmptyTransactionRow() {
 
 function drawTransactionRow(transaction) {
     const transaction_row = document.createElement('div');
-    const transaction_header = document.createElement('div');
-    const transaction_entries = document.createElement('div');
+        const transaction_header = document.createElement('div');
+            const transaction_header_date = document.createElement('div');
+                const transaction_header_date_input = createTransactionTextInput();
+            const transaction_header_payee = document.createElement('div');
+                const transaction_header_payee_input = createTransactionTextInput();
+            const transaction_header_buttons = document.createElement('div');
 
-    const transaction_header_date = document.createElement('div');
-    const transaction_header_payee = document.createElement('div');
-    const transaction_header_buttons = document.createElement('div');
+        const transaction_entries = document.createElement('div');
 
     transaction_row.id = transaction.id;
     transaction_row.addEventListener('mousedown', editTransaction);
@@ -438,8 +453,6 @@ function drawTransactionRow(transaction) {
     transaction_header.appendChild(transaction_header_payee);
     transaction_header.appendChild(transaction_header_buttons);
 
-    const transaction_header_date_input = createTransactionInput();
-    const transaction_header_payee_input = createTransactionInput();
     transaction_header_date_input.value = transaction.date;
     transaction_header_payee_input.value = transaction.payee;
 
