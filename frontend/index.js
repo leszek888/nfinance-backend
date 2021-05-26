@@ -1,8 +1,8 @@
 "use strict";
 
 const main_div = document.getElementById("main_content");
-const transactions_div = document.getElementById("transactions_div");
-const accounts_div = document.getElementById("accounts_div");
+const transactions_div = document.createElement('div');
+const accounts_div = document.createElement('div');
 
 const NUMBER_LOCALE = 'de-DE';
 
@@ -11,7 +11,17 @@ let DISPLAYED_TRANSACTIONS = null;
 let EDITED_TRANSACTION = null;
 let LOADED_TRANSACTIONS = null;
 
+function displayTransactions() {
+    while (main_div.firstChild)
+        main_div.removeChild(main_div.lastChild);
+    main_div.appendChild(transactions_div);
+}
 
+function displayBalance() {
+    while (main_div.firstChild)
+        main_div.removeChild(main_div.lastChild);
+    main_div.appendChild(accounts_div);
+}
 function getCookie(name) {
     const document_cookie = document.cookie;
     let cookie_value = null;
