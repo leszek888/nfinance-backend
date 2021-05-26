@@ -217,6 +217,7 @@ function updateContentWithBalance() {
 
 function createTransactionInput() {
     const input = document.createElement('input');
+    input.type = 'text';
     input.classList.add('transaction-input');
     // input.disabled = true;
 
@@ -276,9 +277,10 @@ function createNumberInput() {
 }
 
 function createTransactionButton(text) {
-    const button = document.createElement('button');
+    const button = document.createElement('input');
+    button.type = 'button';
     button.classList.add('transaction-button');
-    button.innerText = text;
+    button.value = text;
 
     return button;
 }
@@ -316,7 +318,8 @@ function createTransactionFromInputs(row) {
     let values = []
 
     inputs.forEach(input => {
-        values.push(input.value);
+        if (input.type != 'button')
+            values.push(input.value);
     });
 
     let transaction = {};
@@ -356,8 +359,10 @@ function removeEntry(event) {
         entries_table.removeChild(clicked_entry);
     else {
         const inputs = clicked_entry.querySelectorAll('input');
+        console.log(inputs);
         inputs.forEach(input => {
-            input.value = '';
+            if (input.type != 'button')
+                input.value = '';
         });
     }
     fillOutUnbalancedAmount();
