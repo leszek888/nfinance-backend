@@ -11,6 +11,31 @@ let DISPLAYED_TRANSACTIONS = null;
 let EDITED_TRANSACTION = null;
 let LOADED_TRANSACTIONS = null;
 
+
+function getCookie(name) {
+    const document_cookie = document.cookie;
+    let cookie_value = null;
+    let cookies = document_cookie.split(';');
+
+    cookies.forEach(cookie => {
+        let cookie_name = cookie.split('=');
+        if (cookie_name[0] == name) {
+            cookie_value = cookie_name[1];
+        }
+    });
+
+    return cookie_value;
+}
+
+if (getCookie('balance_id')) {
+    BALANCE_ID = getCookie('balance_id');
+    fetchBalance();
+}
+else {
+    console.log('Not logged in.');
+    window.location.replace('login.html');
+}
+
 if (BALANCE_ID == null) {
     let content = '';
     content += '<input type="button" onclick="getNewBalance()" value="Create New Balance" /><br /><br />';
@@ -96,7 +121,6 @@ function addNewTransaction() {
 }
 
 function fetchBalance() {
-    BALANCE_ID = document.getElementById('balance_id_input').value;
     if (BALANCE_ID.length == 36) {
         updateContentWithBalance();
         updateTransactions();
