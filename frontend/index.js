@@ -6,7 +6,6 @@ let accoutns_div = null;
 const NUMBER_LOCALE = 'de-DE';
 let BALANCE_ID = null
 let DISPLAYED_TRANSACTIONS = null;
-let EDITED_TRANSACTION = null;
 let LOADED_TRANSACTIONS = null;
 
 function initialize() {
@@ -17,34 +16,72 @@ function initialize() {
     if (getCookie('balance_id')) {
         BALANCE_ID = getCookie('balance_id');
         fetchBalance();
+        displayBalance();
     }
     else {
         console.log('Not logged in.');
         window.location.replace('login.html');
     }
+}
 
-    if (BALANCE_ID == null) {
-        let content = '';
-        content += '<input type="button" onclick="getNewBalance()" value="Create New Balance" /><br /><br />';
-        content += '<input type="text" id="balance_id_input" placeholder="Balance ID" />';
-        content += '<input type="button" onclick="fetchBalance()" value="Load Balance" /><br />';
-        content += '<input type="button" onclick="addNewTransaction()" value="New Transaction" /><br />';
-
-        main_div.innerHTML = content;
-    }
+function selectLink(link_id) {
+    const nav_links = document.querySelectorAll('.nav-link');
+    nav_links.forEach(nav_link => {
+        console.log('removing');
+        nav_link.classList.remove('link-selected');
+    });
+    document.getElementById(link_id).classList.add('link-selected');
 }
 
 function displayTransactions() {
     while (main_div.firstChild)
         main_div.removeChild(main_div.lastChild);
+
+    selectLink('transactions-link');
+
+    const new_transaction_button = document.createElement('input');
+    new_transaction_button.type = 'button';
+    new_transaction_button.value = 'New Transaction';
+    new_transaction_button.addEventListener('click', addNewTransaction);
+
+    main_div.appendChild(new_transaction_button);
     main_div.appendChild(transactions_div);
 }
 
 function displayBalance() {
     while (main_div.firstChild)
         main_div.removeChild(main_div.lastChild);
+    selectLink('balance-link');
     main_div.appendChild(accounts_div);
+
 }
+
+function displayPopup(message) {
+    const popup = document.createElement('div');
+    const msg = document.createElement('span');
+    
+    popup.classList.add('popup-message');
+    popup.classList.add('animated');
+
+    setTimeout(function() {
+        popup.classList.add('fadeOut');
+        setTimeout(function() {
+            document.body.removeChild(popup);
+        }, 2000);
+    }, 3000);
+
+    if ('error' in message) {
+        popup.classList.add('error-message');
+        msg.innerHTML = '<b>ERROR:</b> '+message['error'];
+    }
+    else if ('message' in message) {
+        msg.innerHTML = '<b>INFO:</b> '+message['message'];
+    }
+
+    popup.appendChild(msg);
+    document.body.appendChild(popup);
+}
+
 
 function getCookie(name) {
     const document_cookie = document.cookie;
@@ -124,24 +161,6 @@ function addAccount(accounts, balance, array) {
     }
 }
 
-function addNewTransaction() {
-    const table = transactions_div.querySelector('.transactions-rows-wrapper');
-    const empty_transaction = {'date':'', 'payee':'', 'entries': [
-        {'account': '', 'amount':''},
-        {'account': '', 'amount':''},
-    ]};
-    const transaction_row = drawTransactionRow(empty_transaction);
-    table.insertBefore(transaction_row, table.children[1]);
-    editTransactionRow(transaction_row);
-}
-
-function fetchBalance() {
-    if (BALANCE_ID.length == 36) {
-        updateContentWithBalance();
-        updateTransactions();
-    }
-}
-
 function traverseAccounts(account, depth, parent) {
     const account_row = drawAccountRow(account['name'], account['balance']);
     account_row.style.paddingLeft = (depth+1)+'em';
@@ -192,42 +211,25 @@ function drawAccounts(accounts) {
     accounts_div.appendChild(accounts_table);
 }
 
-function displayPopup(message) {
-    const popup = document.createElement('div');
-    const msg = document.createElement('span');
-    
-    popup.classList.add('popup-message');
-    popup.classList.add('animated');
 
-    setTimeout(function() {
-        popup.classList.add('fadeOut');
-        setTimeout(function() {
-            document.body.removeChild(popup);
-        }, 2000);
-    }, 3000);
+function addNewTransaction() {
+    if (transactions_div.querySelector('#new-transaction'))
+        return;
 
-    if ('error' in message) {
-        popup.classList.add('error-message');
-        msg.innerHTML = '<b>ERROR:</b> '+message['error'];
-    }
-    else if ('message' in message) {
-        msg.innerHTML = '<b>INFO:</b> '+message['message'];
-    }
-
-    popup.appendChild(msg);
-    document.body.appendChild(popup);
+    const table = transactions_div.querySelector('.transactions-rows-wrapper');
+    const empty_transaction = {'id':'new-transaction','date':'', 'payee':'', 'entries': [
+        {'account': '', 'amount':''},
+        {'account': '', 'amount':''},
+    ]};
+    const transaction_row = drawTransactionRow(empty_transaction);
+    table.insertBefore(transaction_row, table.children[1]);
+    editTransactionRow(transaction_row);
 }
 
-function updateContentWithBalance() {
-    let conent = '';
-    content = '';
-    content += 'Balance ID fetched.<br />';
-    content += BALANCE_ID;
-
-    content += '<br />' +
-            '<input type="button" onclick="addNewTransaction()" value="New Transaction"></input><br />';
-
-    main_div.innerHTML = content;
+function fetchBalance() {
+    if (BALANCE_ID.length == 36) {
+        updateTransactions();
+    }
 }
 
 function createTransactionInput() {
@@ -235,6 +237,9 @@ function createTransactionInput() {
 
     input.classList.add('data-field');
     input.classList.add('transaction-input');
+    input.addEventListener('input', (e) => {
+        e.currentTarget.classList.remove('has-error');
+    });
 
     return input;
 }
@@ -251,53 +256,23 @@ function createTransactionNumberInput() {
     const input = createTransactionTextInput();
 
     input.classList.add('entry-amount');
-    input.addEventListener('focusout', validateNumberInput);
+    input.addEventListener('change', (e) => {
+        if (validateNumberInput(e.currentTarget))
+            fillOutUnbalancedAmount(e.currentTarget.closest('.transaction-row'));
+    });
 
     return input;
 }
 
-function validateNumberInput(event) {
-    const input_field = event.currentTarget;
+function createTransactionDateInput() {
+    const input = createTransactionTextInput();
 
-    input_field.classList.remove('has-error');
-
-    if (validateFormattedNumber(input_field.value)) {
-        input_field.value = formatNumber(input_field.value);
-    }
-    else if (input_field.value.length > 0) {
-        input_field.classList.add('has-error');
-        return false;
-    }
-
-    fillOutUnbalancedAmount();
-}
-
-function fillOutUnbalancedAmount() {
-    const amounts = EDITED_TRANSACTION.querySelectorAll('.entry-amount');
-    let first_free_field = null;
-    let unbalanced_amount = 0;
-
-    amounts.forEach(amount => {
-        amount.placeholder = '';
-        if (amount.value.length == 0 && first_free_field == null) {
-            first_free_field = amount;
-        }
-        if (validateFormattedNumber(amount.value)) {
-            unbalanced_amount += convertStringToFloat(amount.value);
-        }
+    input.classList.add('date-field');
+    input.addEventListener('change', (e) => {
+        validateDateInput(e.currentTarget);
     });
 
-    unbalanced_amount *= -1;
-
-    if (unbalanced_amount != 0) {
-        if (first_free_field != null)
-            first_free_field.placeholder = formatNumber(unbalanced_amount);
-        else {
-            addEntry();
-            fillOutUnbalancedAmount();
-        }
-
-    }
+    return input;
 }
 
 function createTransactionButton(text) {
@@ -309,8 +284,114 @@ function createTransactionButton(text) {
     return button;
 }
 
-function addEntry() {
-    const parent = EDITED_TRANSACTION.querySelector('.transaction-entries-wrapper');
+function validateNumberInput(input_field) {
+    input_field.classList.remove('has-error');
+
+    if (validateFormattedNumber(input_field.value)) {
+        input_field.value = formatNumber(input_field.value);
+        return true;
+    }
+    else if (input_field.value.length > 0) {
+        input_field.classList.add('has-error');
+        return false;
+    }
+    else if (input_field.placeholder.length > 0) {
+        if (validateFormattedNumber(input_field.placeholder))
+            return true;
+    }
+}
+
+function validateDateInput(input_field) {
+    const date_format = /^(\d{4})(-)(\d{1,2})(-)(\d{1,2})$/;
+    let date_string = input_field.value.trim();
+    let date_is_valid = true;
+
+    if(date_string.match(date_format)){      
+        const date_part = date_string.split('-');
+        if (date_part.length != 3)
+            date_is_valid = false;
+
+        const year = parseInt(date_part[0]);      
+        const month= parseInt(date_part[1]);      
+        const day = parseInt(date_part[2]);      
+              
+        const list_of_days = [31,28,31,30,31,30,31,31,30,31,30,31];      
+
+        if (day < 1)
+            date_is_valid = false;
+
+        if (month >= 1 && month <= 12 && month != 2) {
+            if (day>list_of_days[month-1])
+                date_is_valid = false;
+        }
+        else if (month==2) {      
+            let leap_year = false;
+
+            if ( (!(year % 4) && year % 100) || !(year % 400))
+                leap_year = true;
+
+            if ((leap_year == false) && (day>=29))
+                date_is_valid = false;
+            else {
+                if ((leap_year==true) && (day>29)){
+                    date_is_valid = false;
+                }
+            }
+        }
+        else
+            date_is_valid = false;
+    }
+    else {
+        console.log("Invalid date format!");
+        date_is_valid = false;
+    }
+
+    if (date_is_valid == false)
+        input_field.classList.add('has-error');
+
+    return date_is_valid;
+}
+
+function calculateTransactionBalance(transaction) {
+    const amounts = transaction.querySelectorAll('.entry-amount');
+
+    let unbalanced_amount = 0;
+
+    amounts.forEach(amount => {
+        if (validateFormattedNumber(amount.value)) {
+            unbalanced_amount += convertStringToFloat(amount.value);
+        }
+    });
+
+    return (unbalanced_amount *= -1);
+}
+
+function fillOutUnbalancedAmount(transaction) {
+    console.log(transaction);
+    const unbalanced_amount = calculateTransactionBalance(transaction);
+    const amounts = transaction.querySelectorAll('.entry-amount');
+
+    let first_free_field = null;
+
+    amounts.forEach(amount => {
+        amount.placeholder = '';
+        if (amount.value.length == 0 && first_free_field == null) {
+            first_free_field = amount;
+        }
+    });
+
+    if (unbalanced_amount != 0) {
+        if (first_free_field != null)
+            first_free_field.placeholder = formatNumber(unbalanced_amount);
+        else {
+            addEntry(transaction);
+            fillOutUnbalancedAmount(transaction);
+        }
+    }
+}
+
+function addEntry(transaction) {
+    const parent = transaction.querySelector('.transaction-entries-wrapper');
 
     parent.insertBefore(drawEntryRow('',''), parent.lastChild);
 }
@@ -320,24 +401,22 @@ function editTransaction(event) {
 }
 
 function editTransactionRow(transaction_row) {
-    EDITED_TRANSACTION = transaction_row;
-
     const inputs = transactions_div.querySelectorAll('input');
     inputs.forEach(input => {
         input.disabled = true;
     });
 
-    EDITED_TRANSACTION.querySelectorAll('input').forEach(input => {
+    transaction_row.querySelectorAll('input').forEach(input => {
         input.disabled = false;
     });
 
-    DISPLAYED_TRANSACTIONS.forEach(transaction => {
+    transactions_div.querySelectorAll('transaction-row').forEach(transaction => {
         transaction.classList.remove('edited-transaction');
     });
-    EDITED_TRANSACTION.classList.add('edited-transaction');
+    transaction_row.classList.add('edited-transaction');
 }
 
-function createTransactionFromInputs(row) {
+function extractDataFromTransactionRow(row) {
     const inputs = row.querySelectorAll('input');
     let values = []
 
@@ -347,7 +426,7 @@ function createTransactionFromInputs(row) {
     });
 
     let transaction = {};
-    if (row.id != 'undefined') {
+    if (row.id != 'new-transaction') {
         transaction['id'] = row.id;
     }
     transaction['balance_id'] = BALANCE_ID;
@@ -364,8 +443,45 @@ function createTransactionFromInputs(row) {
     return transaction;
 }
 
-function saveTransaction(event) {
-    sendTransaction(createTransactionFromInputs(event.currentTarget.parentNode.parentNode));
+function validateTransaction(transaction) {
+    const fields = transaction.querySelectorAll('.transaction-input');
+    let transaction_valid = true;
+    let first_invalid_field = null;
+
+    function setAsInvalid(field) {
+        if (first_invalid_field == null) {
+            first_invalid_field = field;
+            first_invalid_field.focus();
+        }
+        field.classList.add('has-error');
+    }
+
+    fields.forEach(field => {
+        if (field.classList.contains('entry-amount')) {
+            if (!validateNumberInput(field)) {
+                transaction_valid = false;
+                setAsInvalid(field);
+            }
+        }
+        else if (field.value.trim().length == 0) {
+            transaction_valid = false;
+            setAsInvalid(field);
+        }
+    });
+
+    return transaction_valid;
+}
+
+function deleteTransaction(transaction) {
+    sendDeleteTransactionRequest(extractDataFromTransactionRow(transaction));
+}
+
+function saveTransaction(transaction) {
+    console.log('save called');
+    if (validateTransaction(transaction)) {
+        console.log('validate ok');
+        sendTransaction(extractDataFromTransactionRow(transaction));
+    }
 }
 
 function cancelEditing() {
@@ -383,13 +499,14 @@ function removeEntry(event) {
         entries_table.removeChild(clicked_entry);
     else {
         const inputs = clicked_entry.querySelectorAll('input');
-        console.log(inputs);
         inputs.forEach(input => {
-            if (input.type != 'button')
+            if (input.type != 'button') {
                 input.value = '';
+                validateNumberInput(input);
+            }
         });
     }
-    fillOutUnbalancedAmount();
+    fillOutUnbalancedAmount(clicked_entry.closest('.transaction-row'));
 }
 
 function drawEntryRow(account, amount) {
@@ -431,7 +548,7 @@ function drawTransactionRow(transaction) {
     const transaction_row = document.createElement('div');
         const transaction_header = document.createElement('div');
             const transaction_header_date = document.createElement('div');
-                const transaction_header_date_input = createTransactionTextInput();
+                const transaction_header_date_input = createTransactionDateInput();
             const transaction_header_payee = document.createElement('div');
                 const transaction_header_payee_input = createTransactionTextInput();
             const transaction_header_buttons = document.createElement('div');
@@ -476,9 +593,9 @@ function drawTransactionRow(transaction) {
     const transaction_cancel_button = createTransactionButton('Cancel'); 
     const transaction_delete_button = createTransactionButton('Delete'); 
 
-    transaction_save_button.addEventListener('click', saveTransaction);
+    transaction_save_button.addEventListener('click', (e) => { saveTransaction(e.currentTarget.closest('.transaction-row')); });
     transaction_cancel_button.addEventListener('click', cancelEditing);
-    transaction_delete_button.addEventListener('click', deleteTransaction);
+    transaction_delete_button.addEventListener('click', (e) => { deleteTransaction(transaction_row); });
 
     transaction_buttons_div.classList.add('transaction-buttons-wrapper');
     transaction_buttons_div.appendChild(transaction_save_button);
@@ -576,6 +693,7 @@ function getNewBalance() {
 }
 
 function sendTransaction(trans) {
+    console.log("Send called");
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -636,8 +754,7 @@ function updateAccounts() {
     xhttp.send(JSON.stringify(balance));
 }
 
-function deleteTransaction() {
-    const trans = createTransactionFromInputs(EDITED_TRANSACTION);
+function sendDeleteTransactionRequest(transaction) {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
