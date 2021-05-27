@@ -360,8 +360,28 @@ function calculateTransactionBalance(transaction) {
     return (unbalanced_amount *= -1);
 }
 
+function validateTransactionBalance(transaction) {
+    const amounts = transaction.querySelectorAll('.entry-amount');
+    let unbalanced_amount = 0;
+
+    amounts.forEach(amount => {
+        if (validateFormattedNumber(amount.value)) {
+            unbalanced_amount += convertStringToFloat(amount.value);
+        }
+        else if (validateFormattedNumber(amount.placeholder)) {
+            unbalanced_amount += convertStringToFloat(amount.placeholder);
+        }
+    });
+
+    return unbalanced_amount;
+}
+
 function fillOutUnbalancedAmount(transaction) {
+    console.log('fillOut called for');
+    console.log(transaction);
+
     const unbalanced_amount = calculateTransactionBalance(transaction);
+    console.log(unbalanced_amount);
     const amounts = transaction.querySelectorAll('.entry-amount');
 
     let first_free_field = null;
@@ -437,7 +457,10 @@ function extractDataFromTransactionRow(row) {
 }
 
 function validateTransaction(transaction) {
-    const fields = transaction.querySelectorAll('.transaction-input');
+    const header = transaction.querySelector('.transaction-header-wrapper');
+    const entries = transaction.querySelectorAll('.entry-row');
+    const fields = header.querySelectorAll('.transaction-input');
+
     let transaction_valid = true;
     let first_invalid_field = null;
 
@@ -449,18 +472,51 @@ function validateTransaction(transaction) {
         field.classList.add('has-error');
     }
 
+    entries.forEach(entry => {
+        const entry_fields = entry.querySelectorAll('.transaction-input');
+        let all_fields_blank = true;
+
+        if (entry_fields[0].value.trim().length > 0)
+            all_fields_blank = false;
+        if (entry_fields[1].value.trim().length > 0 ||
+            entry_fields[1].placeholder.length > 0)
+            all_fields_blank = false;
+
+        if (!all_fields_blank) {
+            console.log('not all blank by');
+            console.log(entry);
+            entry_fields.forEach(entry_field => {
+                if (entry_field.classList.contains('entry-amount')) {
+                    if (!validateNumberInput(entry_field)) {
+                        transaction_valid = false;
+                        setAsInvalid(entry_field);
+                    }
+                }
+                else if (entry_field.value.trim().length == 0) {
+                    transaction_valid = false;
+                    setAsInvalid(entry_field);
+                }
+            });
+        }
+    });
+
     fields.forEach(field => {
-        if (field.classList.contains('entry-amount')) {
-            if (!validateNumberInput(field)) {
+        if (field.classList.contains('date-field')) {
+            if (!validateDateInput(field)) {
                 transaction_valid = false;
                 setAsInvalid(field);
             }
         }
-        else if (field.value.trim().length == 0) {
+        if (field.value.trim().length == 0) {
             transaction_valid = false;
             setAsInvalid(field);
         }
     });
+
+    if (validateTransactionBalance(transaction) != 0) {
+        displayPopup({'error':'Transaction is not balanced.'});
+        transaction_valid = false;
+    }
 
     return transaction_valid;
 }
@@ -485,6 +541,7 @@ function cancelEditing() {
 function removeEntry(event) {
     const entries_table = event.currentTarget.parentNode.parentNode.parentNode;
     const clicked_entry = event.currentTarget.parentNode.parentNode;
+    const transaction = event.currentTarget.closest('.transaction-row');
     const entries_amount = entries_table.children.length;
     if (entries_amount > 3)
         entries_table.removeChild(clicked_entry);
@@ -497,7 +554,7 @@ function removeEntry(event) {
             }
         });
     }
-    fillOutUnbalancedAmount(clicked_entry.closest('.transaction-row'));
+    fillOutUnbalancedAmount(transaction);
 }
 
 function drawEntryRow(account, amount) {
@@ -509,6 +566,8 @@ function drawEntryRow(account, amount) {
     const transaction_entries_account_input = createTransactionTextInput();
     const transaction_entries_amount_input = createTransactionNumberInput();
     const transaction_entries_delete_button = createTransactionButton('X');
+
+    transaction_entries_row.classList.add('.entry-row');
 
     transaction_entries_account_input.value = account;
     transaction_entries_amount_input.value = formatNumber(amount);
