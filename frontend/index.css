@@ -115,7 +115,7 @@ input {
     display: grid;
     grid-template-columns: 1fr 1fr;
     padding-top: 0.5em;
-    border-bottom: 1px solid #aaaaaa;
+    border-bottom: 1px solid #dddddd;
     position: relative;
     transition: all 0.25s;
 }

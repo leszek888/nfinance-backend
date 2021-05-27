@@ -522,6 +522,8 @@ function validateTransaction(transaction) {
 }
 
 function deleteTransaction(transaction) {
+    console.log('deleting');
+    console.log(transaction);
     sendDeleteTransactionRequest(extractDataFromTransactionRow(transaction));
 }
 
@@ -645,7 +647,7 @@ function drawTransactionRow(transaction) {
 
     transaction_save_button.addEventListener('click', (e) => { saveTransaction(e.currentTarget.closest('.transaction-row')); });
     transaction_cancel_button.addEventListener('click', cancelEditing);
-    transaction_delete_button.addEventListener('click', (e) => { deleteTransaction(transaction_row); });
+    transaction_delete_button.addEventListener('click', (e) => { deleteTransaction(e.currentTarget.closest('.transaction-row')); });
 
     transaction_buttons_div.classList.add('transaction-buttons-wrapper');
     transaction_buttons_div.appendChild(transaction_save_button);
@@ -815,5 +817,5 @@ function sendDeleteTransactionRequest(transaction) {
 
     xhttp.open("DELETE", "http://localhost:5000/transaction/delete", true);
     xhttp.setRequestHeader("Content-Type", "application/json");
-    xhttp.send(JSON.stringify(trans));
+    xhttp.send(JSON.stringify(transaction));
 }
