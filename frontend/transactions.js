@@ -97,6 +97,12 @@ var TRANSACTIONS = (function(tr) {
         return transaction_entries_row;
     }
 
+    tr.addEntry = (transaction) => {
+        const parent = transaction.querySelector('.transaction-entries-wrapper');
+
+        parent.insertBefore(tr.drawEntryRow('',''), parent.lastChild);
+    }
+
     tr.drawEmptyMessage = () => {
         const transaction_row = document.createElement('div');
         transaction_row.classList.add('empty-transaction-row');
@@ -285,14 +291,6 @@ var TRANSACTIONS = (function(tr) {
             }
         }
     }
-
-
-    tr.addEntry = (transaction) => {
-        const parent = transaction.querySelector('.transaction-entries-wrapper');
-
-        parent.insertBefore(tr.drawEntryRow('',''), parent.lastChild);
-    }
-
     tr.edit = (transaction_row) => {
         const inputs = document.querySelectorAll('.transaction-input');
         inputs.forEach(input => {
