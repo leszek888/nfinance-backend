@@ -636,101 +636,69 @@ function send_transaction() {
 }
 
 function getNewBalance() {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            const data = JSON.parse(this.responseText);
-            if ('error' in data || 'message' in data) {
-                displayPopup(data);
-            }
-
-            BALANCE_ID = data['balance_id'];
-            updateContentWithBalance();
-            drawTransactions(null);
-        }
-    };
-
-    xhttp.open("GET", "http://localhost:5000/balance/new", true);
-    xhttp.send();
+    sendRequest("GET", "http://localhost:5000/balance/new",
+                null,
+                (data) => {
+                    BALANCE_ID = data['balance_id'];
+                    updateContentWithBalance();
+                    drawTransactions(null);
+                }
+    );
 }
 
-function sendTransaction(trans) {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            const data = JSON.parse(this.responseText);
-            if ('error' in data || 'message' in data) {
-                displayPopup(data);
-            }
-            updateTransactions();
-        }
-    };
-
-    console.log(trans);
-    xhttp.open("POST", "http://localhost:5000/transaction/save", true);
-    xhttp.setRequestHeader("Content-Type", "application/json");
-    xhttp.send(JSON.stringify(trans));
+function sendTransaction(transaction) {
+    sendRequest("POST", "http://localhost:5000/transaction/save",
+                transaction,
+                (data) => {
+                    updateTransactions();
+                }
+    );
 }
 
 function updateTransactions() {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            const data = JSON.parse(this.responseText);
-            if ('error' in data || 'message' in data) {
-                displayPopup(data);
-            }
-            else {
-                LOADED_TRANSACTIONS = JSON.parse(this.responseText);
-                drawTransactions(LOADED_TRANSACTIONS);
-                updateAccounts();
-            }
-        }
-    };
-
-    xhttp.open("GET", "http://localhost:5000/transaction/list/"+BALANCE_ID, true);
-    xhttp.send();
+    sendRequest("GET", "http://localhost:5000/transaction/list/"+BALANCE_ID,
+                null,
+                (data) => {
+                    LOADED_TRANSACTIONS = data;
+                    drawTransactions(LOADED_TRANSACTIONS);
+                    updateAccounts();
+                }
+    );
 }
 
 function updateAccounts() {
-    const xhttp = new XMLHttpRequest();
+    sendRequest("POST", "http://localhost:5000/accounts",
+                {'balance_id':BALANCE_ID},
+                (data) => {
+                    while (ACCOUNTS_DIV.firstChild)
+                        ACCOUNTS_DIV.lastChild.remove();
 
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            const data = JSON.parse(this.responseText);
-            if ('error' in data || 'message' in data) {
-                displayPopup(data);
-            }
-            else {
-                while (ACCOUNTS_DIV.firstChild)
-                    ACCOUNTS_DIV.lastChild.remove();
-
-                ACCOUNTS_DIV.appendChild(ACCOUNTS.drawAll(data));
-            }
-        }
-    };
-
-    let balance = {};
-    balance['balance_id'] = BALANCE_ID;
-
-    xhttp.open("POST", "http://localhost:5000/accounts", true);
-    xhttp.setRequestHeader("Content-Type", "application/json");
-    xhttp.send(JSON.stringify(balance));
+                    ACCOUNTS_DIV.appendChild(ACCOUNTS.drawAll(data));
+                }
+    );
 }
 
 function sendDeleteTransactionRequest(transaction) {
+    sendRequest("DELETE", "http://localhost:5000/transaction/delete",
+                transaction,
+                updateTransactions);
+}
+
+function sendRequest(request_type, address, content, call_back) {
     const xhttp = new XMLHttpRequest();
+
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const data = JSON.parse(this.responseText);
             if ('error' in data || 'message' in data) {
                 displayPopup(data);
             }
-            updateTransactions();
+            call_back(data);
         }
     };
 
-    xhttp.open("DELETE", "http://localhost:5000/transaction/delete", true);
-    xhttp.setRequestHeader("Content-Type", "application/json");
-    xhttp.send(JSON.stringify(transaction));
+    xhttp.open(request_type, address, true);
+    if (content)
+        xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.send(JSON.stringify(content));
 }
