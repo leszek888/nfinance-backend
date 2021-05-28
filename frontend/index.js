@@ -51,7 +51,6 @@ function displayBalance() {
         MAIN_DIV.removeChild(MAIN_DIV.lastChild);
     selectLink('balance-link');
     MAIN_DIV.appendChild(ACCOUNTS_DIV);
-
 }
 
 function displayPopup(message) {
@@ -122,93 +121,6 @@ function convertStringToFloat(number) {
     }
     return parseFloat(number);
 }
-
-function parseAccounts(accounts) {
-    let parsed_accounts = [];
-
-    accounts.forEach(account => {
-        let sub_accounts = account['name'].split(':');
-
-        addAccount(sub_accounts, parseFloat(account['balance']), parsed_accounts);
-    });
-
-    return parsed_accounts;
-}
-
-function addAccount(accounts, balance, array) {
-
-    let account = {};
-    let account_found = false;
-    
-    account['name'] = accounts.shift();
-    account['balance'] = balance;
-    account['sub_accounts'] = [];
-
-    array.forEach(element => {
-        if (element['name'] == account['name']) {
-            account_found = true;
-            element['balance'] += account['balance'];
-            addAccount(accounts, balance, element['sub_accounts']);
-        }
-    });
-
-    if (!account_found) {
-        array.push(account);
-        if (accounts.length > 0)
-            addAccount(accounts, balance, account['sub_accounts']);
-    }
-}
-
-function traverseAccounts(account, depth, parent) {
-    const account_row = drawAccountRow(account['name'], account['balance']);
-    account_row.style.paddingLeft = (depth+1)+'em';
-    if (depth > 1)
-        account_row.style.color = '#666666';
-    account_row.classList.add('account-depth-'+depth);
-    parent.appendChild(account_row);
-
-    if (account['sub_accounts'].length > 0) {
-        account['sub_accounts'].forEach(sub_account => {
-            traverseAccounts(sub_account, depth+1, parent);
-        });
-    }
-}
-
-function drawAccountRow(account_name, balance, parent) {
-    const account_row = document.createElement('div');
-    const account_row_name = document.createElement('div');
-    const account_row_balance = document.createElement('div');
-
-    account_row_balance.classList.add('entry-amount');
-    account_row.classList.add('account-row');
-    account_row_name.innerText = account_name;
-    account_row_balance.innerText = formatNumber(balance);
-
-    account_row.appendChild(account_row_name);
-    account_row.appendChild(account_row_balance);
-    
-    return account_row;
-}
-
-function drawAccounts(accounts) {
-    let content = '';
-    let depth = 0;
-    accounts = parseAccounts(accounts['accounts']);
-
-    while (ACCOUNTS_DIV.firstChild) {
-        ACCOUNTS_DIV.removeChild(ACCOUNTS_DIV.lastChild);
-    }
-
-    const accounts_table = document.createElement('div');
-    accounts_table.classList.add('accounts-wrapper');
-
-    accounts.forEach(account => {
-        traverseAccounts(account, 0, accounts_table);
-    });
-
-    ACCOUNTS_DIV.appendChild(accounts_table);
-}
-
 
 function addNewTransaction() {
     if (TRANSACTIONS_DIV.querySelector('#new-transaction'))
@@ -790,7 +702,10 @@ function updateAccounts() {
                 displayPopup(data);
             }
             else {
-                drawAccounts(data);
+                while (ACCOUNTS_DIV.firstChild)
+                    ACCOUNTS_DIV.lastChild.remove();
+
+                ACCOUNTS_DIV.appendChild(ACCOUNTS.drawAll(data));
             }
         }
     };
