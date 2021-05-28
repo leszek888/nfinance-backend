@@ -44,7 +44,9 @@ function displayTransactions() {
     const new_transaction_button = document.createElement('input');
     new_transaction_button.type = 'button';
     new_transaction_button.value = 'New Transaction';
-    new_transaction_button.addEventListener('click', addNewTransaction);
+    new_transaction_button.addEventListener('click', () => {
+        TRANSACTIONS.drawNewTransaction(TRANSACTIONS_DIV);
+    });
 
     MAIN_DIV.appendChild(new_transaction_button);
     MAIN_DIV.appendChild(TRANSACTIONS_DIV);
@@ -126,20 +128,6 @@ function convertStringToFloat(number) {
     return parseFloat(number);
 }
 
-function addNewTransaction() {
-    if (TRANSACTIONS_DIV.querySelector('#new-transaction'))
-        return;
-
-    const table = TRANSACTIONS_DIV.querySelector('.transactions-rows-wrapper');
-    const empty_transaction = {'id':'new-transaction','date':'', 'payee':'', 'entries': [
-        {'account': '', 'amount':''},
-        {'account': '', 'amount':''},
-    ]};
-    const transaction_row = TRANSACTIONS.drawRow(empty_transaction);
-    table.insertBefore(transaction_row, table.children[1]);
-    editTransactionRow(transaction_row);
-}
-
 function fetchBalance() {
     if (BALANCE_ID.length == 36) {
         updateTransactions();
@@ -208,89 +196,6 @@ function validateDateInput(input_field) {
         input_field.classList.add('has-error');
 
     return date_is_valid;
-}
-
-function calculateTransactionBalance(transaction) {
-    const amounts = transaction.querySelectorAll('.entry-amount');
-
-    let unbalanced_amount = 0;
-
-    amounts.forEach(amount => {
-        if (validateFormattedNumber(amount.value)) {
-            unbalanced_amount += convertStringToFloat(amount.value);
-        }
-    });
-
-    return (unbalanced_amount *= -1);
-}
-
-function validateTransactionBalance(transaction) {
-    const amounts = transaction.querySelectorAll('.entry-amount');
-    let unbalanced_amount = 0;
-
-    amounts.forEach(amount => {
-        if (validateFormattedNumber(amount.value)) {
-            unbalanced_amount += convertStringToFloat(amount.value);
-        }
-        else if (validateFormattedNumber(amount.placeholder)) {
-            unbalanced_amount += convertStringToFloat(amount.placeholder);
-        }
-    });
-
-    return unbalanced_amount;
-}
-
-function fillOutUnbalancedAmount(transaction) {
-    console.log('fillOut called for');
-    console.log(transaction);
-
-    const unbalanced_amount = calculateTransactionBalance(transaction);
-    console.log(unbalanced_amount);
-    const amounts = transaction.querySelectorAll('.entry-amount');
-
-    let first_free_field = null;
-
-    amounts.forEach(amount => {
-        amount.placeholder = '';
-        if (amount.value.length == 0 && first_free_field == null) {
-            first_free_field = amount;
-        }
-    });
-
-    if (unbalanced_amount != 0) {
-        if (first_free_field != null)
-            first_free_field.placeholder = formatNumber(unbalanced_amount);
-        else {
-            addEntry(transaction);
-            fillOutUnbalancedAmount(transaction);
-        }
-    }
-}
-
-function addEntry(transaction) {
-    const parent = transaction.querySelector('.transaction-entries-wrapper');
-
-    parent.insertBefore(drawEntryRow('',''), parent.lastChild);
-}
-
-function editTransaction(event) {
-    editTransactionRow(event.currentTarget);
-}
-
-function editTransactionRow(transaction_row) {
-    const inputs = TRANSACTIONS_DIV.querySelectorAll('input');
-    inputs.forEach(input => {
-        input.disabled = true;
-    });
-
-    transaction_row.querySelectorAll('input').forEach(input => {
-        input.disabled = false;
-    });
-
-    TRANSACTIONS_DIV.querySelectorAll('.transaction-row').forEach(transaction => {
-        transaction.classList.remove('edited-transaction');
-    });
-    transaction_row.classList.add('edited-transaction');
 }
 
 function extractDataFromTransactionRow(row) {
@@ -377,7 +282,7 @@ function validateTransaction(transaction) {
         }
     });
 
-    if (validateTransactionBalance(transaction) != 0) {
+    if (TRANSACTIONS.validateBalance(transaction) != 0) {
         displayPopup({'error':'Transaction is not balanced.'});
         transaction_valid = false;
     }
@@ -397,13 +302,6 @@ function saveTransaction(transaction) {
     }
 }
 
-function cancelEditing() {
-    if (LOADED_TRANSACTIONS)
-        drawTransactions(LOADED_TRANSACTIONS);
-    else
-        drawTransactions(null);
-}
-
 function removeEntry(event) {
     const entries_table = event.currentTarget.parentNode.parentNode.parentNode;
     const clicked_entry = event.currentTarget.parentNode.parentNode;
@@ -420,7 +318,7 @@ function removeEntry(event) {
             }
         });
     }
-    fillOutUnbalancedAmount(transaction);
+    TRANSACTIONS.fillOutUnbalancedAmount(transaction);
 }
 
 function send_transaction() {

@@ -26,7 +26,7 @@ var TRANSACTIONS = (function(tr) {
         input.classList.add('entry-amount');
         input.addEventListener('focusout', (e) => {
             if (validateNumberInput(e.currentTarget))
-                fillOutUnbalancedAmount(e.currentTarget.closest('.transaction-row'));
+                tr.fillOutUnbalancedAmount(e.currentTarget.closest('.transaction-row'));
         });
 
         return input;
@@ -101,7 +101,7 @@ var TRANSACTIONS = (function(tr) {
             const transaction_entries = document.createElement('div');
 
         transaction_row.id = transaction.id;
-        transaction_row.addEventListener('mousedown', editTransaction);
+        transaction_row.addEventListener('mousedown', (e) => {tr.edit(e.currentTarget);});
         transaction_row.classList.add('transaction-row-wrapper');
         transaction_row.classList.add('transaction-row');
 
@@ -128,7 +128,7 @@ var TRANSACTIONS = (function(tr) {
         const transaction_entries_row = document.createElement('div');
         const transaction_entries_add_button = createTransactionButton('Add Entry');
 
-        transaction_entries_add_button.addEventListener('click', (e) => { addEntry(e.currentTarget.closest('.transaction-row'));});
+        transaction_entries_add_button.addEventListener('click', (e) => { tr.addEntry(e.currentTarget.closest('.transaction-row'));});
 
         transaction_entries_row.appendChild(transaction_entries_add_button);
         transaction_entries.appendChild(transaction_entries_row);
@@ -139,7 +139,9 @@ var TRANSACTIONS = (function(tr) {
         const transaction_delete_button = createTransactionButton('Delete'); 
 
         transaction_save_button.addEventListener('click', (e) => { saveTransaction(e.currentTarget.closest('.transaction-row')); });
-        transaction_cancel_button.addEventListener('click', cancelEditing);
+        transaction_cancel_button.addEventListener('click', (e) => {
+            transaction_row.parentNode.replaceChild(tr.drawRow(transaction), transaction_row);
+        });
         transaction_delete_button.addEventListener('click', (e) => { deleteTransaction(e.currentTarget.closest('.transaction-row')); });
 
         transaction_buttons_div.classList.add('transaction-buttons-wrapper');
@@ -150,6 +152,20 @@ var TRANSACTIONS = (function(tr) {
         transaction_row.appendChild(transaction_buttons_div);
 
         return transaction_row;
+    }
+
+    tr.drawNewTransaction = (container) => {
+        if (container.querySelector('#new-transaction'))
+            return;
+
+        const table = container.querySelector('.transactions-rows-wrapper');
+        const empty_transaction = {'id':'new-transaction','date':'', 'payee':'', 'entries': [
+            {'account': '', 'amount':''},
+            {'account': '', 'amount':''},
+        ]};
+        const transaction_row = tr.drawRow(empty_transaction);
+        table.insertBefore(transaction_row, table.children[1]);
+        tr.edit(transaction_row);
     }
 
     tr.drawAll = (transactions) => {
@@ -190,6 +206,87 @@ var TRANSACTIONS = (function(tr) {
         }
 
         return transactions_table;
+    }
+
+    tr.calculateBalance = (transaction) => {
+        const amounts = transaction.querySelectorAll('.entry-amount');
+
+        let unbalanced_amount = 0;
+
+        amounts.forEach(amount => {
+            if (validateFormattedNumber(amount.value)) {
+                unbalanced_amount += convertStringToFloat(amount.value);
+            }
+        });
+
+        return (unbalanced_amount *= -1);
+    }
+
+    tr.validateBalance = (transaction) => {
+        const amounts = transaction.querySelectorAll('.entry-amount');
+        let unbalanced_amount = 0;
+
+        amounts.forEach(amount => {
+            if (validateFormattedNumber(amount.value)) {
+                unbalanced_amount += convertStringToFloat(amount.value);
+            }
+            else if (validateFormattedNumber(amount.placeholder)) {
+                unbalanced_amount += convertStringToFloat(amount.placeholder);
+            }
+        });
+
+        return unbalanced_amount;
+    }
+
+    tr.fillOutUnbalancedAmount = (transaction) => {
+        console.log('fillOut called for');
+        console.log(transaction);
+
+        const unbalanced_amount = tr.calculateBalance(transaction);
+        console.log(unbalanced_amount);
+        const amounts = transaction.querySelectorAll('.entry-amount');
+
+        let first_free_field = null;
+
+        amounts.forEach(amount => {
+            amount.placeholder = '';
+            if (amount.value.length == 0 && first_free_field == null) {
+                first_free_field = amount;
+            }
+        });
+
+        if (unbalanced_amount != 0) {
+            if (first_free_field != null)
+                first_free_field.placeholder = formatNumber(unbalanced_amount);
+            else {
+                tr.addEntry(transaction);
+                tr.fillOutUnbalancedAmount(transaction);
+            }
+        }
+    }
+
+
+    tr.addEntry = (transaction) => {
+        const parent = transaction.querySelector('.transaction-entries-wrapper');
+
+        parent.insertBefore(tr.drawEntryRow('',''), parent.lastChild);
+    }
+
+    tr.edit = (transaction_row) => {
+        const inputs = document.querySelectorAll('.transaction-input');
+        inputs.forEach(input => {
+            input.disabled = true;
+        });
+
+        transaction_row.querySelectorAll('input').forEach(input => {
+            input.disabled = false;
+        });
+
+        document.querySelectorAll('.transaction-row').forEach(transaction => {
+            transaction.classList.remove('edited-transaction');
+        });
+
+        transaction_row.classList.add('edited-transaction');
     }
 
     return tr;
