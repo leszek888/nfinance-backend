@@ -23,6 +23,11 @@ function initialize() {
     }
 }
 
+function clearElement(element) {
+    while (element.firstChild)
+        element.lastChild.remove();
+}
+
 function selectLink(link_id) {
     const nav_links = document.querySelectorAll('.nav-link');
     nav_links.forEach(nav_link => {
@@ -32,8 +37,7 @@ function selectLink(link_id) {
 }
 
 function displayTransactions() {
-    while (MAIN_DIV.firstChild)
-        MAIN_DIV.removeChild(MAIN_DIV.lastChild);
+    clearElement(MAIN_DIV);
 
     selectLink('transactions-link');
 
@@ -47,8 +51,8 @@ function displayTransactions() {
 }
 
 function displayBalance() {
-    while (MAIN_DIV.firstChild)
-        MAIN_DIV.removeChild(MAIN_DIV.lastChild);
+    clearElement(MAIN_DIV);
+
     selectLink('balance-link');
     MAIN_DIV.appendChild(ACCOUNTS_DIV);
 }
@@ -131,7 +135,7 @@ function addNewTransaction() {
         {'account': '', 'amount':''},
         {'account': '', 'amount':''},
     ]};
-    const transaction_row = drawTransactionRow(empty_transaction);
+    const transaction_row = TRANSACTIONS.drawRow(empty_transaction);
     table.insertBefore(transaction_row, table.children[1]);
     editTransactionRow(transaction_row);
 }
@@ -140,58 +144,6 @@ function fetchBalance() {
     if (BALANCE_ID.length == 36) {
         updateTransactions();
     }
-}
-
-function createTransactionInput() {
-    const input = document.createElement('input');
-
-    input.classList.add('data-field');
-    input.classList.add('transaction-input');
-    input.addEventListener('input', (e) => {
-        e.currentTarget.classList.remove('has-error');
-    });
-
-    return input;
-}
-
-function createTransactionTextInput() {
-    const input = createTransactionInput();
-
-    input.type = 'text';
-
-    return input;
-}
-
-function createTransactionNumberInput() {
-    const input = createTransactionTextInput();
-
-    input.classList.add('entry-amount');
-    input.addEventListener('focusout', (e) => {
-        if (validateNumberInput(e.currentTarget))
-            fillOutUnbalancedAmount(e.currentTarget.closest('.transaction-row'));
-    });
-
-    return input;
-}
-
-function createTransactionDateInput() {
-    const input = createTransactionTextInput();
-
-    input.classList.add('date-field');
-    input.addEventListener('change', (e) => {
-        validateDateInput(e.currentTarget);
-    });
-
-    return input;
-}
-
-function createTransactionButton(text) {
-    const button = document.createElement('input');
-    button.type = 'button';
-    button.classList.add('transaction-button');
-    button.value = text;
-
-    return button;
 }
 
 function validateNumberInput(input_field) {
@@ -471,151 +423,6 @@ function removeEntry(event) {
     fillOutUnbalancedAmount(transaction);
 }
 
-function drawEntryRow(account, amount) {
-    const transaction_entries_row = document.createElement('div');
-    const transaction_entries_account = document.createElement('div');
-    const transaction_entries_amount = document.createElement('div');
-    const transaction_entries_delete = document.createElement('div');
-
-    const transaction_entries_account_input = createTransactionTextInput();
-    const transaction_entries_amount_input = createTransactionNumberInput();
-    const transaction_entries_delete_button = createTransactionButton('X');
-
-    transaction_entries_row.classList.add('.entry-row');
-
-    transaction_entries_account_input.value = account;
-    transaction_entries_amount_input.value = formatNumber(amount);
-
-    transaction_entries_delete_button.addEventListener('click', removeEntry);
-
-    transaction_entries_account.appendChild(transaction_entries_account_input);
-    transaction_entries_amount.appendChild(transaction_entries_amount_input);
-    transaction_entries_delete.appendChild(transaction_entries_delete_button);
-
-    transaction_entries_row.appendChild(transaction_entries_account);
-    transaction_entries_row.appendChild(transaction_entries_amount);
-    transaction_entries_row.appendChild(transaction_entries_delete);
-
-    return transaction_entries_row;
-}
-
-function drawEmptyTransactionRow() {
-    const transaction_row = document.createElement('div');
-    transaction_row.classList.add('empty-transaction-row');
-    transaction_row.classList.add('transaction-row');
-
-    transaction_row.innerText = 'No transactions found.';
-    return transaction_row;
-}
-
-function drawTransactionRow(transaction) {
-    const transaction_row = document.createElement('div');
-        const transaction_header = document.createElement('div');
-            const transaction_header_date = document.createElement('div');
-                const transaction_header_date_input = createTransactionDateInput();
-            const transaction_header_payee = document.createElement('div');
-                const transaction_header_payee_input = createTransactionTextInput();
-            const transaction_header_buttons = document.createElement('div');
-
-        const transaction_entries = document.createElement('div');
-
-    transaction_row.id = transaction.id;
-    transaction_row.addEventListener('mousedown', editTransaction);
-    transaction_row.classList.add('transaction-row-wrapper');
-    transaction_row.classList.add('transaction-row');
-
-    transaction_header.classList.add('transaction-header-wrapper');
-    transaction_entries.classList.add('transaction-entries-wrapper');
-
-    transaction_row.appendChild(transaction_header);
-    transaction_row.appendChild(transaction_entries);
-
-    transaction_header.appendChild(transaction_header_date);
-    transaction_header.appendChild(transaction_header_payee);
-    transaction_header.appendChild(transaction_header_buttons);
-
-    transaction_header_date_input.value = transaction.date;
-    transaction_header_payee_input.value = transaction.payee;
-
-    transaction_header_date.appendChild(transaction_header_date_input);
-    transaction_header_payee.appendChild(transaction_header_payee_input);
-
-    for (const entry of transaction.entries) {
-        transaction_entries.appendChild(drawEntryRow(entry.account, entry.amount));
-    }
-
-    const transaction_entries_row = document.createElement('div');
-    const transaction_entries_add_button = createTransactionButton('Add Entry');
-
-    transaction_entries_add_button.addEventListener('click', (e) => { addEntry(e.currentTarget.closest('.transaction-row'));});
-
-    transaction_entries_row.appendChild(transaction_entries_add_button);
-    transaction_entries.appendChild(transaction_entries_row);
-
-    const transaction_buttons_div = document.createElement('div');
-    const transaction_save_button = createTransactionButton('Save'); 
-    const transaction_cancel_button = createTransactionButton('Cancel'); 
-    const transaction_delete_button = createTransactionButton('Delete'); 
-
-    transaction_save_button.addEventListener('click', (e) => { saveTransaction(e.currentTarget.closest('.transaction-row')); });
-    transaction_cancel_button.addEventListener('click', cancelEditing);
-    transaction_delete_button.addEventListener('click', (e) => { deleteTransaction(e.currentTarget.closest('.transaction-row')); });
-
-    transaction_buttons_div.classList.add('transaction-buttons-wrapper');
-    transaction_buttons_div.appendChild(transaction_save_button);
-    transaction_buttons_div.appendChild(transaction_cancel_button);
-    transaction_buttons_div.appendChild(transaction_delete_button);
-
-    transaction_row.appendChild(transaction_buttons_div);
-
-    return transaction_row;
-}
-
-function drawTransactions(transactions) {
-    const transactions_table = document.createElement('div');
-
-    const table_header_row = document.createElement('div');
-    const table_header_date = document.createElement('div');
-    const table_header_payee = document.createElement('div');
-    const table_header_account = document.createElement('div');
-    const table_header_amount = document.createElement('div');
-    const table_header_filler = document.createElement('div');
-
-    table_header_date.innerText = 'Date';
-    table_header_payee.innerText = 'Payee';
-    table_header_account.innerText = 'Account';
-    table_header_amount.innerText = 'Amount';
-
-    table_header_amount.classList.add('transactions-amount-header');
-    table_header_row.classList.add('transactions-header');
-
-    transactions_table.classList.add('transactions-rows-wrapper');
-
-    table_header_row.appendChild(table_header_date);
-    table_header_row.appendChild(table_header_payee);
-    table_header_row.appendChild(table_header_account);
-    table_header_row.appendChild(table_header_amount);
-    table_header_row.appendChild(table_header_filler);
-
-    transactions_table.appendChild(table_header_row);
-
-    if (transactions['transactions'].length > 0) {
-        for (let transaction of transactions['transactions']) {
-            transactions_table.appendChild(drawTransactionRow(transaction));
-        }
-    }
-    else {
-        transactions_table.appendChild(drawEmptyTransactionRow());
-    }
-
-    while (TRANSACTIONS_DIV.firstChild) {
-        TRANSACTIONS_DIV.removeChild(TRANSACTIONS_DIV.lastChild);
-    }
-
-    TRANSACTIONS_DIV.classList.add('transactions-table');
-    TRANSACTIONS_DIV.appendChild(transactions_table);
-}
-
 function send_transaction() {
     const payee = document.getElementById('payee').value;
     const date = document.getElementById('date').value;
@@ -641,7 +448,8 @@ function getNewBalance() {
                 (data) => {
                     BALANCE_ID = data['balance_id'];
                     updateContentWithBalance();
-                    drawTransactions(null);
+                    clearElement(TRANSACTIONS_DIV);
+                    TRANSACTIONS_DIV.appendChild(TRANSACTIONS.drawAll(null));
                 }
     );
 }
@@ -660,7 +468,8 @@ function updateTransactions() {
                 null,
                 (data) => {
                     LOADED_TRANSACTIONS = data;
-                    drawTransactions(LOADED_TRANSACTIONS);
+                    clearElement(TRANSACTIONS_DIV);
+                    TRANSACTIONS_DIV.appendChild(TRANSACTIONS.drawAll(LOADED_TRANSACTIONS));
                     updateAccounts();
                 }
     );
@@ -670,9 +479,7 @@ function updateAccounts() {
     sendRequest("POST", "http://localhost:5000/accounts",
                 {'balance_id':BALANCE_ID},
                 (data) => {
-                    while (ACCOUNTS_DIV.firstChild)
-                        ACCOUNTS_DIV.lastChild.remove();
-
+                    clearElement(ACCOUNTS_DIV);
                     ACCOUNTS_DIV.appendChild(ACCOUNTS.drawAll(data));
                 }
     );
