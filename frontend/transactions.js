@@ -197,6 +197,7 @@ var TRANSACTIONS = (function(tr) {
         const transaction_row = tr.drawRow(empty_transaction);
         table.insertBefore(transaction_row, table.children[1]);
         tr.edit(transaction_row);
+        transaction_row.querySelector('.transaction-input').focus();
     }
 
     tr.drawAll = (transactions) => {
