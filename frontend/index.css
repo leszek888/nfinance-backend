@@ -137,11 +137,9 @@ input {
     grid-template-columns: 7fr 1fr;
 }
 
-.transaction-row-wrapper:hover {
+.transaction-row-wrapper:hover, .edited-transaction {
     background-color: #eff6fc;
-}
-
-.transaction-row-wrapper div {
+    box-shadow: 0px 0px 10px #cccccc;
 }
 
 .transaction-header-wrapper {
@@ -193,10 +191,6 @@ input {
 
 .transactions-amount-header {
     text-align: right;
-}
-
-.edited-transaction {
-    background-color: #eff6fc;
 }
 
 .transaction-buttons-wrapper {
