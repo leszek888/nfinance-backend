@@ -242,9 +242,7 @@ html, body {
     margin: auto;
     position: relative;
     text-align: center;
-    top: 20%;
-    border-radius: 10px;
-    box-shadow: 0px 0px 8px #cccccc;
+    top: 10%;
 }
 
 #login_div div {
@@ -252,14 +250,12 @@ html, body {
 }
 
 #login_title_div {
-    border-bottom: 1px #888888 solid;
     font-size: 14pt;
     color: #236ec4;
     position: relative;
 }
 
 #login_to_balance_div {
-    border-bottom: 1px #cccccc solid;
 }
 
 #main_content {
@@ -273,10 +269,17 @@ html, body {
     position: fixed;
     top: 0;
     left: 0;
-    padding: 2em;
     background-color: #ffffff;
     box-shadow: 0px 0px 8px #bbbbbb;
     z-index: 999;
+}
+
+.nav-container {
+    width: 1000px;
+    height: 100%;
+    display: relative;
+    margin: auto;
+    padding: 2em;
 }
 
 .nav-link {
