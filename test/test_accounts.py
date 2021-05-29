@@ -75,7 +75,7 @@ class AccountsTest(unittest.TestCase):
         self.assertTrue('accounts' in response.json)
         self.assertEqual(5, len(response.json['accounts']))
 
-    def test_fetsched_accounts_are_sorted(self):
+    def test_fetched_accounts_are_sorted(self):
         transaction = self.create_transaction_json(entries = [
                                                     {'account': 'Assets',
                                                      'amount': '10'},
@@ -84,6 +84,7 @@ class AccountsTest(unittest.TestCase):
                                                     ])
         self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
                       data=transaction)
+
         transaction = self.create_transaction_json(entries = [
                                                     {'account': 'Liabilities',
                                                      'amount': '-100'},
@@ -92,11 +93,14 @@ class AccountsTest(unittest.TestCase):
                                                     {'account': 'Capital',
                                                      'amount': '40'},
                                                     ])
+        self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
+                      data=transaction)
 
         response = self.app.post('/accounts', headers={"Content-Type":"application/json"},
                       data=json.dumps({'balance_id':self.balance.json['balance_id']}))
 
         accounts = response.json['accounts']
+        print(accounts)
 
         self.assertEqual('Assets', accounts[0]['name'])
         self.assertEqual('Capital', accounts[1]['name'])
