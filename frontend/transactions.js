@@ -12,16 +12,18 @@ var TRANSACTIONS = (function(tr) {
         return input;
     }
 
-    let createTransactionTextInput = () => {
+    let createTransactionTextInput = (placeholder = null) => {
         const input = createTransactionInput();
 
         input.type = 'text';
+        if (placeholder)
+            input.placeholder = placeholder;
 
         return input;
     }
 
-    let createTransactionNumberInput = () => {
-        const input = createTransactionTextInput();
+    let createTransactionNumberInput = (placeholder = null) => {
+        const input = createTransactionTextInput(placeholder);
 
         input.classList.add('entry-amount');
         input.addEventListener('focusout', (e) => {
@@ -32,8 +34,8 @@ var TRANSACTIONS = (function(tr) {
         return input;
     }
 
-    let createTransactionDateInput = () => {
-        const input = createTransactionTextInput();
+    let createTransactionDateInput = (placeholder = null) => {
+        const input = createTransactionTextInput(placeholder);
 
         input.classList.add('date-field');
         input.addEventListener('change', (e) => {
@@ -58,8 +60,8 @@ var TRANSACTIONS = (function(tr) {
         const transaction_entries_amount = document.createElement('div');
         const transaction_entries_delete = document.createElement('div');
 
-        const transaction_entries_account_input = createTransactionTextInput();
-        const transaction_entries_amount_input = createTransactionNumberInput();
+        const transaction_entries_account_input = createTransactionTextInput('Account');
+        const transaction_entries_amount_input = createTransactionNumberInput('Amount');
         const transaction_entries_delete_button = createTransactionButton('X');
 
         transaction_entries_row.classList.add('.entry-row');
