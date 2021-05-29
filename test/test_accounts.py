@@ -100,10 +100,64 @@ class AccountsTest(unittest.TestCase):
                       data=json.dumps({'balance_id':self.balance.json['balance_id']}))
 
         accounts = response.json['accounts']
-        print(accounts)
 
         self.assertEqual('Assets', accounts[0]['name'])
         self.assertEqual('Capital', accounts[1]['name'])
         self.assertEqual('Expenses', accounts[2]['name'])
         self.assertEqual('Income', accounts[3]['name'])
         self.assertEqual('Liabilities', accounts[4]['name'])
+
+    def test_fetched_accounts_are_filtered(self):
+        transaction = self.create_transaction_json( date = '2020-01-01',
+                                                    entries = [
+                                                    {'account': 'Assets',
+                                                     'amount': '10'},
+                                                    {'account': 'Expenses',
+                                                     'amount': '-10'},
+                                                    ])
+        self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
+                      data=transaction)
+
+        transaction = self.create_transaction_json(entries = [
+                                                    {'account': 'Liabilities',
+                                                     'amount': '-100'},
+                                                    {'account': 'Income',
+                                                     'amount': '60'},
+                                                    {'account': 'Capital',
+                                                     'amount': '40'},
+                                                    ],
+                                                   date = '2020-01-02',
+                                                   )
+        self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
+                      data=transaction)
+
+        transaction = self.create_transaction_json(entries = [
+                                                    {'account': 'Assets',
+                                                     'amount': '25'},
+                                                    {'account': 'Expenses',
+                                                     'amount': '-5'},
+                                                    {'account': 'Liabilities',
+                                                     'amount': '-20'},
+                                                    ],
+                                                   date = '2020-01-03'
+                                                   )
+        self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
+                      data=transaction)
+
+
+        response = self.app.post('/accounts/filtered', headers={"Content-Type":"application/json"},
+                      data=json.dumps({'balance_id':self.balance.json['balance_id'],
+                                       'filters': {
+                                            'date': { 'from': '2020-01-02','to':'2020-01-03' },
+                                            'account': [ 'Assets', 'Liabilities' ],
+                                       }
+                                       }))
+
+        accounts = response.json['accounts']
+
+        self.assertEqual(len(accounts), 2)
+        self.assertEqual('Assets', accounts[0]['name'])
+        self.assertEqual('Liabilities', accounts[1]['name'])
+        self.assertEqual('25.00', accounts[0]['balance'])
+        self.assertEqual('-120.00', accounts[1]['balance'])
+

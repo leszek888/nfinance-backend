@@ -248,6 +248,51 @@ def saveTransaction(transaction):
     db.session.commit()
     return {'message' : 'Transaction saved.'}
 
+@app.route('/accounts/filtered', methods=['POST'])
+@cross_origin()
+def getFilteredAccounts():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({'error': 'No balance specified.'})
+
+    if 'balance_id' not in data:
+        return jsonify({'error': 'No balance specified.'})
+
+    # entries = Entry.query.filter_by(balance_id=data['balance_id']).order_by(Entry.account)
+
+    db_query = 'SELECT * FROM Entry WHERE balance_id = "' + data['balance_id'] +'"'
+
+    if 'filters' in data:
+        if 'date' in data['filters']:
+            db_query = db_query + ' AND transaction_id IN ' + \
+                '(SELECT id FROM Transactions WHERE date >= "' + data['filters']['date']['from'] + \
+                '" AND date <= "' + data['filters']['date']['to'] + '")'
+
+        if 'account' in data['filters']:
+            acc = str(data['filters']['account']).replace('[', '(').replace(']', ')')
+            db_query = db_query + ' AND account IN ' + acc
+
+    db_query = db_query + ' ORDER BY account ASC'
+    entries = db.session.execute(db_query).all()
+
+    accounts = []
+
+    for entry in entries:
+        account_found = False
+        for account in accounts:
+            if account['name'] == entry.account:
+                account['balance'] += entry.amount
+                account_found = True
+        if not account_found:
+            accounts.append({'name':entry.account,
+                             'balance':entry.amount})
+
+    for account in accounts:
+        account['balance'] = getFormattedDecimal(account['balance'])
+
+    return {'accounts' : accounts}
+
 @app.route('/accounts', methods=['POST'])
 @cross_origin()
 def getAccounts():
@@ -277,3 +322,4 @@ def getAccounts():
         account['balance'] = getFormattedDecimal(account['balance'])
 
     return {'accounts' : accounts}
+
