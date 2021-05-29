@@ -259,7 +259,7 @@ def getAccounts():
     if 'balance_id' not in data:
         return jsonify({'error': 'No balance specified.'})
 
-    entries = Entry.query.filter_by(balance_id=data['balance_id'])
+    entries = Entry.query.filter_by(balance_id=data['balance_id']).order_by(account)
 
     accounts = []
 
