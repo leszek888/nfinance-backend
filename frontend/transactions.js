@@ -165,7 +165,11 @@ var TRANSACTIONS = (function(tr) {
             sendTransaction(tr.extractDataFromDOM(transaction_row));
         });
         transaction_cancel_button.addEventListener('click', (e) => {
-            transaction_row.parentNode.replaceChild(tr.drawRow(transaction), transaction_row);
+            if (transaction.id == "new-transaction") {
+                transaction_row.parentNode.removeChild(transaction_row);
+            }
+            else
+                transaction_row.parentNode.replaceChild(tr.drawRow(transaction), transaction_row);
         });
         transaction_delete_button.addEventListener('click', (e) => { 
             sendDeleteTransactionRequest(tr.extractDataFromDOM(transaction_row));

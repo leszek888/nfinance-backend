@@ -28,6 +28,7 @@ html, body {
     background-color: #f0f0f0;
 }
 
+
 .main-text-input {
     border: 1px #cccccc solid;
     border-radius: 4px;
@@ -47,12 +48,6 @@ html, body {
 }
 
 
-/*
-input {
-    font-size: 11pt;
-}
-*/
-
 .transaction-input {
     border: solid 1px transparent;
     background: transparent;
@@ -63,6 +58,20 @@ input {
     pointer-events: none;
     font-size: 11pt;
     border-radius: 3px;
+}
+
+.edited-transaction .transaction-input {
+    border: solid 1px #bbb;
+    background: white;
+    padding: 4px;
+    width: 100%;
+    outline: none;
+    color: #222;
+    pointer-events: auto;
+}
+
+.transaction-input:focus {
+    border-color: #666;
 }
 
 .transaction-button {
@@ -81,6 +90,43 @@ input {
     background-color: #bedbf4;
 }
 
+.edited-transaction .transaction-button {
+    visibility: visible;
+}
+
+
+.transaction-header-wrapper {
+    display: grid;
+    grid-template-columns: 4fr 8fr;
+    padding: 2px;
+}
+ 
+.transactions-header {
+    display: grid;
+    grid-template-columns: 4fr 8fr 8fr 3fr 1fr;
+}
+
+.transactions-amount-header {
+    text-align: right;
+}
+
+.transactions-header > div {
+    padding: 4px;
+    background-color: #cc0000;
+    color: #f6f6f6;
+    font-size: 12pt;
+}
+
+.transaction-row-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid #dddddd;
+    position: relative;
+    transition: all 0.25s;
+}
+
 .empty-transaction-row {
     vertical-align: middle;
     border: 0px;
@@ -89,35 +135,39 @@ input {
     text-align: center;
 }
 
-.edited-transaction .transaction-input {
-    border: solid 1px #888;
-    background: white;
-    padding: 4px;
-    width: 100%;
-    outline: none;
-    color: #222;
-    pointer-events: auto;
+.transaction-row-wrapper:hover, .edited-transaction {
+    background-color: #e8f6f9;
+    box-shadow: 0px 0px 10px #cccccc;
 }
 
-.transaction-input:focus {
-    border-color: #99aacc;
-}
-
-
-.has-error {
-    border-color: red !important;
-}
-.edited-transaction .transaction-button {
-    visibility: visible;
-}
-
-.transaction-row-wrapper {
+.transaction-entries-wrapper {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding-top: 0.5em;
-    border-bottom: 1px solid #dddddd;
-    position: relative;
-    transition: all 0.25s;
+    grid-template-columns: 1fr;
+}
+
+.transaction-entries-wrapper > div {
+    display: grid;
+    grid-template-columns: 8fr 3fr 1fr;
+    padding: 2px;
+}
+
+.transaction-buttons-wrapper {
+    display: inline-block;
+    position: absolute;
+    bottom: 0.5em;
+    left: 2px;
+}
+
+.transaction-buttons-wrapper input {
+    width: 100px;
+}
+
+
+.transactions-table {
+    margin: auto;
+    width: 990px;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 .accounts-wrapper > div:nth-child(odd) {
@@ -137,37 +187,8 @@ input {
     grid-template-columns: 7fr 1fr;
 }
 
-.transaction-row-wrapper:hover, .edited-transaction {
-    background-color: #eff6fc;
-    box-shadow: 0px 0px 10px #cccccc;
-}
-
-.transaction-header-wrapper {
-    display: grid;
-    grid-template-columns: 4fr 8fr;
-    padding: 2px;
-}
-
-.transaction-entries-wrapper {
-    display: grid;
-    grid-template-columns: 1fr;
-}
-
-.transaction-entries-wrapper > div {
-    display: grid;
-    grid-template-columns: 8fr 3fr 1fr;
-    padding: 2px;
-}
-
 .entry-amount {
     text-align: right;
-}
-
-.transactions-table {
-    margin: auto;
-    width: 990px;
-    margin-top: 1em;
-    margin-bottom: 1em;
 }
 
 #accounts_div {
@@ -176,34 +197,6 @@ input {
     margin-top: 1em;
     margin-bottom: 1em;
 }
-
-.transactions-header {
-    display: grid;
-    grid-template-columns: 4fr 8fr 8fr 3fr 1fr;
-}
-
-.transactions-header > div {
-    padding: 4px;
-    background-color: #cc0000;
-    color: #f6f6f6;
-    font-size: 12pt;
-}
-
-.transactions-amount-header {
-    text-align: right;
-}
-
-.transaction-buttons-wrapper {
-    display: inline-block;
-    position: absolute;
-    bottom: 2px;
-    left: 2px;
-}
-
-.transaction-buttons-wrapper input {
-    width: 100px;
-}
-
 .popup-message {
     position: fixed;
     top: 5px;
@@ -269,6 +262,12 @@ input {
     border-bottom: 1px #cccccc solid;
 }
 
+#main_content {
+    width: 1000px;
+    display: relative;
+    margin: auto;
+}
+
 .nav-bar {
     width: 100%;
     position: fixed;
@@ -292,15 +291,11 @@ input {
     color: #1f99e0;
 }
 
-#main_content {
-    width: 1000px;
-    display: relative;
-    margin: auto;
-}
-
-.nav-link {
-}
-
 .link-selected {
     color: #444444;
 }
+
+.has-error {
+    border-color: red !important;
+}
+
