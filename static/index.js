@@ -49,14 +49,19 @@ function displayTransactions() {
 
     selectLink('transactions-link');
 
+    const transactions_menu = document.createElement('div');
     const new_transaction_button = document.createElement('input');
+    transactions_menu.classList.add('sub-window');
+
     new_transaction_button.type = 'button';
+    new_transaction_button.classList.add('rounded-button','color-navy');
     new_transaction_button.value = 'New Transaction';
     new_transaction_button.addEventListener('click', () => {
         TRANSACTIONS.drawNewTransaction(TRANSACTIONS_DIV);
     });
 
-    MAIN_DIV.appendChild(new_transaction_button);
+    transactions_menu.appendChild(new_transaction_button);
+    MAIN_DIV.appendChild(transactions_menu);
     MAIN_DIV.appendChild(TRANSACTIONS_DIV);
 }
 

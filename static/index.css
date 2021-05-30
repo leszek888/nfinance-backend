@@ -3,6 +3,7 @@ html, body {
     font-size: 11pt;
     position: relative;
     height: 100%;
+    background-color: #f8f8f8;
     color: #444444;
     padding-top: 4em;
 }
@@ -104,6 +105,8 @@ html, body {
 .transactions-header {
     display: grid;
     grid-template-columns: 4fr 8fr 8fr 3fr 1fr;
+    position: relative;
+    z-index: 998;
 }
 
 .transactions-amount-header {
@@ -112,7 +115,7 @@ html, body {
 
 .transactions-header > div {
     padding: 4px;
-    background-color: #444;
+    background-color: #424242;
     color: #f6f6f6;
     font-size: 12pt;
 }
@@ -136,7 +139,6 @@ html, body {
 }
 
 .transaction-row-wrapper:hover, .edited-transaction {
-    background-color: #e8f6f9;
     box-shadow: 0px 0px 10px #cccccc;
 }
 
@@ -272,7 +274,7 @@ html, body {
     left: 0;
     box-shadow: 0px 0px 16px #555;
     z-index: 999;
-    background-color: #2a688c;
+    background-color: #424242;
 }
  
 .nav-container {
@@ -297,7 +299,7 @@ html, body {
 .nav-link {
     margin-right: 2em;
     font-size: 13pt;
-    color: #a0c5d6;
+    color: #c9c9c9;
     text-decoration: none;
     transition: color 0.2s;
 }
@@ -316,11 +318,11 @@ html, body {
 
 .nav-link:hover {
     text-decoration: underline;
-    color: #ffffff;
+    color: #fcfc62;
 }
 
 .link-selected {
-    color: #ffffff;
+    color: #fcfc62;
 }
 
 .has-error {
@@ -329,19 +331,39 @@ html, body {
 
 .rounded-button {
     border: 0px;
-    background-color: #111;
     color: #eeeeee;
     font-size: 12pt;
     border-radius: 20px;
     height: 40px;
+    padding-left: 1.5em;
+    padding-right: 1.5em;
+    margin: 0.25em;
     transition: background-color 0.2s;
 }
 
-.rounded-button:hover {
-    background-color: #444;
+.color-black {
+    background-color: #a3a3a3;
+    color: #222;
+}
+.color-black:hover {
+    background-color: #fcfc62;
 }
 
+.color-navy {
+    background-color: #fcfc62;
+    color: #444;
+}
+.color-navy:hover {
+    background-color: #eaea60;
+    color: #444;
+}
 .logout-button {
     width: 100px;
     margin-top: 0.5em;
+}
+
+.sub-window {
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
