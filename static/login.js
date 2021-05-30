@@ -1,8 +1,10 @@
 'use strict';
 
+const API_LINK = '';
+
 function loadBalance() {
     document.cookie = "balance_id="+document.getElementById('login_balance_id').value;
-    window.location.replace('index.html');
+    window.location.replace('/');
 }
 
 function createBalance() {
@@ -15,7 +17,7 @@ function createBalance() {
             }
             else {
                 document.cookie = "balance_id="+data['balance_id'];
-                window.location.replace('index.html');
+                window.location.replace('/');
             }
 
             const form = document.createElement('form');
@@ -26,12 +28,12 @@ function createBalance() {
             form.appendChild(balance_id);
 
             form.method = 'POST';
-            form.action = 'index.html';
+            form.action = '/';
             form.submit();
         }
     };
 
-    xhttp.open("GET", "http://localhost:5000/balance/new", true);
+    xhttp.open("GET", API_LINK+"/api/balance/new", true);
     xhttp.send();
 }
 

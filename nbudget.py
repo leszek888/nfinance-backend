@@ -12,7 +12,7 @@ import uuid
 load_dotenv()
 
 app = Flask(__name__)
-cors = CORS(app)
+# cors = CORS(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['SECRET_KEY'] = 'fjdkl93jf90834898gbcvhx98uft4389u0gdf'
@@ -56,7 +56,7 @@ def getFormattedDecimal(num):
     return formatted_number
 
 @app.route('/api/balance/new', methods=['GET'])
-@cross_origin()
+# @cross_origin()
 def get_balance():
     new_balance = Balance(public_id=str(uuid.uuid4()))
     db.session.add(new_balance)
@@ -65,14 +65,14 @@ def get_balance():
     return jsonify({'balance_id' : new_balance.public_id})
 
 @app.route('/api/transaction/save', methods=['POST'])
-@cross_origin()
+# @cross_origin()
 def create_transaction():
     data = request.get_json()
 
     return jsonify(saveTransaction(data))
 
 @app.route('/api/transaction/list/<balance_id>', methods=['GET'])
-@cross_origin()
+# @cross_origin()
 def get_transactions(balance_id):
     if len(balance_id) != 36:
         return jsonify({'error' : 'Wrong Balance Format.'})
@@ -101,7 +101,7 @@ def get_transactions(balance_id):
     return jsonify({'transactions' : formatted_transactions})
 
 @app.route('/api/transaction/delete', methods=['DELETE'])
-@cross_origin()
+# @cross_origin()
 def deleteTransaction():
     data = request.get_json()
 
@@ -126,6 +126,10 @@ def deleteTransaction():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/login')
+def sub_index():
+    return render_template('login.html')
 
 def saveTransaction(transaction):
     # Validate Balance
@@ -237,7 +241,7 @@ def saveTransaction(transaction):
     return {'message' : 'Transaction saved.'}
 
 @app.route('/api/accounts/filtered', methods=['POST'])
-@cross_origin()
+# @cross_origin()
 def getFilteredAccounts():
     data = request.get_json()
 
@@ -282,7 +286,7 @@ def getFilteredAccounts():
     return {'accounts' : accounts}
 
 @app.route('/api/accounts', methods=['POST'])
-@cross_origin()
+# @cross_origin()
 def getAccounts():
     data = request.get_json()
 

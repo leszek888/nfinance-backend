@@ -12,6 +12,9 @@ function initialize() {
     MAIN_DIV = document.getElementById("main_content");
     TRANSACTIONS_DIV = document.createElement('div');
     ACCOUNTS_DIV = document.createElement('div');
+    console.log("Cookies:");
+    console.log(document.cookie);
+    console.log("END");
 
     if (getCookie('balance_id')) {
         BALANCE_ID = getCookie('balance_id');
@@ -19,13 +22,13 @@ function initialize() {
         displayBalance();
     }
     else {
-        window.location.replace('login.html');
+        window.location.replace('/login');
     }
 }
 
 function logout() {
     document.cookie = "";
-    window.location.replace("login.html");
+    window.location.replace("/login");
 }
 
 function clearElement(element) {
@@ -98,7 +101,7 @@ function getCookie(name) {
 
     cookies.forEach(cookie => {
         let cookie_name = cookie.split('=');
-        if (cookie_name[0] == name) {
+        if (cookie_name[0].trim() == name) {
             cookie_value = cookie_name[1];
         }
     });
