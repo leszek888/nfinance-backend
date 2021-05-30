@@ -245,11 +245,11 @@ var TRANSACTIONS = (function(tr) {
     tr.calculateBalance = (transaction) => {
         const amounts = transaction.querySelectorAll('.entry-amount');
 
-        let unbalanced_amount = 0;
+        let unbalanced_amount = new Decimal(0);
 
         amounts.forEach(amount => {
             if (validateFormattedNumber(amount.value)) {
-                unbalanced_amount += convertStringToFloat(amount.value);
+                unbalanced_amount = unbalanced_amount.plus(convertStringToDecimal(amount.value));
             }
         });
 
@@ -258,14 +258,14 @@ var TRANSACTIONS = (function(tr) {
 
     tr.validateBalance = (transaction) => {
         const amounts = transaction.querySelectorAll('.entry-amount');
-        let unbalanced_amount = 0;
+        let unbalanced_amount = new Decimal(0);
 
         amounts.forEach(amount => {
             if (validateFormattedNumber(amount.value)) {
-                unbalanced_amount += convertStringToFloat(amount.value);
+                unbalanced_amount = unbalanced_amount.plus(convertStringToDecimal(amount.value));
             }
             else if (validateFormattedNumber(amount.placeholder)) {
-                unbalanced_amount += convertStringToFloat(amount.placeholder);
+                unbalanced_amount = unbalanced_amount.plus(convertStringToDecimal(amount.placeholder));
             }
         });
 

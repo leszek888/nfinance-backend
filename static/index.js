@@ -130,6 +130,17 @@ function validateFormattedNumber(number) {
     return false;
 }
 
+function convertStringToDecimal(number) {
+    number = number.toString().replaceAll(' ', '');
+    if (validateFormattedNumber(number)) {
+        number = number.replaceAll('.','').replaceAll(',','.');
+    }
+    if (number.length == 0) {
+        return '';
+    }
+    return Decimal(number);
+}
+
 function convertStringToFloat(number) {
     number = number.toString().replaceAll(' ', '');
     if (validateFormattedNumber(number)) {
