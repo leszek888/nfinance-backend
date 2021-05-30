@@ -68,7 +68,6 @@ var ACCOUNTS = (function(acc) {
     }
 
     acc.drawAll = (accounts) => {
-        let content = '';
         let depth = 0;
         const accounts_table = document.createElement('div');
 

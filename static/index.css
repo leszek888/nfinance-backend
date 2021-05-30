@@ -1,12 +1,10 @@
-html, body {
+body {
     font-family: arial, verdana, sans-serif;
     font-size: 11pt;
     position: relative;
-    height: 100%;
     background-color: #f8f8f8;
     color: #444444;
-    padding-top: 4em;
-    min-height: 1080px;
+    padding-top: 7em;
 }
 
 .main-button {
@@ -178,6 +176,9 @@ html, body {
 
 .account-depth-0 {
     font-weight: bold;
+    border-top: 1px solid #eee;
+    background-color: #444 !important;
+    color: #fcfc62;
 }
 
 .account-row {
@@ -193,9 +194,9 @@ html, body {
     text-align: right;
 }
 
-#accounts_div {
+.accounts_div {
     margin: auto;
-    width: 460px;
+    width: 700px;
     margin-top: 1em;
     margin-bottom: 1em;
 }
@@ -378,8 +379,8 @@ html, body {
 
 .sub-window {
     padding: 1em;
-    margin-top: 1em;
-    margin-bottom: 1em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
 }
 
 .footer {

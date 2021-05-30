@@ -15,6 +15,8 @@ function initialize() {
     TRANSACTIONS_DIV = document.createElement('div');
     ACCOUNTS_DIV = document.createElement('div');
 
+    ACCOUNTS_DIV.classList.add('accounts_div');
+
     if (getCookie('balance_id')) {
         BALANCE_ID = getCookie('balance_id');
         const path = window.location.pathname;
