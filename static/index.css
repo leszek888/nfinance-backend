@@ -6,6 +6,7 @@ html, body {
     background-color: #f8f8f8;
     color: #444444;
     padding-top: 4em;
+    min-height: 1080px;
 }
 
 .main-button {
@@ -28,7 +29,6 @@ html, body {
 .main-button:active {
     background-color: #f0f0f0;
 }
-
 
 .main-text-input {
     border: 1px #cccccc solid;
@@ -201,22 +201,22 @@ html, body {
 }
 .popup-message {
     position: fixed;
-    top: 5px;
+    top: 1em;
     left: 0;
     right: 0;
+    width: 200px;
     margin-left: auto;
     margin-right: auto;
-    width: 30%;
-    padding: 5px;
-    background-color: #eeffee;
-    border: solid 5px #44aa44;
+    padding: 0.5em 1em 0.5em 1em;
+    background-color: #ddd;
+    border-radius: 20px;
     transition: all 2s;
     visibility: visible;
+    z-index: 1000;
 }
 
 .error-message {
-    border-color: #aa4444;
-    background-color: #ffdddd;
+    background-color: #fefe62;
 }
 
 .animated {
@@ -240,7 +240,7 @@ html, body {
 
 #login_div {
     border: 0px;
-    width: 600px;
+    width: 500px;
     margin: auto;
     position: relative;
     text-align: center;
@@ -253,15 +253,17 @@ html, body {
 
 #login_title_div {
     font-size: 14pt;
-    color: #236ec4;
+    color: #444;
     position: relative;
 }
 
 #login_to_balance_div {
+    border-bottom: 1px solid #ccc;
 }
 
 #main_content {
     width: 1000px;
+    min-height: 800px;
     display: relative;
     margin: auto;
 }
@@ -339,10 +341,12 @@ html, body {
     padding-right: 1.5em;
     margin: 0.25em;
     transition: background-color 0.2s;
+    box-shadow: 0px 0px 4px #555;
 }
 
 .color-black {
     background-color: #a3a3a3;
+    box-shadow: 0px 0px 4px #000;
     color: #222;
 }
 .color-black:hover {
@@ -357,6 +361,16 @@ html, body {
     background-color: #eaea60;
     color: #444;
 }
+
+.color-light {
+    background-color: #faffea;
+    color: #444;
+}
+
+.color-light:hover {
+    background-color: #eef2e1;
+}
+
 .logout-button {
     width: 100px;
     margin-top: 0.5em;
@@ -366,4 +380,13 @@ html, body {
     padding: 1em;
     margin-top: 1em;
     margin-bottom: 1em;
+}
+
+.footer {
+    margin-top: 10em;
+    height: auto;
+    padding-top: 2em;
+    padding-bottom: 10em;
+    text-align: center;
+    background-color: #c9c9c9;
 }

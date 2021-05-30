@@ -88,13 +88,14 @@ function displayPopup(message) {
     
     popup.classList.add('popup-message');
     popup.classList.add('animated');
+    popup.addEventListener("click", () => popup.classList.add('fadeOut'));
 
     setTimeout(function() {
         popup.classList.add('fadeOut');
         setTimeout(function() {
             document.body.removeChild(popup);
         }, 2000);
-    }, 3000);
+    }, 2000);
 
     if ('error' in message) {
         popup.classList.add('error-message');
