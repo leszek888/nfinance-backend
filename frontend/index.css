@@ -266,7 +266,7 @@ html, body {
 
 .nav-bar {
     width: 100%;
-    height: 5em;
+    height: 6em;
     position: fixed;
     top: 0;
     left: 0;
@@ -274,18 +274,27 @@ html, body {
     z-index: 999;
     background-color: #2a688c;
 }
-
+ 
 .nav-container {
+    display: grid;
+    grid-template-columns: 1fr;
     width: 1000px;
     height: 100%;
     position: relative;
     margin: auto;
-    padding-top: 2.5em;
+}
+
+.nav-header {
+    position: relative;
+    height: 4em;
+}
+
+.nav-links {
+    height: 2em;
 }
 
 .nav-link {
-    margin-left: 1em;
-    margin-right: 1em;
+    margin-right: 2em;
     font-size: 13pt;
     color: #a0c5d6;
     text-decoration: none;
@@ -294,13 +303,14 @@ html, body {
 
 .nav-logo {
     position: absolute;
-    right: 0px;
-    top: 0.5em;
+    top: 0px;
+    left: 0px;
     color: #fff;
     opacity: 0.2;
     font-size: 30pt;
     font-weight: bold;
     font-style: oblique;
+    pointer-events: none;
 }
 
 .nav-link:hover {
