@@ -1,5 +1,7 @@
 "use strict";
 
+console.log(window.location.pathname);
+
 const NUMBER_LOCALE = 'de-DE';
 
 let ACCOUNTS_DIV = null;
@@ -15,8 +17,16 @@ function initialize() {
 
     if (getCookie('balance_id')) {
         BALANCE_ID = getCookie('balance_id');
+        const path = window.location.pathname;
         fetchBalance();
-        displayBalance();
+
+        if (path == '/transactions') {
+            displayTransactions();
+        }
+        else {
+            displayBalance();
+        }
+            
     }
     else {
         window.location.replace('/login');

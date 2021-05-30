@@ -123,6 +123,8 @@ def deleteTransaction():
     return jsonify({'error' : 'Query not understood.'})
 
 @app.route('/')
+@app.route('/transactions')
+@app.route('/balance')
 def index():
     if 'balance_id' not in request.cookies:
         return redirect('/login')
