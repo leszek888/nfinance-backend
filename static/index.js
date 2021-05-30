@@ -12,9 +12,6 @@ function initialize() {
     MAIN_DIV = document.getElementById("main_content");
     TRANSACTIONS_DIV = document.createElement('div');
     ACCOUNTS_DIV = document.createElement('div');
-    console.log("Cookies:");
-    console.log(document.cookie);
-    console.log("END");
 
     if (getCookie('balance_id')) {
         BALANCE_ID = getCookie('balance_id');
