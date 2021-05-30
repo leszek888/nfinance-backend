@@ -16,7 +16,7 @@ function createBalance() {
                 displayPopup(data);
             }
             else {
-                document.cookie = "balance_id="+data['balance_id'];
+                document.cookie = "balance_id="+data['balance_id']+";secure;SameSite=Lax;";
                 window.location.replace('/');
             }
 

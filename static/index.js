@@ -27,7 +27,10 @@ function initialize() {
 }
 
 function logout() {
-    document.cookie = "";
+    var expired_date = new Date();
+    expired_date.setTime(expired_date.getTime()-1000);
+
+    document.cookie = "balance_id=;expires="+expired_date.toUTCString();
     window.location.replace("/login");
 }
 
@@ -218,7 +221,7 @@ function getNewBalance() {
 }
 
 function sendTransaction(transaction) {
-    sendRequest("POST", "http://localhost:5000/api/transaction/save",
+    sendRequest("POST", "/api/transaction/save",
                 transaction,
                 (data) => {
                     updateTransactions();
@@ -227,7 +230,7 @@ function sendTransaction(transaction) {
 }
 
 function updateTransactions() {
-    sendRequest("GET", "http://localhost:5000/api/transaction/list/"+BALANCE_ID,
+    sendRequest("GET", "/api/transaction/list/"+BALANCE_ID,
                 null,
                 (data) => {
                     LOADED_TRANSACTIONS = data;
@@ -239,7 +242,7 @@ function updateTransactions() {
 }
 
 function updateAccounts() {
-    sendRequest("POST", "http://localhost:5000/api/accounts",
+    sendRequest("POST", "/api/accounts",
                 {'balance_id':BALANCE_ID},
                 (data) => {
                     clearElement(ACCOUNTS_DIV);
@@ -249,7 +252,7 @@ function updateAccounts() {
 }
 
 function sendDeleteTransactionRequest(transaction) {
-    sendRequest("DELETE", "http://localhost:5000/api/transaction/delete",
+    sendRequest("DELETE", "/api/transaction/delete",
                 transaction,
                 updateTransactions);
 }
