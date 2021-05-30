@@ -55,25 +55,14 @@ def getFormattedDecimal(num):
 
     return formatted_number
 
-@app.route('/balance/<balance_id>', methods=['GET'])
+@app.route('/api/balance/new', methods=['GET'])
 @cross_origin()
-def get_balance(balance_id):
-    if balance_id == 'new':
-        new_balance = Balance(public_id=str(uuid.uuid4()))
-        db.session.add(new_balance)
-        db.session.commit()
+def get_balance():
+    new_balance = Balance(public_id=str(uuid.uuid4()))
+    db.session.add(new_balance)
+    db.session.commit()
 
-        return jsonify({'balance_id' : new_balance.public_id})
-
-    if len(balance_id) == 36:
-        balance = Balance.query.filter_by(public_id=balance_id).first()
-
-        if not balance:
-            return jsonify({'error' : 'Balance not found.'})
-        else:
-            return jsonify({'balance_id' : balance.public_id})
-
-    return jsonify({'error' : 'Balance not found.'})
+    return jsonify({'balance_id' : new_balance.public_id})
 
 @app.route('/transaction/save', methods=['POST'])
 @cross_origin()
@@ -133,7 +122,6 @@ def deleteTransaction():
             db.session.commit()
             return jsonify({'message' : 'Transaction deleted.'})
     return jsonify({'error' : 'Query not understood.'})
-
 
 @app.route('/')
 def index():

@@ -11,7 +11,7 @@ class AccountsTest(unittest.TestCase):
         self.app = app.test_client()
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////media/fast_wh/Projects/flask/nbudget/test-nbudget.db'
         db.create_all()
-        self.balance = self.app.get('/balance/new')
+        self.balance = self.app.get('/api/balance/new')
 
     def tearDown(self):
         db.drop_all()

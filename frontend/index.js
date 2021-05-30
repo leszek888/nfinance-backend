@@ -203,7 +203,7 @@ function validateDateInput(input_field) {
     return date_is_valid;
 }
 function getNewBalance() {
-    sendRequest("GET", "http://localhost:5000/balance/new",
+    sendRequest("GET", "/api/balance/new",
                 null,
                 (data) => {
                     BALANCE_ID = data['balance_id'];
