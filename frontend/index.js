@@ -23,6 +23,11 @@ function initialize() {
     }
 }
 
+function logout() {
+    document.cookie = "";
+    window.location.replace("login.html");
+}
+
 function clearElement(element) {
     while (element.firstChild)
         element.lastChild.remove();

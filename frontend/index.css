@@ -285,7 +285,8 @@ html, body {
 }
 
 .nav-header {
-    position: relative;
+    display: flex;
+    justify-content: flex-end;
     height: 4em;
 }
 
@@ -326,3 +327,21 @@ html, body {
     border-color: red !important;
 }
 
+.rounded-button {
+    border: 0px;
+    background-color: #111;
+    color: #eeeeee;
+    font-size: 12pt;
+    border-radius: 20px;
+    height: 40px;
+    transition: background-color 0.2s;
+}
+
+.rounded-button:hover {
+    background-color: #444;
+}
+
+.logout-button {
+    width: 100px;
+    margin-top: 0.5em;
+}
