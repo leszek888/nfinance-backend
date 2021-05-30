@@ -1,6 +1,6 @@
 from decimal import *
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
@@ -122,11 +122,10 @@ def deleteTransaction():
             db.session.commit()
             return jsonify({'message' : 'Transaction deleted.'})
     return jsonify({'error' : 'Query not understood.'})
-'''
+
 @app.route('/')
 def index():
-    return "Index"
-'''
+    return render_template('index.html')
 
 def saveTransaction(transaction):
     # Validate Balance
