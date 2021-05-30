@@ -215,7 +215,7 @@ function getNewBalance() {
 }
 
 function sendTransaction(transaction) {
-    sendRequest("POST", "http://localhost:5000/transaction/save",
+    sendRequest("POST", "http://localhost:5000/api/transaction/save",
                 transaction,
                 (data) => {
                     updateTransactions();
@@ -224,7 +224,7 @@ function sendTransaction(transaction) {
 }
 
 function updateTransactions() {
-    sendRequest("GET", "http://localhost:5000/transaction/list/"+BALANCE_ID,
+    sendRequest("GET", "http://localhost:5000/api/transaction/list/"+BALANCE_ID,
                 null,
                 (data) => {
                     LOADED_TRANSACTIONS = data;
@@ -236,7 +236,7 @@ function updateTransactions() {
 }
 
 function updateAccounts() {
-    sendRequest("POST", "http://localhost:5000/accounts",
+    sendRequest("POST", "http://localhost:5000/api/accounts",
                 {'balance_id':BALANCE_ID},
                 (data) => {
                     clearElement(ACCOUNTS_DIV);
@@ -246,7 +246,7 @@ function updateAccounts() {
 }
 
 function sendDeleteTransactionRequest(transaction) {
-    sendRequest("DELETE", "http://localhost:5000/transaction/delete",
+    sendRequest("DELETE", "http://localhost:5000/api/transaction/delete",
                 transaction,
                 updateTransactions);
 }

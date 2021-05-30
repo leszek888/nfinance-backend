@@ -51,7 +51,7 @@ class AccountsTest(unittest.TestCase):
                                                     {'account': 'Income:Revenue',
                                                      'amount': '-4'},
                                                     ])
-        self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
                       data=transaction)
         transaction = self.create_transaction_json(entries = [
                                                     {'account': 'Assets',
@@ -63,12 +63,12 @@ class AccountsTest(unittest.TestCase):
                                                     ])
 
 
-        self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
                       data=transaction)
 
         self.assertEqual(6, len(Entry.query.all()))
 
-        response = self.app.post('/accounts', headers={"Content-Type":"application/json"},
+        response = self.app.post('/api/accounts', headers={"Content-Type":"application/json"},
                       data=json.dumps({'balance_id':self.balance.json['balance_id']}))
 
         self.assertEqual(200, response.status_code)
@@ -82,7 +82,7 @@ class AccountsTest(unittest.TestCase):
                                                     {'account': 'Expenses',
                                                      'amount': '-10'},
                                                     ])
-        self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
                       data=transaction)
 
         transaction = self.create_transaction_json(entries = [
@@ -93,10 +93,10 @@ class AccountsTest(unittest.TestCase):
                                                     {'account': 'Capital',
                                                      'amount': '40'},
                                                     ])
-        self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
                       data=transaction)
 
-        response = self.app.post('/accounts', headers={"Content-Type":"application/json"},
+        response = self.app.post('/api/accounts', headers={"Content-Type":"application/json"},
                       data=json.dumps({'balance_id':self.balance.json['balance_id']}))
 
         accounts = response.json['accounts']
@@ -115,7 +115,7 @@ class AccountsTest(unittest.TestCase):
                                                     {'account': 'Expenses',
                                                      'amount': '-10'},
                                                     ])
-        self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
                       data=transaction)
 
         transaction = self.create_transaction_json(entries = [
@@ -128,7 +128,7 @@ class AccountsTest(unittest.TestCase):
                                                     ],
                                                    date = '2020-01-02',
                                                    )
-        self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
                       data=transaction)
 
         transaction = self.create_transaction_json(entries = [
@@ -141,11 +141,11 @@ class AccountsTest(unittest.TestCase):
                                                     ],
                                                    date = '2020-01-03'
                                                    )
-        self.app.post('/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
                       data=transaction)
 
 
-        response = self.app.post('/accounts/filtered', headers={"Content-Type":"application/json"},
+        response = self.app.post('/api/accounts/filtered', headers={"Content-Type":"application/json"},
                       data=json.dumps({'balance_id':self.balance.json['balance_id'],
                                        'filters': {
                                             'date': { 'from': '2020-01-02','to':'2020-01-03' },

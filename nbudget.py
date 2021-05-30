@@ -64,14 +64,14 @@ def get_balance():
 
     return jsonify({'balance_id' : new_balance.public_id})
 
-@app.route('/transaction/save', methods=['POST'])
+@app.route('/api/transaction/save', methods=['POST'])
 @cross_origin()
 def create_transaction():
     data = request.get_json()
 
     return jsonify(saveTransaction(data))
 
-@app.route('/transaction/list/<balance_id>', methods=['GET'])
+@app.route('/api/transaction/list/<balance_id>', methods=['GET'])
 @cross_origin()
 def get_transactions(balance_id):
     if len(balance_id) != 36:
@@ -100,7 +100,7 @@ def get_transactions(balance_id):
 
     return jsonify({'transactions' : formatted_transactions})
 
-@app.route('/transaction/delete', methods=['DELETE'])
+@app.route('/api/transaction/delete', methods=['DELETE'])
 @cross_origin()
 def deleteTransaction():
     data = request.get_json()
@@ -122,10 +122,11 @@ def deleteTransaction():
             db.session.commit()
             return jsonify({'message' : 'Transaction deleted.'})
     return jsonify({'error' : 'Query not understood.'})
-
+'''
 @app.route('/')
 def index():
     return "Index"
+'''
 
 def saveTransaction(transaction):
     # Validate Balance
@@ -236,7 +237,7 @@ def saveTransaction(transaction):
     db.session.commit()
     return {'message' : 'Transaction saved.'}
 
-@app.route('/accounts/filtered', methods=['POST'])
+@app.route('/api/accounts/filtered', methods=['POST'])
 @cross_origin()
 def getFilteredAccounts():
     data = request.get_json()
@@ -281,7 +282,7 @@ def getFilteredAccounts():
 
     return {'accounts' : accounts}
 
-@app.route('/accounts', methods=['POST'])
+@app.route('/api/accounts', methods=['POST'])
 @cross_origin()
 def getAccounts():
     data = request.get_json()

@@ -48,7 +48,7 @@ class TransactionsTest(unittest.TestCase):
     def test_validate_valid_transaction(self):
         transaction = self.create_transaction_json()
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -60,7 +60,7 @@ class TransactionsTest(unittest.TestCase):
     def test_reject_transaction_with_wrong_balance_id(self):
         transaction = self.create_transaction_json(balance_id = "wrong-id")
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -70,7 +70,7 @@ class TransactionsTest(unittest.TestCase):
     def test_reject_transaction_without_payee(self):
         transaction = self.create_transaction_json(payee = '')
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -80,7 +80,7 @@ class TransactionsTest(unittest.TestCase):
     def test_reject_transaction_with_wrong_date(self):
         transaction = self.create_transaction_json(date = 'wrong')
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -95,7 +95,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : '-e' }
                                                    ])
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -112,7 +112,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : ''},
                                                    ])
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -129,7 +129,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : '' },
                                                    ])
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -146,7 +146,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : '-32,25' }
                                                    ])
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -161,7 +161,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : '' }
                                                    ])
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -180,7 +180,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : '5' }
                                                    ])
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -190,7 +190,7 @@ class TransactionsTest(unittest.TestCase):
     def test_update_existing_transactions(self):
         transaction = self.create_transaction_json()
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -208,7 +208,7 @@ class TransactionsTest(unittest.TestCase):
                                                             transaction_id = transaction_id
                                                            )
 
-        new_response = self.app.post('/transaction/save',
+        new_response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=changed_transaction)
 
@@ -224,11 +224,11 @@ class TransactionsTest(unittest.TestCase):
     def test_delete_transaction(self):
         transaction = self.create_transaction_json()
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
-        response = self.app.post('/transaction/save',
+        response = self.app.post('/api/transaction/save',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction)
 
@@ -238,7 +238,7 @@ class TransactionsTest(unittest.TestCase):
         transaction_to_delete = json.dumps({ 'id' : Transactions.query.first().id,
                                   'balance_id' : Transactions.query.first().balance_id })
 
-        response = self.app.delete('/transaction/delete',
+        response = self.app.delete('/api/transaction/delete',
                                  headers={"Content-Type":"application/json"},
                                  data=transaction_to_delete)
 
@@ -250,12 +250,12 @@ class TransactionsTest(unittest.TestCase):
     def test_list_all_transaction(self):
         for i in range(0, 5):
             transaction = self.create_transaction_json()
-            response = self.app.post('/transaction/save',
+            response = self.app.post('/api/transaction/save',
                                      headers={"Content-Type":"application/json"},
                                      data=transaction)
 
         self.assertEqual(10, len(Entry.query.all()))
-        response = self.app.get('/transaction/list/'+self.balance.json['balance_id'])
+        response = self.app.get('/api/transaction/list/'+self.balance.json['balance_id'])
         self.assertEqual(200, response.status_code)
         if 'error' in response.json:
             print(response.json['error'])
