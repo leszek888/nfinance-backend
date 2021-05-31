@@ -84,6 +84,10 @@ function displayBalance(raport) {
     const link_net_worth = document.createElement('button');
     const link_cash_flow = document.createElement('button');
 
+    link_balance.classList.add('tab-button', 'color-black');
+    link_net_worth.classList.add('tab-button', 'color-black');
+    link_cash_flow.classList.add('tab-button', 'color-black');
+
     link_balance.addEventListener('click', () => {displayBalance('balance');});
     link_net_worth.addEventListener('click', () => {displayBalance('net-worth');});
     link_cash_flow.addEventListener('click', () => {displayBalance('cash-flow');});
@@ -95,14 +99,25 @@ function displayBalance(raport) {
     clearElement(sub_links);
     clearElement(MAIN_DIV);
 
-    if (raport == 'net-worth')
+    function set_selected(link) {
+        link.classList.remove('color-black');
+        link.classList.add('color-navy');
+    }
+
+    if (raport == 'net-worth') {
         updateAccounts({'account':['Aktywa','Zobowiązania']})
+        set_selected(link_net_worth);
+    }
 
-    else if (raport == 'cash-flow')
+    else if (raport == 'cash-flow') {
         updateAccounts({'account':['Przychód','Wydatki']})
+        set_selected(link_cash_flow);
+    }
 
-    else
+    else {
         updateAccounts();
+        set_selected(link_balance);
+    }
 
     selectLink('balance-link');
     sub_links.appendChild(link_balance);
