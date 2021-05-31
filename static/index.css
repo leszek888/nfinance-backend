@@ -1,9 +1,17 @@
+:root {
+    --color-dark: #444;
+    --color-grey: #a3a3a3;
+    --color-light: #faffea;
+    --color-accent: #fcfc62;
+    --color-bg: #f8f8f8;
+}
+
 body {
     font-family: arial, verdana, sans-serif;
     font-size: 11pt;
     position: relative;
-    background-color: #f8f8f8;
-    color: #444444;
+    background-color: var(--color-bg);
+    color: var(--color-dark);
     padding-top: 7em;
 }
 
@@ -38,12 +46,8 @@ body {
 }
 
 .edited-transaction .transaction-input {
-    border: solid 1px #bbb;
-    background: white;
-    padding: 4px;
-    width: 100%;
-    outline: none;
-    color: #222;
+    border-color: #ddd;
+    background: #fff;
     pointer-events: auto;
 }
 
@@ -57,20 +61,22 @@ body {
     padding: 4px 1em 4px 1em;
     font-size: 11pt;
     visibility: hidden;
-    color: #444444;
+    opacity: 0;
+    color: var(--color-dark);
     border-radius: 3px;
     margin: 0px 2px 0px 2px;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
 }
 
 .transaction-button:hover {
-    background-color: #bedbf4;
+    background-color: var(--color-dark);
+    color: #ccc;
 }
 
 .edited-transaction .transaction-button {
     visibility: visible;
+    opacity: 1;
 }
-
 
 .transaction-header-wrapper {
     display: grid;
@@ -155,8 +161,8 @@ body {
 .account-depth-0 {
     font-weight: bold;
     border-top: 1px solid #eee;
-    background-color: #444 !important;
-    color: #fcfc62;
+    background-color: var(--color-dark) !important;
+    color: var(--color-accent);
 }
 
 .account-row {
@@ -183,11 +189,11 @@ body {
     top: 1em;
     left: 0;
     right: 0;
-    width: 200px;
+    width: 300px;
     margin-left: auto;
     margin-right: auto;
     padding: 0.5em 1em 0.5em 1em;
-    background-color: #ddd;
+    background-color: var(--color-light);
     border-radius: 20px;
     transition: all 2s;
     visibility: visible;
@@ -195,7 +201,8 @@ body {
 }
 
 .error-message {
-    background-color: #fefe62;
+    background-color: var(--color-accent);
+    color: var(--color-dark);
 }
 
 .animated {
@@ -232,12 +239,12 @@ body {
 
 #login_title_div {
     font-size: 14pt;
-    color: #444;
+    color: var(--color-dark);
     position: relative;
 }
 
 #login_to_balance_div {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--color-grey);
 }
 
 #main_content {
@@ -252,15 +259,15 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    box-shadow: 0px 0px 16px #555;
+    box-shadow: 0px 0px 16px var(--color-dark);
     z-index: 999;
-    background-color: #424242;
+    background-color: var(--color-dark);
 }
 
 .tab-bar {
     height: 5px;
     width: 100%;
-    background-color: #fcfc62;
+    background-color: var(--color-accent);
 }
  
 .nav-container {
@@ -289,7 +296,7 @@ body {
 .nav-link {
     margin-right: 2em;
     font-size: 13pt;
-    color: #c9c9c9;
+    color: var(--color-grey);
     text-decoration: none;
     transition: color 0.2s;
 }
@@ -298,8 +305,8 @@ body {
     position: absolute;
     top: 0px;
     left: 0px;
-    color: #fff;
-    opacity: 0.2;
+    color: var(--color-light);
+    opacity: 0.3;
     font-size: 30pt;
     font-weight: bold;
     font-style: oblique;
@@ -308,11 +315,11 @@ body {
 
 .nav-link:hover {
     text-decoration: underline;
-    color: #fcfc62;
+    color: var(--color-accent);
 }
 
 .link-selected {
-    color: #fcfc62;
+    color: var(--color-accent);
 }
 
 .has-error {
@@ -329,34 +336,32 @@ body {
     padding-right: 1.5em;
     margin: 0.25em;
     transition: background-color 0.2s;
-    box-shadow: 0px 0px 4px #555;
+    box-shadow: 0px 0px 4px var(--color-dark);
 }
 
 
 .color-black {
-    background-color: #a3a3a3;
+    background-color: var(--color-grey);
     box-shadow: 0px 0px 4px #000;
     color: #222;
 }
 .color-black:hover {
-    background-color: #fcfc62;
+    background-color: var(--color-accent);
 }
 .color-navy {
-    background-color: #fcfc62;
-    color: #444;
+    background-color: var(--color-accent);
+    color: var(--color-dark);
 }
 .color-navy:hover {
-    background-color: #eaea60;
-    color: #444;
+    filter: brightness(0.95);
 }
 
 .color-light {
-    background-color: #faffea;
-    color: #444;
+    background-color: var(--color-light);
+    color: var(--color-dark);
 }
-
 .color-light:hover {
-    background-color: #eef2e1;
+    filter: brightness(0.95);
 }
 
 .logout-button {
@@ -376,7 +381,7 @@ body {
     padding-top: 2em;
     padding-bottom: 10em;
     text-align: center;
-    background-color: #c9c9c9;
+    background-color: var(--color-grey);
 }
 
 .tab-button {
@@ -384,8 +389,8 @@ body {
     border: 0px;
     padding-left: 1.5em;
     padding-right: 1.5em;
-    font-size: 12pt;
-    height: 30px;
+    font-size: 11pt;
+    height: 25px;
     margin-right: 0.25em;
     box-shadow: 0px 0px 0px;
 }
