@@ -7,27 +7,6 @@ body {
     padding-top: 7em;
 }
 
-.main-button {
-    border: 0px;
-    padding: 1em;
-    margin: 1em;
-    border-radius: 4px;
-    transition: background-color 0.1s;
-    background-color: #f5f5f5;
-}
-
-.main-button:hover {
-    border: 0px;
-    padding: 1em;
-    margin: 1em;
-    box-shadow: 0px 0px 4px #aaaaaa;
-    background-color: #fcfcfc;
-}
-
-.main-button:active {
-    background-color: #f0f0f0;
-}
-
 .main-text-input {
     border: 1px #cccccc solid;
     border-radius: 4px;
@@ -45,7 +24,6 @@ body {
 .main-text-input:focus {
     border-color: #999999;
 }
-
 
 .transaction-input {
     border: solid 1px transparent;
