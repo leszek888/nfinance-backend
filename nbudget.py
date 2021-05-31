@@ -253,30 +253,21 @@ def getFilteredAccounts(data):
     if 'balance_id' not in data:
         return jsonify({'error': 'No balance specified.'})
 
-    transactions = []
+    transactions = Transactions.query.filter(Transactions.balance_id == data['balance_id'])
     entries = []
     filtered_entries = []
 
-    if 'filters' in data:
-        if 'date' in data['filters']:
-            transactions = Transactions.query.filter(Transactions.balance_id == data['balance_id'])
-            transactions = transactions.filter(Transactions.date >= data['filters']['date']['from']).all() \
-                         + transactions.filter(Transactions.date <= data['filters']['date']['to']).all()
+    if 'date' in data['filters']:
+        transactions = transactions.filter(Transactions.date >= data['filters']['date']['from']).all() \
+                     + transactions.filter(Transactions.date <= data['filters']['date']['to']).all()
 
-        if len(transactions) > 0:
-            entries = Entry.query.filter(Entry.transaction_id.in_(
-                [t.id for t in transactions]))
-        else:
-            entries = Entry.query.filter(Entry.balance_id == data['balance_id'])
+    entries = Entry.query.filter(Entry.transaction_id.in_(
+        [t.id for t in transactions]))
 
-        if 'account' in data['filters']:
-            for account in data['filters']['account']:
-                filtered_entries = filtered_entries + entries.filter(Entry.account.like('%'+account+'%')).all()
+    if 'account' in data['filters']:
+        for account in data['filters']['account']:
+            filtered_entries = filtered_entries + entries.filter(Entry.account.like('%'+account+'%')).all()
 
-    print('ENTRIES ##################')
-    print(entries)
-    print('FILTRED ENTRIES ##################')
-    print(filtered_entries)
     accounts = []
 
     for entry in filtered_entries:
@@ -288,9 +279,6 @@ def getFilteredAccounts(data):
         if not account_found:
             accounts.append({'name':entry.account,
                              'balance':entry.amount})
-
-    print('ACCOUNTS ###############')
-    print(accounts)
 
     for account in accounts:
         account['balance'] = getFormattedDecimal(account['balance'])

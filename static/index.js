@@ -77,12 +77,37 @@ function displayTransactions() {
     MAIN_DIV.appendChild(TRANSACTIONS_DIV);
 }
 
-function displayBalance() {
+function displayBalance(raport) {
+    const sub_links = document.querySelector('.nav-sub-links');
+
+    const link_balance = document.createElement('button');
+    const link_net_worth = document.createElement('button');
+    const link_cash_flow = document.createElement('button');
+
+    link_balance.addEventListener('click', () => {displayBalance('balance');});
+    link_net_worth.addEventListener('click', () => {displayBalance('net-worth');});
+    link_cash_flow.addEventListener('click', () => {displayBalance('cash-flow');});
+
+    link_balance.innerText = 'Balance';
+    link_net_worth.innerText = 'Net Worth';
+    link_cash_flow.innerText = 'Cash Flow';
+
+    clearElement(sub_links);
     clearElement(MAIN_DIV);
 
-    updateAccounts({'account':['Aktywa']});
+    if (raport == 'net-worth')
+        updateAccounts({'account':['Aktywa','Zobowiązania']})
+
+    else if (raport == 'cash-flow')
+        updateAccounts({'account':['Przychód','Wydatki']})
+
+    else
+        updateAccounts();
 
     selectLink('balance-link');
+    sub_links.appendChild(link_balance);
+    sub_links.appendChild(link_net_worth);
+    sub_links.appendChild(link_cash_flow);
     MAIN_DIV.appendChild(ACCOUNTS_DIV);
 }
 
