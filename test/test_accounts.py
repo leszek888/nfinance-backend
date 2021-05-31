@@ -110,20 +110,20 @@ class AccountsTest(unittest.TestCase):
     def test_fetched_accounts_are_filtered(self):
         transaction = self.create_transaction_json( date = '2020-01-01',
                                                     entries = [
-                                                    {'account': 'Assets',
+                                                    {'account': 'Assets:Cash',
                                                      'amount': '10'},
-                                                    {'account': 'Expenses',
+                                                    {'account': 'Expenses:Groceries',
                                                      'amount': '-10'},
                                                     ])
         self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
                       data=transaction)
 
         transaction = self.create_transaction_json(entries = [
-                                                    {'account': 'Liabilities',
+                                                    {'account': 'Liabilities:Debt',
                                                      'amount': '-100'},
-                                                    {'account': 'Income',
+                                                    {'account': 'Income:Paycheck',
                                                      'amount': '60'},
-                                                    {'account': 'Capital',
+                                                    {'account': 'Capital:Opening',
                                                      'amount': '40'},
                                                     ],
                                                    date = '2020-01-02',
@@ -132,11 +132,11 @@ class AccountsTest(unittest.TestCase):
                       data=transaction)
 
         transaction = self.create_transaction_json(entries = [
-                                                    {'account': 'Assets',
+                                                    {'account': 'Assets:Cash',
                                                      'amount': '25'},
-                                                    {'account': 'Expenses',
+                                                    {'account': 'Expenses:Hobbies',
                                                      'amount': '-5'},
-                                                    {'account': 'Liabilities',
+                                                    {'account': 'Liabilities:Credit Card',
                                                      'amount': '-20'},
                                                     ],
                                                    date = '2020-01-03'
@@ -145,7 +145,7 @@ class AccountsTest(unittest.TestCase):
                       data=transaction)
 
 
-        response = self.app.post('/api/accounts/filtered', headers={"Content-Type":"application/json"},
+        response = self.app.post('/api/accounts', headers={"Content-Type":"application/json"},
                       data=json.dumps({'balance_id':self.balance.json['balance_id'],
                                        'filters': {
                                             'date': { 'from': '2020-01-02','to':'2020-01-03' },
@@ -155,9 +155,5 @@ class AccountsTest(unittest.TestCase):
 
         accounts = response.json['accounts']
 
-        self.assertEqual(len(accounts), 2)
-        self.assertEqual('Assets', accounts[0]['name'])
-        self.assertEqual('Liabilities', accounts[1]['name'])
-        self.assertEqual('25.00', accounts[0]['balance'])
-        self.assertEqual('-120.00', accounts[1]['balance'])
+        self.assertEqual(len(accounts), 3)
 

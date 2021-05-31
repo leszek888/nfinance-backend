@@ -80,6 +80,8 @@ function displayTransactions() {
 function displayBalance() {
     clearElement(MAIN_DIV);
 
+    updateAccounts({'account':['Aktywa']});
+
     selectLink('balance-link');
     MAIN_DIV.appendChild(ACCOUNTS_DIV);
 }
@@ -262,14 +264,17 @@ function updateTransactions() {
                     LOADED_TRANSACTIONS = data;
                     clearElement(TRANSACTIONS_DIV);
                     TRANSACTIONS_DIV.appendChild(TRANSACTIONS.drawAll(LOADED_TRANSACTIONS));
-                    updateAccounts();
                 }
     );
 }
 
-function updateAccounts() {
+function updateAccounts(filters=null) {
+    console.log(filters);
+
     sendRequest("POST", "/api/accounts",
-                {'balance_id':BALANCE_ID},
+                {'balance_id':BALANCE_ID,
+                 'filters':filters
+                },
                 (data) => {
                     clearElement(ACCOUNTS_DIV);
                     ACCOUNTS_DIV.appendChild(ACCOUNTS.drawAll(data));

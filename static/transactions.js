@@ -118,9 +118,9 @@ var TRANSACTIONS = (function(tr) {
         const transaction_row = document.createElement('div');
             const transaction_header = document.createElement('div');
                 const transaction_header_date = document.createElement('div');
-                    const transaction_header_date_input = createTransactionDateInput();
+                    const transaction_header_date_input = createTransactionDateInput('Date');
                 const transaction_header_payee = document.createElement('div');
-                    const transaction_header_payee_input = createTransactionTextInput();
+                    const transaction_header_payee_input = createTransactionTextInput('Payee');
                 const transaction_header_buttons = document.createElement('div');
 
             const transaction_entries = document.createElement('div');
@@ -283,7 +283,7 @@ var TRANSACTIONS = (function(tr) {
         let first_free_field = null;
 
         amounts.forEach(amount => {
-            amount.placeholder = '';
+            amount.placeholder = 'Amount';
             if (amount.value.length == 0 && first_free_field == null) {
                 first_free_field = amount;
             }
@@ -298,6 +298,7 @@ var TRANSACTIONS = (function(tr) {
             }
         }
     }
+
     tr.edit = (transaction_row) => {
         const inputs = document.querySelectorAll('.transaction-input');
         inputs.forEach(input => {

@@ -244,9 +244,7 @@ def saveTransaction(transaction):
     db.session.commit()
     return {'message' : 'Transaction saved.'}
 
-@app.route('/api/accounts/filtered', methods=['POST'])
-@cross_origin()
-def getFilteredAccounts():
+def getFilteredAccounts(data):
     data = request.get_json()
 
     if not data:
@@ -255,26 +253,33 @@ def getFilteredAccounts():
     if 'balance_id' not in data:
         return jsonify({'error': 'No balance specified.'})
 
-    # entries = Entry.query.filter_by(balance_id=data['balance_id']).order_by(Entry.account)
-
-    db_query = 'SELECT * FROM Entry WHERE balance_id = "' + data['balance_id'] +'"'
+    transactions = []
+    entries = []
+    filtered_entries = []
 
     if 'filters' in data:
         if 'date' in data['filters']:
-            db_query = db_query + ' AND transaction_id IN ' + \
-                '(SELECT id FROM Transactions WHERE date >= "' + data['filters']['date']['from'] + \
-                '" AND date <= "' + data['filters']['date']['to'] + '")'
+            transactions = Transactions.query.filter(Transactions.balance_id == data['balance_id'])
+            transactions = transactions.filter(Transactions.date >= data['filters']['date']['from']).all() \
+                         + transactions.filter(Transactions.date <= data['filters']['date']['to']).all()
+
+        if len(transactions) > 0:
+            entries = Entry.query.filter(Entry.transaction_id.in_(
+                [t.id for t in transactions]))
+        else:
+            entries = Entry.query.filter(Entry.balance_id == data['balance_id'])
 
         if 'account' in data['filters']:
-            acc = str(data['filters']['account']).replace('[', '(').replace(']', ')')
-            db_query = db_query + ' AND account IN ' + acc
+            for account in data['filters']['account']:
+                filtered_entries = filtered_entries + entries.filter(Entry.account.like('%'+account+'%')).all()
 
-    db_query = db_query + ' ORDER BY account ASC'
-    entries = db.session.execute(db_query).all()
-
+    print('ENTRIES ##################')
+    print(entries)
+    print('FILTRED ENTRIES ##################')
+    print(filtered_entries)
     accounts = []
 
-    for entry in entries:
+    for entry in filtered_entries:
         account_found = False
         for account in accounts:
             if account['name'] == entry.account:
@@ -283,6 +288,9 @@ def getFilteredAccounts():
         if not account_found:
             accounts.append({'name':entry.account,
                              'balance':entry.amount})
+
+    print('ACCOUNTS ###############')
+    print(accounts)
 
     for account in accounts:
         account['balance'] = getFormattedDecimal(account['balance'])
@@ -299,6 +307,10 @@ def getAccounts():
 
     if 'balance_id' not in data:
         return jsonify({'error': 'No balance specified.'})
+
+    if 'filters' in data:
+        if data['filters'] is not None:
+            return getFilteredAccounts(data)
 
     entries = Entry.query.filter_by(balance_id=data['balance_id']).order_by(Entry.account)
 
