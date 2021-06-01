@@ -6,7 +6,6 @@ const NUMBER_LOCALE = 'de-DE';
 
 let ACCOUNTS_DIV = null;
 let BALANCE_ID = null
-let LOADED_TRANSACTIONS = null;
 let MAIN_DIV = null;
 let TRANSACTIONS_DIV = null;
 
@@ -105,17 +104,17 @@ function displayBalance(raport) {
     }
 
     if (raport == 'net-worth') {
-        updateAccounts({'account':['Aktywa','Zobowiązania']})
+        ACCOUNTS.retreive({'account':['Aktywa','Zobowiązania']})
         set_selected(link_net_worth);
     }
 
     else if (raport == 'cash-flow') {
-        updateAccounts({'account':['Przychód','Wydatki']})
+        ACCOUNTS.retreive({'account':['Przychód','Wydatki']})
         set_selected(link_cash_flow);
     }
 
     else {
-        updateAccounts();
+        ACCOUNTS.retreive();
         set_selected(link_balance);
     }
 
@@ -209,7 +208,7 @@ function convertStringToFloat(number) {
 
 function fetchBalance() {
     if (BALANCE_ID.length == 36) {
-        updateTransactions();
+        TRANSACTIONS.retreive();
     }
 }
 
@@ -276,6 +275,7 @@ function validateDateInput(input_field) {
 
     return date_is_valid;
 }
+
 function getNewBalance() {
     sendRequest("GET", "/api/balance/new",
                 null,
@@ -286,46 +286,6 @@ function getNewBalance() {
                     TRANSACTIONS_DIV.appendChild(TRANSACTIONS.drawAll(null));
                 }
     );
-}
-
-function sendTransaction(transaction) {
-    sendRequest("POST", "/api/transaction/save",
-                transaction,
-                (data) => {
-                    updateTransactions();
-                }
-    );
-}
-
-function updateTransactions() {
-    sendRequest("GET", "/api/transaction/list/"+BALANCE_ID,
-                null,
-                (data) => {
-                    LOADED_TRANSACTIONS = data;
-                    clearElement(TRANSACTIONS_DIV);
-                    TRANSACTIONS_DIV.appendChild(TRANSACTIONS.drawAll(LOADED_TRANSACTIONS));
-                }
-    );
-}
-
-function updateAccounts(filters=null) {
-    console.log(filters);
-
-    sendRequest("POST", "/api/accounts",
-                {'balance_id':BALANCE_ID,
-                 'filters':filters
-                },
-                (data) => {
-                    clearElement(ACCOUNTS_DIV);
-                    ACCOUNTS_DIV.appendChild(ACCOUNTS.drawAll(data));
-                }
-    );
-}
-
-function sendDeleteTransactionRequest(transaction) {
-    sendRequest("DELETE", "/api/transaction/delete",
-                transaction,
-                updateTransactions);
 }
 
 function sendRequest(request_type, address, content, call_back) {

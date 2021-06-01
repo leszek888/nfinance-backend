@@ -1,3 +1,4 @@
+
 var ACCOUNTS = (function(acc) {
 
     let loadFromJson = (accounts) => {
@@ -79,6 +80,20 @@ var ACCOUNTS = (function(acc) {
         });
 
         return accounts_table;
+    }
+
+    acc.retreive = (filters=null) => {
+        console.log(filters);
+
+        sendRequest("POST", "/api/accounts",
+                    {'balance_id':BALANCE_ID,
+                     'filters':filters
+                    },
+                    (data) => {
+                        clearElement(ACCOUNTS_DIV);
+                        ACCOUNTS_DIV.appendChild(ACCOUNTS.drawAll(data));
+                    }
+        );
     }
 
     return acc;

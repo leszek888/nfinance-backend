@@ -1,4 +1,6 @@
 var TRANSACTIONS = (function(tr) {
+
+    let LOADED_TRANSACTIONS = null;
  
     let createTransactionInput = () => {
         const input = document.createElement('input');
@@ -164,7 +166,7 @@ var TRANSACTIONS = (function(tr) {
         const transaction_delete_button = createTransactionButton('Delete'); 
 
         transaction_save_button.addEventListener('click', (e) => { 
-            sendTransaction(tr.extractDataFromDOM(transaction_row));
+            tr.save(tr.extractDataFromDOM(transaction_row));
         });
         transaction_cancel_button.addEventListener('click', (e) => {
             if (transaction.id == "new-transaction") {
@@ -174,7 +176,7 @@ var TRANSACTIONS = (function(tr) {
                 transaction_row.parentNode.replaceChild(tr.drawRow(transaction), transaction_row);
         });
         transaction_delete_button.addEventListener('click', (e) => { 
-            sendDeleteTransactionRequest(tr.extractDataFromDOM(transaction_row));
+            tr.delete(tr.extractDataFromDOM(transaction_row));
         });
 
         transaction_buttons_div.classList.add('transaction-buttons-wrapper');
@@ -405,6 +407,32 @@ var TRANSACTIONS = (function(tr) {
             transaction_valid = false;
         }
         return transaction_valid;
+    }
+
+    tr.save = (transaction) => {
+        sendRequest("POST", "/api/transaction/save",
+                    transaction,
+                    (data) => {
+                        tr.retreive();
+                    }
+        );
+    }
+
+    tr.retreive = () => {
+        sendRequest("GET", "/api/transaction/list/"+BALANCE_ID,
+                    null,
+                    (data) => {
+                        LOADED_TRANSACTIONS = data;
+                        clearElement(TRANSACTIONS_DIV);
+                        TRANSACTIONS_DIV.appendChild(TRANSACTIONS.drawAll(LOADED_TRANSACTIONS));
+                    }
+        );
+    }
+
+    tr.delete = (transaction) => {
+        sendRequest("DELETE", "/api/transaction/delete",
+                    transaction,
+                    tr.retreive);
     }
 
     return tr;
