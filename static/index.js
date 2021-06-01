@@ -53,6 +53,40 @@ function selectLink(link_id) {
     document.getElementById(link_id).classList.add('link-selected');
 }
 
+function createTextInput(placeholder = null) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.classList.add('main-text-input');
+    if (placeholder != null)
+        input.placeholder = placeholder;
+
+    return input;
+}
+
+function createDateInput(placeholder = null) {
+    const input = createTextInput(placeholder);
+
+    return input;
+}
+
+function useAsFilter(key, input, validator=null) {
+    input.addEventListener("keyup", (e) => {
+        if (e.currentTarget.value.trim().length == 0) {
+            TRANSACTIONS.updateFilters(key, null);
+        }
+        else if (validator && validator(e.currentTarget)) {
+            TRANSACTIONS.updateFilters(key, e.currentTarget.value);
+        }
+        else if (validator == null) {
+            TRANSACTIONS.updateFilters(key, e.currentTarget.value);
+        }
+        else
+            TRANSACTIONS.updateFilters(key, null);
+
+        TRANSACTIONS.retreive();
+    });
+}
+
 function displayTransactions() {
     clearElement(MAIN_DIV);
 
@@ -60,7 +94,20 @@ function displayTransactions() {
 
     const transactions_menu = document.createElement('div');
     const new_transaction_button = document.createElement('input');
+    const filter_menu = document.createElement('div');
+    const filter_by_payee = createTextInput('Payee');
+    const filter_by_date_from = createDateInput('From');
+    const filter_by_date_to = createDateInput('To');
+    const filter_by_account = createTextInput('Account');
+
+    useAsFilter("from", filter_by_date_from, validateDateInput);
+    useAsFilter("to", filter_by_date_to, validateDateInput);
+    useAsFilter("payee", filter_by_payee);
+    useAsFilter("account", filter_by_account);
+
     transactions_menu.classList.add('sub-window');
+    filter_menu.classList.add('sub-window');
+    filter_menu.classList.add('filter-menu');
 
     new_transaction_button.type = 'button';
     new_transaction_button.classList.add('rounded-button','color-navy');
@@ -70,7 +117,12 @@ function displayTransactions() {
     });
 
     transactions_menu.appendChild(new_transaction_button);
+    filter_menu.appendChild(filter_by_date_from);
+    filter_menu.appendChild(filter_by_date_to);
+    filter_menu.appendChild(filter_by_payee);
+    filter_menu.appendChild(filter_by_account);
     MAIN_DIV.appendChild(transactions_menu);
+    MAIN_DIV.appendChild(filter_menu);
     MAIN_DIV.appendChild(TRANSACTIONS_DIV);
 }
 
@@ -225,6 +277,10 @@ function validateNumberInput(input_field) {
 }
 
 function validateDateInput(input_field) {
+    input_field.classList.remove('has-error');
+    if (input_field.value.length == 0)
+        return false;
+
     const date_format = /^(\d{4})(-)(\d{1,2})(-)(\d{1,2})$/;
     let date_string = input_field.value.trim();
     let date_is_valid = true;

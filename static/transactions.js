@@ -1,6 +1,7 @@
 var TRANSACTIONS = (function(tr) {
 
     let LOADED_TRANSACTIONS = null;
+    let FILTERS = [];
  
     let createTransactionInput = () => {
         const input = document.createElement('input');
@@ -55,6 +56,29 @@ var TRANSACTIONS = (function(tr) {
 
         return button;
     }
+
+    tr.updateFilters = (key, value) => {
+        let updated = false;
+
+        for (let i=0; i!=FILTERS.length; i++) {
+            if (FILTERS[i]['key'] == key) {
+                if (value == null) {
+                    FILTERS.splice(i, 1);
+                    updated = true;
+                    break;
+                }
+                else {
+                    FILTERS[i]['value'] = value;
+                    updated = true;
+                    break;
+                }
+            }
+        }
+
+        if (!updated && value != null) {
+            FILTERS.push({'key':key, 'value': value});
+        }
+    };
 
     tr.drawEntryRow = (account, amount) => {
         const transaction_entries_row = document.createElement('div');
@@ -413,7 +437,18 @@ var TRANSACTIONS = (function(tr) {
     }
 
     tr.retreive = () => {
-        sendRequest("GET", "/api/transaction/list/"+BALANCE_ID,
+        filter_args = '';
+        if ((FILTERS.length) > 0) {
+            filter_args = '?';
+            FILTERS.forEach(filter => {
+                filter_args += filter['key'];
+                filter_args += '=';
+                filter_args += filter['value'];
+                filter_args += '&';
+            });
+        }
+        console.log(filter_args);
+        sendRequest("GET", "/api/transaction/list"+filter_args,
                     null,
                     (data) => {
                         LOADED_TRANSACTIONS = data;
