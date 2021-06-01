@@ -70,19 +70,36 @@ def create_transaction():
 
     return jsonify(saveTransaction(data))
 
-@app.route('/api/transaction/list/<balance_id>', methods=['GET'])
+@app.route('/api/transaction/list', methods=['GET'])
 @cross_origin()
-def get_transactions(balance_id):
-    if len(balance_id) != 36:
-        return jsonify({'error' : 'Wrong Balance Format.'})
+def get_transactions():
+    balance_id = request.cookies.get('balance_id')
+
+    if not balance_id or len(balance_id) != 36:
+        return jsonify({'error' : 'Balance not found.'})
 
     if not Balance.query.filter_by(public_id=balance_id).first():
         return jsonify({'error' : 'Balance not found.'})
 
     transactions = Transactions.query.filter_by(balance_id=balance_id).order_by(Transactions.date.desc()).order_by(Transactions.id.desc());
+
+    if request.args.get('from') is not None and \
+       request.args.get('to') is not None:
+        print('filtering date')
+        transactions = transactions.filter(Transactions.date >= request.args.get('from'),
+                                                 Transactions.date <= request.args.get('to'))
+
+    if request.args.get('payee') is not None:
+        transactions = transactions.filter(Transactions.payee.like('%'+request.args.get('payee')+'%'))
+
     formatted_transactions = []
 
     for transaction in transactions:
+        if request.args.get('account'):
+            if len(Entry.query.filter(Entry.transaction_id == transaction.id,
+                                      Entry.account.like('%'+request.args.get('account')+'%')).all()) == 0:
+                continue
+
         fetched_transaction = {}
         fetched_transaction['id'] = transaction.id
         fetched_transaction['date'] = str(transaction.date)

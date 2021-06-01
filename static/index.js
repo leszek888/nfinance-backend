@@ -1,7 +1,5 @@
 "use strict";
 
-console.log(window.location.pathname);
-
 const NUMBER_LOCALE = 'de-DE';
 
 let ACCOUNTS_DIV = null;

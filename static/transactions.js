@@ -275,11 +275,7 @@ var TRANSACTIONS = (function(tr) {
     }
 
     tr.fillOutUnbalancedAmount = (transaction) => {
-        console.log('fillOut called for');
-        console.log(transaction);
-
         const unbalanced_amount = tr.calculateBalance(transaction);
-        console.log(unbalanced_amount);
         const amounts = transaction.querySelectorAll('.entry-amount');
 
         let first_free_field = null;
@@ -372,8 +368,6 @@ var TRANSACTIONS = (function(tr) {
                 all_fields_blank = false;
 
             if (!all_fields_blank) {
-                console.log('not all blank by');
-                console.log(entry);
                 entry_fields.forEach(entry_field => {
                     if (entry_field.classList.contains('entry-amount')) {
                         if (!validateNumberInput(entry_field)) {

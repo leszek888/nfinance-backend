@@ -14,8 +14,3 @@ class FrontendTest(unittest.TestCase):
 
     def tearDown(self):
         db.drop_all()
-
-    def test_show_login_page(self):
-        response = self.app.get('/')
-
-        self.assertEqual(200, response.status_code)

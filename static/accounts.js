@@ -83,8 +83,6 @@ var ACCOUNTS = (function(acc) {
     }
 
     acc.retreive = (filters=null) => {
-        console.log(filters);
-
         sendRequest("POST", "/api/accounts",
                     {'balance_id':BALANCE_ID,
                      'filters':filters

@@ -248,6 +248,8 @@ class TransactionsTest(unittest.TestCase):
         self.assertEqual(2, len(Entry.query.all()))
 
     def test_list_all_transaction(self):
+        self.app.set_cookie(key='balance_id', value=self.balance.json['balance_id'], server_name=None)
+
         for i in range(0, 5):
             transaction = self.create_transaction_json()
             response = self.app.post('/api/transaction/save',
@@ -255,9 +257,48 @@ class TransactionsTest(unittest.TestCase):
                                      data=transaction)
 
         self.assertEqual(10, len(Entry.query.all()))
-        response = self.app.get('/api/transaction/list/'+self.balance.json['balance_id'])
+        response = self.app.get('/api/transaction/list')
         self.assertEqual(200, response.status_code)
         if 'error' in response.json:
             print(response.json['error'])
         self.assertFalse('error' in response.json)
         self.assertEqual(5, len(response.json['transactions']))
+
+    def test_filter_transactions(self):
+        transaction = self.create_transaction_json(date='2020-01-01', payee='First')
+        self.app.post('/api/transaction/save',
+                                     headers={"Content-Type":"application/json"},
+                                     data=transaction)
+
+
+        transaction = self.create_transaction_json(date='2020-01-02', payee='Second', entries=[
+                            {'account':'Income', 'amount':'32'}, {'account':'Equity', 'amount':'-32'}
+                                    ])
+        self.app.post('/api/transaction/save',
+                                     headers={"Content-Type":"application/json"},
+                                     data=transaction)
+
+
+        transaction = self.create_transaction_json(date='2020-01-03', payee='First:Sub')
+        self.app.post('/api/transaction/save',
+                                     headers={"Content-Type":"application/json"},
+                                     data=transaction)
+
+
+        transaction = self.create_transaction_json(date='2020-01-04', payee='Sub:First')
+        self.app.post('/api/transaction/save',
+                                 headers={"Content-Type":"application/json"},
+                                 data=transaction)
+
+
+        self.app.set_cookie(key='balance_id', value=self.balance.json['balance_id'], server_name=None)
+
+        response = self.app.get('/api/transaction/list?from=2020-01-03&to=2020-01-04')
+        self.assertEqual(len(response.json['transactions']), 2)
+
+        response = self.app.get('/api/transaction/list?payee=first')
+        self.assertEqual(len(response.json['transactions']), 3)
+
+        response = self.app.get('/api/transaction/list?account=debit')
+        self.assertEqual(len(response.json['transactions']), 3)
+
