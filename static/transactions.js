@@ -1,7 +1,7 @@
 var TRANSACTIONS = (function(tr) {
 
-    let LOADED_TRANSACTIONS = null;
     let FILTERS = [];
+    let LOADED_TRANSACTIONS = null;
  
     let createTransactionInput = () => {
         const input = document.createElement('input');
@@ -95,6 +95,9 @@ var TRANSACTIONS = (function(tr) {
         transaction_entries_account_input.value = account;
         transaction_entries_amount_input.value = formatNumber(amount);
 
+        transaction_entries_account_input.disabled = true;
+        transaction_entries_amount_input.disabled = true;
+
         transaction_entries_delete_button.addEventListener('click', (e) => {
             const entries_table = transaction_entries_row.parentNode;
             const clicked_entry = transaction_entries_row;
@@ -168,6 +171,8 @@ var TRANSACTIONS = (function(tr) {
 
         transaction_header_date_input.value = transaction.date;
         transaction_header_payee_input.value = transaction.payee;
+        transaction_header_date_input.disabled = true;
+        transaction_header_payee_input.disabled = true;
 
         transaction_header_date.appendChild(transaction_header_date_input);
         transaction_header_payee.appendChild(transaction_header_payee_input);
@@ -193,6 +198,7 @@ var TRANSACTIONS = (function(tr) {
             tr.save(tr.extractDataFromDOM(transaction_row));
         });
         transaction_cancel_button.addEventListener('click', (e) => {
+            tr.edit(null);
             if (transaction.id == "new-transaction") {
                 transaction_row.parentNode.removeChild(transaction_row);
             }
@@ -323,16 +329,18 @@ var TRANSACTIONS = (function(tr) {
 
     tr.edit = (transaction_row) => {
         const inputs = document.querySelectorAll('.transaction-input');
+
         inputs.forEach(input => {
             input.disabled = true;
         });
+        document.querySelectorAll('.transaction-row').forEach(transaction => {
+            transaction.classList.remove('edited-transaction');
+        });
+
+        if (transaction_row == null) return;
 
         transaction_row.querySelectorAll('input').forEach(input => {
             input.disabled = false;
-        });
-
-        document.querySelectorAll('.transaction-row').forEach(transaction => {
-            transaction.classList.remove('edited-transaction');
         });
 
         transaction_row.classList.add('edited-transaction');
@@ -454,6 +462,7 @@ var TRANSACTIONS = (function(tr) {
                         LOADED_TRANSACTIONS = data;
                         clearElement(TRANSACTIONS_DIV);
                         TRANSACTIONS_DIV.appendChild(TRANSACTIONS.drawAll(LOADED_TRANSACTIONS));
+                        tr.edit(null);
                     }
         );
     }
