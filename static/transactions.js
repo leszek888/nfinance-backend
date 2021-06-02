@@ -95,9 +95,6 @@ var TRANSACTIONS = (function(tr) {
         transaction_entries_account_input.value = account;
         transaction_entries_amount_input.value = formatNumber(amount);
 
-        transaction_entries_account_input.disabled = true;
-        transaction_entries_amount_input.disabled = true;
-
         transaction_entries_delete_button.addEventListener('click', (e) => {
             const entries_table = transaction_entries_row.parentNode;
             const clicked_entry = transaction_entries_row;
