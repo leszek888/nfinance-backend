@@ -21,8 +21,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-print(os.environ['NB_DB_URI'])
-
 class Balance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True)
@@ -166,6 +164,7 @@ def saveTransaction(transaction):
         return {'error' : 'Balance not found. Transaction rejected.'}
 
     # Validate Payee
+    transaction['payee'] = str(transaction['payee']).strip(' ')
     if 'payee' in transaction:
         if len(transaction['payee']) == 0:
             return {'error' : 'Payee not specified. Transaction rejected.'}
@@ -197,8 +196,16 @@ def saveTransaction(transaction):
         balance_amount = Decimal(0.0)
 
         for entry in entries:
+            entry['account'] = str(entry['account']).strip(' ')
+            entry['amount'] = str(entry['amount']).strip(' ')
+
             if len(entry['account']) == 0 and len(entry['amount']) == 0:
                 continue
+
+            sub_accounts = entry['account'].split(':')
+            for sub_account in sub_accounts:
+                if len(str(sub_account).strip(' ')) == 0:
+                    return {'error' : 'Couldnt read the account. Transaction rejected.'}
 
             entry_amount = None
             entry['amount'] = str(entry.get('amount', 0.0)).replace(',', '.')
