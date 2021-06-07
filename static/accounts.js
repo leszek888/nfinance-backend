@@ -83,7 +83,7 @@ var ACCOUNTS = (function(acc) {
         accounts_table.classList.add('accounts-wrapper');
         accounts = loadFromJson(accounts['accounts']);
 
-        drawAccount({'name':'Sum','balance':BALANCE,'sub_accounts':[]}, 0, accounts_table);
+        drawAccount({'name':'Suma','balance':BALANCE,'sub_accounts':[]}, 0, accounts_table);
         accounts.forEach(account => {
             drawAccount(account, 0, accounts_table);
         });
