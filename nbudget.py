@@ -14,11 +14,14 @@ app = Flask(__name__)
 cors = CORS(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
-app.config['SECRET_KEY'] = 'fjdkl93jf90834898gbcvhx98uft4389u0gdf'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////media/fast_wh/Projects/flask/nbudget/nbudget.db'
+app.config['SECRET_KEY'] = os.environ['NB_KEY']
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['NB_DB_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+
 db = SQLAlchemy(app)
+
+print(os.environ['NB_DB_URI'])
 
 class Balance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
