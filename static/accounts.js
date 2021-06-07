@@ -1,22 +1,29 @@
 
 var ACCOUNTS = (function(acc) {
 
+    let BALANCE = new Decimal('0');
+
     let loadFromJson = (accounts) => {
         let parsed_accounts = [];
+        BALANCE = Decimal('0');
 
         accounts.forEach(account => {
             let sub_accounts = account['name'].split(':');
 
-            addAccount(sub_accounts, parseFloat(account['balance']), parsed_accounts);
+            addAccount(sub_accounts, parseFloat(account['balance']), parsed_accounts, depth=0);
+        });
+
+        parsed_accounts.forEach(account => {
+            BALANCE = BALANCE.plus(Decimal(account['balance']));
         });
 
         return parsed_accounts;
     }
 
-    let addAccount = (accounts, balance, array) => {
+    let addAccount = (accounts, balance, array, depth) => {
         let account = {};
         let account_found = false;
-        
+
         account['name'] = accounts.shift();
         account['balance'] = balance;
         account['sub_accounts'] = [];
@@ -25,15 +32,16 @@ var ACCOUNTS = (function(acc) {
             if (element['name'] == account['name']) {
                 account_found = true;
                 element['balance'] += account['balance'];
-                addAccount(accounts, balance, element['sub_accounts']);
+                addAccount(accounts, balance, element['sub_accounts'], depth+1);
             }
         });
 
         if (!account_found) {
             array.push(account);
             if (accounts.length > 0)
-                addAccount(accounts, balance, account['sub_accounts']);
+                addAccount(accounts, balance, account['sub_accounts'], depth+1);
         }
+
     }
 
     let drawAccount = (account, depth, parent) => {
@@ -75,6 +83,7 @@ var ACCOUNTS = (function(acc) {
         accounts_table.classList.add('accounts-wrapper');
         accounts = loadFromJson(accounts['accounts']);
 
+        drawAccount({'name':'Sum','balance':BALANCE,'sub_accounts':[]}, 0, accounts_table);
         accounts.forEach(account => {
             drawAccount(account, 0, accounts_table);
         });

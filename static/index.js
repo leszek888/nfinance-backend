@@ -219,7 +219,7 @@ function getCookie(name) {
 }
 
 function formatNumber(number) {
-    if (number.toString().length == 0)
+    if (number == null || number.toString().length == 0)
         return '';
 
     number = convertStringToFloat(number);
