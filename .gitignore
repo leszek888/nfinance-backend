@@ -2,5 +2,7 @@
 .env.test
 __pycache__/
 venv/
+virtualenv/
+Pipfile
 *.db
 
