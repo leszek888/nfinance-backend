@@ -2,7 +2,6 @@
 
 const NUMBER_LOCALE = 'de-DE';
 
-let ACCOUNTS_DIV = null;
 let BALANCE_ID = null
 let MAIN_DIV = null;
 let TRANSACTIONS_DIV = null;
@@ -10,9 +9,6 @@ let TRANSACTIONS_DIV = null;
 function initialize() {
     MAIN_DIV = document.getElementById("main_content");
     TRANSACTIONS_DIV = document.createElement('div');
-    ACCOUNTS_DIV = document.createElement('div');
-
-    ACCOUNTS_DIV.classList.add('accounts_div');
 
     if (getCookie('balance_id')) {
         BALANCE_ID = getCookie('balance_id');
@@ -147,6 +143,7 @@ function displayBalance(raport) {
 
     clearElement(sub_links);
     clearElement(MAIN_DIV);
+    ACCOUNTS.PARENT_DIV = MAIN_DIV;
 
     function set_selected(link) {
         link.classList.remove('color-black');
@@ -154,17 +151,17 @@ function displayBalance(raport) {
     }
 
     if (raport == 'net-worth') {
-        ACCOUNTS.retreive({'account':['Aktywa','Zobowiązania']})
+        ACCOUNTS.loadAndDisplayInParent({'account':['Aktywa','Zobowiązania']})
         set_selected(link_net_worth);
     }
 
     else if (raport == 'cash-flow') {
-        ACCOUNTS.retreive({'account':['Przychód','Wydatki']})
+        ACCOUNTS.loadAndDisplayInParent({'account':['Przychód','Wydatki']})
         set_selected(link_cash_flow);
     }
 
     else {
-        ACCOUNTS.retreive();
+        ACCOUNTS.loadAndDisplayInParent();
         set_selected(link_balance);
     }
 
@@ -172,7 +169,6 @@ function displayBalance(raport) {
     sub_links.appendChild(link_balance);
     sub_links.appendChild(link_net_worth);
     sub_links.appendChild(link_cash_flow);
-    MAIN_DIV.appendChild(ACCOUNTS_DIV);
 }
 
 function displayPopup(message) {

@@ -3,6 +3,8 @@ var ACCOUNTS = (function(acc) {
 
     let BALANCE = new Decimal('0');
 
+    acc.PARENT_DIV = null;
+
     let loadFromJson = (accounts) => {
         let parsed_accounts = [];
         BALANCE = Decimal('0');
@@ -91,14 +93,14 @@ var ACCOUNTS = (function(acc) {
         return accounts_table;
     }
 
-    acc.retreive = (filters=null) => {
+    acc.loadAndDisplayInParent = (filters=null) => {
         sendRequest("POST", "/api/accounts",
                     {'balance_id':BALANCE_ID,
                      'filters':filters
                     },
                     (data) => {
-                        clearElement(ACCOUNTS_DIV);
-                        ACCOUNTS_DIV.appendChild(ACCOUNTS.drawAll(data));
+                        clearElement(acc.PARENT_DIV);
+                        acc.PARENT_DIV.appendChild(ACCOUNTS.drawAll(data));
                     }
         );
     }
