@@ -104,6 +104,16 @@ body {
     transition: all 0.25s;
 }
 
+@media (max-width: 640px) {
+    .transaction-row-wrapper {
+        grid-template-columns: 1fr;
+        padding-bottom: 2.5em;
+    }
+    .transaction-header-wrapper {
+        border-bottom: var(--color-grey) solid 1px;
+    }
+}
+
 .empty-transaction-row {
     vertical-align: middle;
     border: 0px;
@@ -141,7 +151,6 @@ body {
 
 .transactions-table {
     margin: auto;
-    width: 990px;
     margin-top: 1em;
     margin-bottom: 1em;
 }
@@ -172,7 +181,6 @@ body {
 
 .accounts_div {
     margin: auto;
-    width: 700px;
     margin-top: 1em;
     margin-bottom: 1em;
 }
@@ -240,7 +248,7 @@ body {
 }
 
 #main_content {
-    width: 1000px;
+    max-width: 1200px;
     min-height: 800px;
     display: relative;
     margin: auto;
@@ -265,7 +273,7 @@ body {
 .nav-container {
     display: grid;
     grid-template-columns: 1fr;
-    width: 1000px;
+    max-width: 1200px;
     height: 100%;
     position: relative;
     margin: auto;
