@@ -1,9 +1,9 @@
 :root {
-    --color-dark: #444;
+    --color-dark: #0e1428;
     --color-grey: #a3a3a3;
     --color-light: #faffea;
-    --color-accent: #fcfc62;
-    --color-bg: #f8f8f8;
+    --color-accent: #f0a202;
+    --color-bg: #fcfcfc;
 }
 
 body {
@@ -155,15 +155,16 @@ body {
     margin-bottom: 1em;
 }
 
+/*
 .accounts-wrapper > div:nth-child(odd) {
-    background-color: #f3f3f3;
+    background-color: #f8f8f8;
 }
+*/
 
 .account-depth-0 {
     font-weight: bold;
-    border-top: 1px solid #eee;
-    background-color: var(--color-dark) !important;
-    color: var(--color-accent);
+    border-top: 1px solid #000;
+    background-color: #eee;
 }
 
 .account-row {
@@ -173,17 +174,13 @@ body {
     padding-right: 1em;
     display: grid;
     grid-template-columns: 7fr 1fr;
+    border-top: 1px solid #bbb;
 }
 
 .entry-amount {
     text-align: right;
 }
 
-.accounts_div {
-    margin: auto;
-    margin-top: 1em;
-    margin-bottom: 1em;
-}
 .popup-message {
     position: fixed;
     top: 1em;
@@ -251,6 +248,7 @@ body {
     max-width: 1200px;
     min-height: 800px;
     display: relative;
+    padding-top: 3em;
     margin: auto;
 }
 
@@ -391,7 +389,6 @@ body {
 }
 
 .tab-button {
-    border-radius: 20px 20px 0px 0px;
     border: 0px;
     padding-left: 1.5em;
     padding-right: 1.5em;
