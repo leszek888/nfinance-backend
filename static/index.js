@@ -37,6 +37,9 @@ function logout() {
 }
 
 function clearElement(element) {
+    if (!element)
+        return;
+
     while (element.firstChild)
         element.lastChild.remove();
 }
