@@ -13,7 +13,6 @@ function initialize() {
     if (getCookie('balance_id')) {
         BALANCE_ID = getCookie('balance_id');
         const path = window.location.pathname;
-        fetchBalance();
 
         if (path == '/transactions') {
             displayTransactions();
@@ -72,55 +71,12 @@ function createDateInput(placeholder = null) {
     return input;
 }
 
-function useAsFilter(key, input, validator=null) {
-    input.addEventListener("keyup", (e) => {
-        if (validator == null || validator(e.currentTarget)) {
-            TRANSACTIONS.updateFilters(key, e.currentTarget.value);
-        }
-        else
-            TRANSACTIONS.updateFilters(key, null);
-
-        TRANSACTIONS.retreive();
-    });
-}
-
 function displayTransactions() {
     clearElement(MAIN_DIV);
 
     selectLink('transactions-link');
-
-    const transactions_menu = document.createElement('div');
-    const new_transaction_button = document.createElement('input');
-    const filter_menu = document.createElement('div');
-    const filter_by_payee = createTextInput('Payee');
-    const filter_by_date_from = createDateInput('From');
-    const filter_by_date_to = createDateInput('To');
-    const filter_by_account = createTextInput('Account');
-
-    useAsFilter("from", filter_by_date_from, validateDateInput);
-    useAsFilter("to", filter_by_date_to, validateDateInput);
-    useAsFilter("payee", filter_by_payee);
-    useAsFilter("account", filter_by_account);
-
-    transactions_menu.classList.add('sub-window');
-    filter_menu.classList.add('sub-window');
-    filter_menu.classList.add('filter-menu');
-
-    new_transaction_button.type = 'button';
-    new_transaction_button.classList.add('rounded-button','color-navy');
-    new_transaction_button.value = 'New Transaction';
-    new_transaction_button.addEventListener('click', () => {
-        TRANSACTIONS.drawNewTransaction(TRANSACTIONS_DIV);
-    });
-
-    transactions_menu.appendChild(new_transaction_button);
-    filter_menu.appendChild(filter_by_date_from);
-    filter_menu.appendChild(filter_by_date_to);
-    filter_menu.appendChild(filter_by_payee);
-    filter_menu.appendChild(filter_by_account);
-    MAIN_DIV.appendChild(transactions_menu);
-    MAIN_DIV.appendChild(filter_menu);
-    MAIN_DIV.appendChild(TRANSACTIONS_DIV);
+    TRANSACTIONS.PARENT_DIV = MAIN_DIV;
+    TRANSACTIONS.display();
 }
 
 function displayBalance(raport) {
@@ -251,12 +207,6 @@ function convertStringToFloat(number) {
         return '';
     }
     return parseFloat(number);
-}
-
-function fetchBalance() {
-    if (BALANCE_ID.length == 36) {
-        TRANSACTIONS.retreive();
-    }
 }
 
 function validateNumberInput(input_field) {

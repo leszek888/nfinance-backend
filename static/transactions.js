@@ -2,8 +2,62 @@ var TRANSACTIONS = (function(tr) {
 
     let FILTERS = [];
     let LOADED_TRANSACTIONS = null;
+    let LIST_DIV = null;
+    tr.PARENT_DIV = null;
  
-    let createTransactionInput = () => {
+    const useAsFilter = (key, input, validator=null) => {
+        input.addEventListener("keyup", (e) => {
+            if (validator == null || validator(e.currentTarget)) {
+                updateFilters(key, e.currentTarget.value);
+            }
+            else
+                updateFilters(key, null);
+
+            loadAndDisplayInParent();
+        });
+    }
+
+    tr.display = () => {
+        const transactions_menu = document.createElement('div');
+            const new_transaction_button = document.createElement('input');
+
+        const filter_menu = document.createElement('div');
+            const filter_by_payee = createTextInput('Payee');
+            const filter_by_date_from = createDateInput('From');
+            const filter_by_date_to = createDateInput('To');
+            const filter_by_account = createTextInput('Account');
+
+        LIST_DIV = document.createElement('div');
+
+        useAsFilter("from", filter_by_date_from, validateDateInput);
+        useAsFilter("to", filter_by_date_to, validateDateInput);
+        useAsFilter("payee", filter_by_payee);
+        useAsFilter("account", filter_by_account);
+
+        transactions_menu.classList.add('sub-window');
+
+        filter_menu.classList.add('sub-window');
+        filter_menu.classList.add('filter-menu');
+
+        new_transaction_button.type = 'button';
+        new_transaction_button.classList.add('rounded-button','color-navy');
+        new_transaction_button.value = 'New Transaction';
+        new_transaction_button.addEventListener('click', () => {
+            drawNewTransaction(LIST_DIV);
+        });
+
+        transactions_menu.appendChild(new_transaction_button);
+        filter_menu.appendChild(filter_by_date_from);
+        filter_menu.appendChild(filter_by_date_to);
+        filter_menu.appendChild(filter_by_payee);
+        filter_menu.appendChild(filter_by_account);
+        tr.PARENT_DIV.appendChild(transactions_menu);
+        tr.PARENT_DIV.appendChild(filter_menu);
+        tr.PARENT_DIV.appendChild(LIST_DIV);
+        loadAndDisplayInParent();
+    };
+
+    const createTransactionInput = () => {
         const input = document.createElement('input');
 
         input.classList.add('data-field');
@@ -15,7 +69,7 @@ var TRANSACTIONS = (function(tr) {
         return input;
     }
 
-    let createTransactionTextInput = (placeholder = null) => {
+    const createTransactionTextInput = (placeholder = null) => {
         const input = createTransactionInput();
 
         input.type = 'text';
@@ -25,19 +79,19 @@ var TRANSACTIONS = (function(tr) {
         return input;
     }
 
-    let createTransactionNumberInput = (placeholder = null) => {
+    const createTransactionNumberInput = (placeholder = null) => {
         const input = createTransactionTextInput(placeholder);
 
         input.classList.add('entry-amount');
         input.addEventListener('focusout', (e) => {
             if (validateNumberInput(e.currentTarget))
-                tr.fillOutUnbalancedAmount(e.currentTarget.closest('.transaction-row'));
+                fillOutUnbalancedAmount(e.currentTarget.closest('.transaction-row'));
         });
 
         return input;
     }
 
-    let createTransactionDateInput = (placeholder = null) => {
+    const createTransactionDateInput = (placeholder = null) => {
         const input = createTransactionTextInput(placeholder);
 
         input.classList.add('date-field');
@@ -48,7 +102,7 @@ var TRANSACTIONS = (function(tr) {
         return input;
     }
 
-    let createTransactionButton = (text) => {
+    const createTransactionButton = (text) => {
         const button = document.createElement('input');
         button.type = 'button';
         button.classList.add('transaction-button');
@@ -57,7 +111,7 @@ var TRANSACTIONS = (function(tr) {
         return button;
     }
 
-    tr.updateFilters = (key, value) => {
+    const updateFilters = (key, value) => {
         let updated = false;
 
         for (let i=0; i!=FILTERS.length; i++) {
@@ -80,22 +134,22 @@ var TRANSACTIONS = (function(tr) {
         }
     };
 
-    tr.drawEntryRow = (account, amount) => {
+    const drawEntryRow = (account, amount) => {
         const transaction_entries_row = document.createElement('div');
         const transaction_entries_account = document.createElement('div');
         const transaction_entries_amount = document.createElement('div');
-        const transaction_entries_delete = document.createElement('div');
+        const transaction_entries_remove = document.createElement('div');
 
         const transaction_entries_account_input = createTransactionTextInput('Account');
         const transaction_entries_amount_input = createTransactionNumberInput('Amount');
-        const transaction_entries_delete_button = createTransactionButton('X');
+        const transaction_entries_remove_button = createTransactionButton('X');
 
         transaction_entries_row.classList.add('.entry-row');
 
         transaction_entries_account_input.value = account;
         transaction_entries_amount_input.value = formatNumber(amount);
 
-        transaction_entries_delete_button.addEventListener('click', (e) => {
+        transaction_entries_remove_button.addEventListener('click', (e) => {
             const entries_table = transaction_entries_row.parentNode;
             const clicked_entry = transaction_entries_row;
             const transaction = transaction_entries_row.closest('.transaction-row');
@@ -111,27 +165,27 @@ var TRANSACTIONS = (function(tr) {
                     }
                 });
             }
-            tr.fillOutUnbalancedAmount(transaction);
+            fillOutUnbalancedAmount(transaction);
         });
 
         transaction_entries_account.appendChild(transaction_entries_account_input);
         transaction_entries_amount.appendChild(transaction_entries_amount_input);
-        transaction_entries_delete.appendChild(transaction_entries_delete_button);
+        transaction_entries_remove.appendChild(transaction_entries_remove_button);
 
         transaction_entries_row.appendChild(transaction_entries_account);
         transaction_entries_row.appendChild(transaction_entries_amount);
-        transaction_entries_row.appendChild(transaction_entries_delete);
+        transaction_entries_row.appendChild(transaction_entries_remove);
 
         return transaction_entries_row;
     }
 
-    tr.addEntry = (transaction) => {
+    const addEntry = (transaction) => {
         const parent = transaction.querySelector('.transaction-entries-wrapper');
 
-        parent.insertBefore(tr.drawEntryRow('',''), parent.lastChild);
+        parent.insertBefore(drawEntryRow('',''), parent.lastChild);
     }
 
-    tr.drawEmptyMessage = () => {
+    const drawEmptyMessage = () => {
         const transaction_row = document.createElement('div');
         transaction_row.classList.add('empty-transaction-row');
         transaction_row.classList.add('transaction-row');
@@ -140,7 +194,7 @@ var TRANSACTIONS = (function(tr) {
         return transaction_row;
     }
 
-    tr.drawRow = (transaction) => {
+    const drawRow = (transaction) => {
         const transaction_row = document.createElement('div');
             const transaction_header = document.createElement('div');
                 const transaction_header_date = document.createElement('div');
@@ -152,7 +206,7 @@ var TRANSACTIONS = (function(tr) {
             const transaction_entries = document.createElement('div');
 
         transaction_row.id = transaction.id;
-        transaction_row.addEventListener('mousedown', (e) => {tr.edit(e.currentTarget);});
+        transaction_row.addEventListener('mousedown', (e) => {edit(e.currentTarget);});
         transaction_row.classList.add('transaction-row-wrapper');
         transaction_row.classList.add('transaction-row');
 
@@ -175,13 +229,13 @@ var TRANSACTIONS = (function(tr) {
         transaction_header_payee.appendChild(transaction_header_payee_input);
 
         for (const entry of transaction.entries) {
-            transaction_entries.appendChild(tr.drawEntryRow(entry.account, entry.amount));
+            transaction_entries.appendChild(drawEntryRow(entry.account, entry.amount));
         }
 
         const transaction_entries_row = document.createElement('div');
         const transaction_entries_add_button = createTransactionButton('Add Entry');
 
-        transaction_entries_add_button.addEventListener('click', (e) => { tr.addEntry(e.currentTarget.closest('.transaction-row'));});
+        transaction_entries_add_button.addEventListener('click', (e) => { addEntry(e.currentTarget.closest('.transaction-row'));});
 
         transaction_entries_row.appendChild(transaction_entries_add_button);
         transaction_entries.appendChild(transaction_entries_row);
@@ -189,34 +243,34 @@ var TRANSACTIONS = (function(tr) {
         const transaction_buttons_div = document.createElement('div');
         const transaction_save_button = createTransactionButton('Save'); 
         const transaction_cancel_button = createTransactionButton('Cancel'); 
-        const transaction_delete_button = createTransactionButton('Delete'); 
+        const transaction_remove_button = createTransactionButton('Delete'); 
 
         transaction_save_button.addEventListener('click', (e) => { 
-            tr.save(tr.extractDataFromDOM(transaction_row));
+            save(extractDataFromDOM(transaction_row));
         });
         transaction_cancel_button.addEventListener('click', (e) => {
-            tr.edit(null);
+            edit(null);
             if (transaction.id == "new-transaction") {
                 transaction_row.parentNode.removeChild(transaction_row);
             }
             else
-                transaction_row.parentNode.replaceChild(tr.drawRow(transaction), transaction_row);
+                transaction_row.parentNode.replaceChild(drawRow(transaction), transaction_row);
         });
-        transaction_delete_button.addEventListener('click', (e) => { 
-            tr.delete(tr.extractDataFromDOM(transaction_row));
+        transaction_remove_button.addEventListener('click', (e) => { 
+            remove(extractDataFromDOM(transaction_row));
         });
 
         transaction_buttons_div.classList.add('transaction-buttons-wrapper');
         transaction_buttons_div.appendChild(transaction_save_button);
         transaction_buttons_div.appendChild(transaction_cancel_button);
-        transaction_buttons_div.appendChild(transaction_delete_button);
+        transaction_buttons_div.appendChild(transaction_remove_button);
 
         transaction_row.appendChild(transaction_buttons_div);
 
         return transaction_row;
     }
 
-    tr.drawNewTransaction = (container) => {
+    const drawNewTransaction = (container) => {
         if (container.querySelector('#new-transaction'))
             return;
 
@@ -225,9 +279,9 @@ var TRANSACTIONS = (function(tr) {
             {'account': '', 'amount':''},
             {'account': '', 'amount':''},
         ]};
-        const transaction_row = tr.drawRow(empty_transaction);
+        const transaction_row = drawRow(empty_transaction);
         table.insertBefore(transaction_row, table.children[1]);
-        tr.edit(transaction_row);
+        edit(transaction_row);
         transaction_row.querySelector('.transaction-input').focus();
     }
 
@@ -261,17 +315,17 @@ var TRANSACTIONS = (function(tr) {
 
         if (transactions['transactions'].length > 0) {
             for (let transaction of transactions['transactions']) {
-                transactions_table.appendChild(tr.drawRow(transaction));
+                transactions_table.appendChild(drawRow(transaction));
             }
         }
         else {
-            transactions_table.appendChild(tr.drawEmptyMessage());
+            transactions_table.appendChild(drawEmptyMessage());
         }
 
         return transactions_table;
     }
 
-    tr.calculateBalance = (transaction) => {
+    const calculateBalance = (transaction) => {
         const amounts = transaction.querySelectorAll('.entry-amount');
 
         let unbalanced_amount = new Decimal(0);
@@ -285,7 +339,7 @@ var TRANSACTIONS = (function(tr) {
         return (unbalanced_amount *= -1);
     }
 
-    tr.validateBalance = (transaction) => {
+    const validateBalance = (transaction) => {
         const amounts = transaction.querySelectorAll('.entry-amount');
         let unbalanced_amount = new Decimal(0);
 
@@ -301,8 +355,8 @@ var TRANSACTIONS = (function(tr) {
         return unbalanced_amount;
     }
 
-    tr.fillOutUnbalancedAmount = (transaction) => {
-        const unbalanced_amount = tr.calculateBalance(transaction);
+    const fillOutUnbalancedAmount = (transaction) => {
+        const unbalanced_amount = calculateBalance(transaction);
         const amounts = transaction.querySelectorAll('.entry-amount');
 
         let first_free_field = null;
@@ -318,13 +372,13 @@ var TRANSACTIONS = (function(tr) {
             if (first_free_field != null)
                 first_free_field.placeholder = formatNumber(unbalanced_amount);
             else {
-                tr.addEntry(transaction);
-                tr.fillOutUnbalancedAmount(transaction);
+                addEntry(transaction);
+                fillOutUnbalancedAmount(transaction);
             }
         }
     }
 
-    tr.edit = (transaction_row) => {
+    const edit = (transaction_row) => {
         const inputs = document.querySelectorAll('.transaction-input');
 
         inputs.forEach(input => {
@@ -343,7 +397,7 @@ var TRANSACTIONS = (function(tr) {
         transaction_row.classList.add('edited-transaction');
     }
 
-    tr.extractDataFromDOM = (row) => {
+    const extractDataFromDOM = (row) => {
         const inputs = row.querySelectorAll('.transaction-input');
         let values = []
 
@@ -370,7 +424,7 @@ var TRANSACTIONS = (function(tr) {
         return transaction;
     }
 
-    tr.validate = (transaction) => {
+    const validate = (transaction) => {
         const header = transaction.querySelector('.transaction-header-wrapper');
         const entries = transaction.querySelectorAll('.entry-row');
         const fields = header.querySelectorAll('.transaction-input');
@@ -425,23 +479,23 @@ var TRANSACTIONS = (function(tr) {
             }
         });
 
-        if (tr.validateBalance(transaction) != 0) {
+        if (validateBalance(transaction) != 0) {
             displayPopup({'error':'Transaction is not balanced.'});
             transaction_valid = false;
         }
         return transaction_valid;
     }
 
-    tr.save = (transaction) => {
+    const save = (transaction) => {
         sendRequest("POST", "/api/transaction/save",
                     transaction,
                     (data) => {
-                        tr.retreive();
+                        loadAndDisplayInParent();
                     }
         );
     }
 
-    tr.retreive = () => {
+    const loadAndDisplayInParent = () => {
         filter_args = '';
         if ((FILTERS.length) > 0) {
             filter_args = '?';
@@ -452,22 +506,21 @@ var TRANSACTIONS = (function(tr) {
                 filter_args += '&';
             });
         }
-        console.log(filter_args);
         sendRequest("GET", "/api/transaction/list"+filter_args,
                     null,
                     (data) => {
                         LOADED_TRANSACTIONS = data;
-                        clearElement(TRANSACTIONS_DIV);
-                        TRANSACTIONS_DIV.appendChild(TRANSACTIONS.drawAll(LOADED_TRANSACTIONS));
-                        tr.edit(null);
+                        clearElement(LIST_DIV);
+                        LIST_DIV.appendChild(TRANSACTIONS.drawAll(LOADED_TRANSACTIONS));
+                        edit(null);
                     }
         );
     }
 
-    tr.delete = (transaction) => {
-        sendRequest("DELETE", "/api/transaction/delete",
+    const remove = (transaction) => {
+        sendRequest("DELETE", "/api/transaction/remove",
                     transaction,
-                    tr.retreive);
+                    loadAndDisplayInParent);
     }
 
     return tr;
