@@ -37,7 +37,7 @@ function logout() {
 }
 
 function clearElement(element) {
-    if (!element)
+    if (element == null)
         return;
 
     while (element.firstChild)
@@ -46,10 +46,14 @@ function clearElement(element) {
 
 function selectLink(link_id) {
     const nav_links = document.querySelectorAll('.nav-link');
+    const selected_link = document.getElementById(link_id);
+
     nav_links.forEach(nav_link => {
         nav_link.classList.remove('link-selected');
     });
-    document.getElementById(link_id).classList.add('link-selected');
+
+    if (selected_link != null)
+        selected_link.classList.add('link-selected');
 }
 
 function createTextInput(placeholder = null) {
@@ -70,13 +74,7 @@ function createDateInput(placeholder = null) {
 
 function useAsFilter(key, input, validator=null) {
     input.addEventListener("keyup", (e) => {
-        if (e.currentTarget.value.trim().length == 0) {
-            TRANSACTIONS.updateFilters(key, null);
-        }
-        else if (validator && validator(e.currentTarget)) {
-            TRANSACTIONS.updateFilters(key, e.currentTarget.value);
-        }
-        else if (validator == null) {
+        if (validator == null || validator(e.currentTarget)) {
             TRANSACTIONS.updateFilters(key, e.currentTarget.value);
         }
         else
