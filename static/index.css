@@ -304,15 +304,30 @@ body {
 }
 
 .navbar {
-    background-color: #555;
     overflow: auto;
-    border: 0px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.nav-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    background-color: #555;
+}
+
+.subnav-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid #ddd;
 }
 
 .subbar {
     overflow: auto;
+    max-width: 1200px;
+    width: 100%;
     background-color: var(--color-bg);
-    border-bottom: 1px solid #ddd;
     padding-top: 1pt;
     padding-bottom: 1pt;
 }

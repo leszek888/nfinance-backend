@@ -9,12 +9,16 @@
     </head>
     <body>
         <div class="nav-container">
-            <div class="navbar">
-                <a class="float-left nav-link" id="balance-link" href="/balance" onclick="javascript:navigateTo('/balance');return false">Raports</a>
-                <a class="float-left nav-link" id="transactions-link" href="/transactions" onclick="javascript:navigateTo('/transactions');return false">Transactions</a>
-                <button class="rounded-button color-accent float-right" onclick="javascript:logout();">Logout</button>
+            <div class="nav-wrapper">
+                <div class="navbar">
+                    <a class="float-left nav-link" id="balance-link" href="/balance" onclick="javascript:navigateTo('/balance');return false">Raports</a>
+                    <a class="float-left nav-link" id="transactions-link" href="/transactions" onclick="javascript:navigateTo('/transactions');return false">Transactions</a>
+                    <button class="rounded-button color-accent float-right" onclick="javascript:logout();">Logout</button>
+                </div>
             </div>
-            <div class="subbar">
+            <div class="subnav-wrapper">
+                <div class="subbar">
+                </div>
             </div>
         </div>
         <div id="main_content">
