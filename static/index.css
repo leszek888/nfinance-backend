@@ -17,7 +17,8 @@ body {
     position: relative;
     background-color: var(--color-bg);
     color: var(--color-dark);
-    padding-top: 5em;
+    margin: 0px;
+    padding-top: 40px;
 }
 
 .main-text-input {
@@ -117,6 +118,22 @@ body {
     .transaction-header-wrapper {
         border-bottom: var(--color-grey) solid 1px;
     }
+    .transactions-header {
+        display: none;
+    }
+
+    .filter-menu input {
+        display: block;
+        width: 90%;
+    }
+
+    #new_transaction_button {
+        position: fixed;
+        z-index: 999;
+        bottom: 3em;
+        right: 1em;
+        box-shadow: 0px 0px 20px #444;
+    }
 }
 
 .empty-transaction-row {
@@ -151,13 +168,6 @@ body {
 
 .transaction-buttons-wrapper input {
     width: 100px;
-}
-
-
-.transactions-table {
-    margin: auto;
-    margin-top: 1em;
-    margin-bottom: 1em;
 }
 
 /*
@@ -250,6 +260,7 @@ body {
 }
 
 #main_content {
+    width: 100%;
     max-width: 1200px;
     min-height: 800px;
     display: relative;
@@ -275,17 +286,21 @@ body {
 }
 
 .sub-window {
+    /*
     padding: 0.5em;
     margin-top: 0.5em;
     margin-bottom: 0.5em;
+    */
 }
 
 .filter-menu {
-    text-align: center;
-    background-color: var(--color-bg);
-    box-shadow: 0px 0px 5px #444;
+    background-color: var(--color-grey);
+    width: 100%;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
 }
-
 .footer {
     margin-top: 10em;
     height: auto;
@@ -375,7 +390,7 @@ body {
     color: var(--color-accent-font);
 }
 .color-accent:hover {
-    filter: brightness(0.8);
+    filter: brightness(0.9);
 }
 
 .color-main {
