@@ -1,9 +1,14 @@
 :root {
-    --color-dark: #0e1428;
-    --color-grey: #a3a3a3;
+    --color-dark: #086788;
+    --color-main: #06aed5;
+    --color-grey: #eee;
     --color-light: #faffea;
-    --color-accent: #f0a202;
+    --color-accent: #fc7a1e;
+    --color-accent-font: #fff;
     --color-bg: #fcfcfc;
+    --color-link: #888;
+    --color-link-selected: #222;
+    --color-nav-bar: #fcfcfc;
 }
 
 body {
@@ -252,72 +257,8 @@ body {
     margin: auto;
 }
 
-.nav-bar {
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    box-shadow: 0px 0px 16px var(--color-dark);
-    z-index: 999;
-    background-color: var(--color-dark);
-}
-
-.tab-bar {
-    height: 5px;
-    width: 100%;
-    background-color: var(--color-accent);
-}
- 
-.nav-container {
-    display: grid;
-    grid-template-columns: 1fr;
-    max-width: 1200px;
-    height: 100%;
-    position: relative;
-    margin: auto;
-}
-
-.nav-header {
-    display: flex;
-    justify-content: flex-end;
-    height: 4em;
-}
-
-.nav-links {
-    height: 2em;
-}
-
-.nav-sub-links {
-    position: relative;
-}
-
-.nav-link {
-    margin-right: 2em;
-    font-size: 13pt;
-    color: var(--color-grey);
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.nav-logo {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    color: var(--color-light);
-    opacity: 0.3;
-    font-size: 30pt;
-    font-weight: bold;
-    font-style: oblique;
-    pointer-events: none;
-}
-
-.nav-link:hover {
-    text-decoration: underline;
-    color: var(--color-accent);
-}
-
 .link-selected {
-    color: var(--color-accent);
+    color: var(--color-link-selected);
 }
 
 .has-error {
@@ -326,45 +267,11 @@ body {
 
 .rounded-button {
     border: 0px;
-    color: #eeeeee;
     font-size: 12pt;
     border-radius: 20px;
-    height: 40px;
-    padding-left: 1.5em;
-    padding-right: 1.5em;
     margin: 0.25em;
+    padding: 0.5em 1.5em 0.5em 1.5em;
     transition: background-color 0.2s;
-    box-shadow: 0px 0px 4px var(--color-dark);
-}
-
-
-.color-black {
-    background-color: var(--color-grey);
-    box-shadow: 0px 0px 4px #000;
-    color: #222;
-}
-.color-black:hover {
-    background-color: var(--color-accent);
-}
-.color-navy {
-    background-color: var(--color-accent);
-    color: var(--color-dark);
-}
-.color-navy:hover {
-    filter: brightness(0.95);
-}
-
-.color-light {
-    background-color: var(--color-light);
-    color: var(--color-dark);
-}
-.color-light:hover {
-    filter: brightness(0.95);
-}
-
-.logout-button {
-    width: 100px;
-    margin-top: 0.5em;
 }
 
 .sub-window {
@@ -376,7 +283,7 @@ body {
 .filter-menu {
     text-align: center;
     background-color: var(--color-bg);
-    box-shadow: 0px 0px 5px var(--color-grey);
+    box-shadow: 0px 0px 5px #444;
 }
 
 .footer {
@@ -388,12 +295,86 @@ body {
     background-color: var(--color-grey);
 }
 
-.tab-button {
+.nav-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+}
+
+.navbar {
+    background-color: #555;
+    overflow: auto;
     border: 0px;
-    padding-left: 1.5em;
-    padding-right: 1.5em;
-    font-size: 11pt;
-    height: 25px;
-    margin-right: 0.25em;
-    box-shadow: 0px 0px 0px;
+}
+
+.subbar {
+    overflow: auto;
+    background-color: var(--color-bg);
+    border-bottom: 1px solid #ddd;
+    padding-top: 1pt;
+    padding-bottom: 1pt;
+}
+
+.subbar a {
+    position: relative;
+    float: left;
+    background-color: var(--color-bg);
+    border: 0px;
+    padding: 5pt;
+    margin-right: 5pt;
+    text-decoration: none;
+}
+
+.subbar a:hover {
+    text-decoration: underline;
+}
+
+.navbar a {
+    text-align: center;
+    padding: 12px;
+    color: white;
+    text-decoration: none;
+    font-size: 17px;
+    float: left;
+}
+
+.navbar button {
+    float: right;
+}
+
+.navbar a:hover {
+    background-color: #222;
+}
+
+.active {
+    background-color: var(--color-main);
+}
+
+.active:hover {
+    background-color: var(--color-main) !important;
+}
+
+.color-accent {
+    background-color: var(--color-accent);
+    color: var(--color-accent-font);
+}
+.color-accent:hover {
+    filter: brightness(0.8);
+}
+
+.color-main {
+    color: var(--color-main);
+}
+.color-link {
+    color: var(--color-link);
+}
+
+
+@media screen and (max-width: 640) {
+    .navbar a {
+        float: none;
+        display: block;
+    }
 }

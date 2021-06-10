@@ -6,21 +6,29 @@ let BALANCE_ID = null
 let MAIN_DIV = null;
 let TRANSACTIONS_DIV = null;
 
+function navigateTo(url, add_to_history = true) {
+    const subbar = document.querySelector('.subbar');
+    clearElement(subbar);
+    if (add_to_history)
+        window.history.pushState(url, 'nFinance', url);
+    if (url == '/transactions') {
+        displayTransactions();
+    }
+    else {
+        displayBalance();
+    }
+}
+
 function initialize() {
+    window.addEventListener('popstate', (event) => {
+        navigateTo(event.state, false);
+    });
     MAIN_DIV = document.getElementById("main_content");
     TRANSACTIONS_DIV = document.createElement('div');
 
     if (getCookie('balance_id')) {
         BALANCE_ID = getCookie('balance_id');
-        const path = window.location.pathname;
-
-        if (path == '/transactions') {
-            displayTransactions();
-        }
-        else {
-            displayBalance();
-        }
-            
+        navigateTo(window.location.pathname);
     }
     else {
         window.location.replace('/login');
@@ -43,16 +51,16 @@ function clearElement(element) {
         element.lastChild.remove();
 }
 
-function selectLink(link_id) {
-    const nav_links = document.querySelectorAll('.nav-link');
-    const selected_link = document.getElementById(link_id);
+function selectLink(link, group) {
+    const selected_link = link;
+    const nav_links = document.querySelectorAll(group);
 
     nav_links.forEach(nav_link => {
-        nav_link.classList.remove('link-selected');
+        nav_link.classList.remove('active');
     });
 
     if (selected_link != null)
-        selected_link.classList.add('link-selected');
+        selected_link.classList.add('active');
 }
 
 function createTextInput(placeholder = null) {
@@ -74,25 +82,25 @@ function createDateInput(placeholder = null) {
 function displayTransactions() {
     clearElement(MAIN_DIV);
 
-    selectLink('transactions-link');
+    selectLink(document.getElementById('transactions-link'), '.nav-link');
     TRANSACTIONS.PARENT_DIV = MAIN_DIV;
     TRANSACTIONS.display();
 }
 
 function displayBalance(raport) {
-    const sub_links = document.querySelector('.nav-sub-links');
+    const sub_links = document.querySelector('.subbar');
 
-    const link_balance = document.createElement('button');
-    const link_net_worth = document.createElement('button');
-    const link_cash_flow = document.createElement('button');
+    const link_balance = document.createElement('a');
+    const link_net_worth = document.createElement('a');
+    const link_cash_flow = document.createElement('a');
 
-    link_balance.classList.add('tab-button', 'color-black');
-    link_net_worth.classList.add('tab-button', 'color-black');
-    link_cash_flow.classList.add('tab-button', 'color-black');
+    link_balance.classList.add('subbar-link', 'color-link');
+    link_net_worth.classList.add('subbar-link', 'color-link');
+    link_cash_flow.classList.add('subbar-link', 'color-link');
 
-    link_balance.addEventListener('click', () => {displayBalance('balance');});
-    link_net_worth.addEventListener('click', () => {displayBalance('net-worth');});
-    link_cash_flow.addEventListener('click', () => {displayBalance('cash-flow');});
+    link_balance.setAttribute('href', 'javascript:displayBalance("balance");');
+    link_net_worth.setAttribute('href', 'javascript:displayBalance("net-worth");');
+    link_cash_flow.setAttribute('href', 'javascript:displayBalance("cash-flow");');
 
     link_balance.innerText = 'Balance';
     link_net_worth.innerText = 'Net Worth';
@@ -103,8 +111,8 @@ function displayBalance(raport) {
     ACCOUNTS.PARENT_DIV = MAIN_DIV;
 
     function set_selected(link) {
-        link.classList.remove('color-black');
-        link.classList.add('color-navy');
+        link.classList.remove('color-link');
+        link.classList.add('color-main');
     }
 
     if (raport == 'net-worth') {
@@ -122,7 +130,7 @@ function displayBalance(raport) {
         set_selected(link_balance);
     }
 
-    selectLink('balance-link');
+    selectLink(document.getElementById('balance-link'), '.nav-link');
     sub_links.appendChild(link_balance);
     sub_links.appendChild(link_net_worth);
     sub_links.appendChild(link_cash_flow);

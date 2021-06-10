@@ -40,7 +40,7 @@ var TRANSACTIONS = (function(tr) {
         filter_menu.classList.add('filter-menu');
 
         new_transaction_button.type = 'button';
-        new_transaction_button.classList.add('rounded-button','color-navy');
+        new_transaction_button.classList.add('rounded-button','color-accent');
         new_transaction_button.value = 'New Transaction';
         new_transaction_button.addEventListener('click', () => {
             drawNewTransaction(LIST_DIV);
