@@ -9,11 +9,14 @@
     --color-link: #888;
     --color-link-selected: #222;
     --color-nav-bar: #fcfcfc;
+    --font-small: 8pt;
+    --font-medium: 11pt;
+    --font-big: 13pt;
 }
 
 body {
     font-family: arial, verdana, sans-serif;
-    font-size: 11pt;
+    font-size: var(--font-medium);
     position: relative;
     background-color: var(--color-bg);
     color: var(--color-dark);
@@ -39,7 +42,7 @@ body {
     outline: none;
     color: #222;
     pointer-events: none;
-    font-size: 11pt;
+    font-size: var(--font-medium);
     border-radius: 3px;
 }
 
@@ -57,7 +60,7 @@ body {
     background: #ffffff;
     border: 1px solid #aaaaaa;
     padding: 4px 1em 4px 1em;
-    font-size: 11pt;
+    font-size: var(--font-medium);
     visibility: hidden;
     opacity: 0;
     color: var(--color-dark);
@@ -97,7 +100,7 @@ body {
     padding: 4px;
     background-color: #424242;
     color: #f6f6f6;
-    font-size: 12pt;
+    font-size: var(--font-medium);
 }
 
 .transaction-row-wrapper {
@@ -183,7 +186,7 @@ body {
 }
 
 .account-row {
-    font-size: 14pt;
+    font-size: var(--font-big);
     padding-top: 0.5em;
     padding-bottom: 0.5em;
     padding-right: 1em;
@@ -250,7 +253,7 @@ body {
 }
 
 #login_title_div {
-    font-size: 14pt;
+    font-size: var(--font-big);
     color: var(--color-dark);
     position: relative;
 }
@@ -278,10 +281,10 @@ body {
 
 .rounded-button {
     border: 0px;
-    font-size: 12pt;
+    font-size: var(--font-medium);
     border-radius: 20px;
     margin: 0.25em;
-    padding: 0.5em 1.5em 0.5em 1.5em;
+    padding: 7pt 1.5em 7pt 1.5em;
     transition: background-color 0.2s;
 }
 
@@ -365,7 +368,7 @@ body {
     padding: 12px;
     color: white;
     text-decoration: none;
-    font-size: 17px;
+    font-size: var(--font-big);
     float: left;
 }
 
