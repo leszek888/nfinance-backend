@@ -80,6 +80,7 @@ function createDateInput(placeholder = null) {
 }
 
 function displayTransactions() {
+    document.body.scrollTop = 0;
     clearElement(MAIN_DIV);
 
     selectLink(document.getElementById('transactions-link'), '.nav-link');
@@ -93,6 +94,8 @@ function displayBalance(raport) {
     const link_balance = document.createElement('a');
     const link_net_worth = document.createElement('a');
     const link_cash_flow = document.createElement('a');
+
+    document.body.scrollTop = 0;
 
     link_balance.classList.add('subbar-link', 'color-link');
     link_net_worth.classList.add('subbar-link', 'color-link');
