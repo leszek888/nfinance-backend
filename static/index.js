@@ -1,10 +1,8 @@
 "use strict";
 
 const NUMBER_LOCALE = 'de-DE';
-
 let BALANCE_ID = null
 let MAIN_DIV = null;
-let TRANSACTIONS_DIV = null;
 
 function navigateTo(url, add_to_history = true) {
     const subbar = document.querySelector('.subbar');
@@ -24,7 +22,6 @@ function initialize() {
         navigateTo(event.state, false);
     });
     MAIN_DIV = document.getElementById("main_content");
-    TRANSACTIONS_DIV = document.createElement('div');
 
     if (getCookie('balance_id')) {
         BALANCE_ID = getCookie('balance_id');
@@ -33,6 +30,12 @@ function initialize() {
     else {
         window.location.replace('/login');
     }
+}
+
+function displayConnectionLostError() {
+    clearElement(MAIN_DIV);
+
+    displayPopup({'error': 'Could not load the data.'});
 }
 
 function logout() {
@@ -288,28 +291,21 @@ function validateDateInput(input_field) {
     return date_is_valid;
 }
 
-function getNewBalance() {
-    sendRequest("GET", "/api/balance/new",
-                null,
-                (data) => {
-                    BALANCE_ID = data['balance_id'];
-                    updateContentWithBalance();
-                    clearElement(TRANSACTIONS_DIV);
-                    TRANSACTIONS_DIV.appendChild(TRANSACTIONS.drawAll(null));
-                }
-    );
-}
-
 function sendRequest(request_type, address, content, call_back) {
     const xhttp = new XMLHttpRequest();
 
     xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            const data = JSON.parse(this.responseText);
-            if ('error' in data || 'message' in data) {
-                displayPopup(data);
+        if (this.readyState == 4) {
+            if (this.status >= 200 && this.status < 304) {
+                const data = JSON.parse(this.responseText);
+                if ('error' in data || 'message' in data) {
+                    displayPopup(data);
+                }
+                call_back(data);
             }
-            call_back(data);
+            else {
+                displayConnectionLostError();
+            }
         }
     };
 

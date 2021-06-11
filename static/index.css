@@ -9,7 +9,7 @@
     --color-link: #888;
     --color-link-selected: #222;
     --color-nav-bar: #fcfcfc;
-    --font-small: 8pt;
+    --font-small: 9pt;
     --font-medium: 11pt;
     --font-big: 13pt;
 }
@@ -112,33 +112,6 @@ body {
     position: relative;
     transition: all 0.25s;
 }
-
-@media (max-width: 640px) {
-    .transaction-row-wrapper {
-        grid-template-columns: 1fr;
-        padding-bottom: 2.5em;
-    }
-    .transaction-header-wrapper {
-        border-bottom: var(--color-grey) solid 1px;
-    }
-    .transactions-header {
-        display: none;
-    }
-
-    .filter-menu input {
-        display: block;
-        width: 90%;
-    }
-
-    #new_transaction_button {
-        position: fixed;
-        z-index: 999;
-        bottom: 3em;
-        right: 1em;
-        box-shadow: 0px 0px 20px #444;
-    }
-}
-
 .empty-transaction-row {
     vertical-align: middle;
     border: 0px;
@@ -410,3 +383,34 @@ body {
         display: block;
     }
 }
+
+@media (max-width: 640px) {
+    .transaction-row-wrapper {
+        grid-template-columns: 1fr;
+        padding-bottom: 2.5em;
+    }
+    .transaction-header-wrapper {
+        border-bottom: var(--color-grey) solid 1px;
+    }
+    .transactions-header {
+        display: none;
+    }
+
+    .filter-menu input {
+        display: block;
+        width: 90%;
+    }
+
+    #new_transaction_button {
+        position: fixed;
+        z-index: 999;
+        bottom: 3em;
+        right: 1em;
+        box-shadow: 0px 0px 20px #444;
+    }
+    .account-row {
+        font-size: var(--font-medium);
+    }
+}
+
+

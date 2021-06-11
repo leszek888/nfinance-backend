@@ -510,7 +510,8 @@ var TRANSACTIONS = (function(tr) {
         sendRequest("GET", "/api/transaction/list"+filter_args,
                     null,
                     (data) => {
-                        LOADED_TRANSACTIONS = data;
+                        if (data != null)
+                            LOADED_TRANSACTIONS = data;
                         clearElement(LIST_DIV);
                         LIST_DIV.appendChild(TRANSACTIONS.drawAll(LOADED_TRANSACTIONS));
                         edit(null);
