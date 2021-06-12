@@ -2,14 +2,12 @@
 var ACCOUNTS = (function(acc) {
 
     let BALANCE = new Decimal('0');
-    let LOADED_ACCOUNTS = null;
-    let LOADED_BALANCE = null;
-    let LOADED_CASH_FLOW = null;
-    let LOADED_NET_WORTH = null;
-
     acc.PARENT_DIV = null;
 
-    let loadFromJson = (accounts) => {
+    acc.loadFromJson = (accounts) => {
+        if (accounts == null)
+            return null;
+
         let parsed_accounts = [];
 
         accounts.forEach(account => {
@@ -19,16 +17,6 @@ var ACCOUNTS = (function(acc) {
         });
 
         return parsed_accounts;
-    }
-
-    const calculateBalance = (accounts_list) => {
-        let balance = Decimal('0');
-
-        accounts_list.forEach(account => {
-            balance = balance.plus(Decimal(account['balance']))
-        });
-
-        return balance;
     }
 
     let addAccount = (accounts, balance, array, depth) => {
@@ -53,6 +41,16 @@ var ACCOUNTS = (function(acc) {
                 addAccount(accounts, balance, account['sub_accounts'], depth+1);
         }
 
+    }
+
+    const calculateBalance = (accounts_list) => {
+        let balance = Decimal('0');
+
+        accounts_list.forEach(account => {
+            balance = balance.plus(Decimal(account['balance']))
+        });
+
+        return balance;
     }
 
     let drawAccount = (account, depth, parent) => {
@@ -94,7 +92,7 @@ var ACCOUNTS = (function(acc) {
         accounts_table.classList.add('accounts-wrapper');
 
         if (accounts != null) {
-            accounts = loadFromJson(accounts['accounts']);
+            accounts = acc.loadFromJson(accounts['accounts']);
             const balance = calculateBalance(accounts);
 
             drawAccount({'name':'Suma','balance':balance,'sub_accounts':[]}, 0, accounts_table);
@@ -112,9 +110,6 @@ var ACCOUNTS = (function(acc) {
                      'filters':filters
                     },
                     (data) => {
-                        if (data != null)
-                            LOADED_ACCOUNTS = data;
-
                         clearElement(acc.PARENT_DIV);
                         acc.PARENT_DIV.appendChild(ACCOUNTS.drawAll(data));
                     }
