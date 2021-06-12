@@ -1,4 +1,3 @@
-
 var ACCOUNTS = (function(acc) {
 
     let BALANCE = new Decimal('0');
@@ -43,7 +42,7 @@ var ACCOUNTS = (function(acc) {
 
     }
 
-    const calculateBalance = (accounts_list) => {
+    acc.calculateBalance = (accounts_list) => {
         let balance = Decimal('0');
 
         accounts_list.forEach(account => {
@@ -93,7 +92,7 @@ var ACCOUNTS = (function(acc) {
 
         if (accounts != null) {
             accounts = acc.loadFromJson(accounts['accounts']);
-            const balance = calculateBalance(accounts);
+            const balance = acc.calculateBalance(accounts);
 
             drawAccount({'name':'Suma','balance':balance,'sub_accounts':[]}, 0, accounts_table);
             accounts.forEach(account => {

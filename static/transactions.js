@@ -86,7 +86,7 @@ var TRANSACTIONS = (function(tr) {
         input.classList.add('entry-amount');
         input.addEventListener('focusout', (e) => {
             if (validateNumberInput(e.currentTarget))
-                fillOutUnbalancedAmount(e.currentTarget.closest('.transaction-row'));
+                tr.fillOutUnbalancedAmount(e.currentTarget.closest('.transaction-row'));
         });
 
         return input;
@@ -145,7 +145,7 @@ var TRANSACTIONS = (function(tr) {
         const transaction_entries_amount_input = createTransactionNumberInput('Amount');
         const transaction_entries_remove_button = createTransactionButton('X');
 
-        transaction_entries_row.classList.add('.entry-row');
+        transaction_entries_row.classList.add('entry-row');
 
         transaction_entries_account_input.value = account;
         transaction_entries_amount_input.value = formatNumber(amount);
@@ -166,7 +166,7 @@ var TRANSACTIONS = (function(tr) {
                     }
                 });
             }
-            fillOutUnbalancedAmount(transaction);
+            tr.fillOutUnbalancedAmount(transaction);
         });
 
         transaction_entries_account.appendChild(transaction_entries_account_input);
@@ -195,7 +195,7 @@ var TRANSACTIONS = (function(tr) {
         return transaction_row;
     }
 
-    const drawRow = (transaction) => {
+    tr.drawRow = (transaction) => {
         const transaction_row = document.createElement('div');
             const transaction_header = document.createElement('div');
                 const transaction_header_date = document.createElement('div');
@@ -247,7 +247,8 @@ var TRANSACTIONS = (function(tr) {
         const transaction_remove_button = createTransactionButton('Delete'); 
 
         transaction_save_button.addEventListener('click', (e) => { 
-            save(extractDataFromDOM(transaction_row));
+            if (tr.validate(transaction_row))
+                save(tr.extractDataFromDOM(transaction_row));
         });
         transaction_cancel_button.addEventListener('click', (e) => {
             edit(null);
@@ -255,10 +256,10 @@ var TRANSACTIONS = (function(tr) {
                 transaction_row.parentNode.removeChild(transaction_row);
             }
             else
-                transaction_row.parentNode.replaceChild(drawRow(transaction), transaction_row);
+                transaction_row.parentNode.replaceChild(tr.drawRow(transaction), transaction_row);
         });
         transaction_remove_button.addEventListener('click', (e) => { 
-            remove(extractDataFromDOM(transaction_row));
+            remove(tr.extractDataFromDOM(transaction_row));
         });
 
         transaction_buttons_div.classList.add('transaction-buttons-wrapper');
@@ -280,7 +281,7 @@ var TRANSACTIONS = (function(tr) {
             {'account': '', 'amount':''},
             {'account': '', 'amount':''},
         ]};
-        const transaction_row = drawRow(empty_transaction);
+        const transaction_row = tr.drawRow(empty_transaction);
         table.insertBefore(transaction_row, table.children[1]);
         edit(transaction_row);
         transaction_row.querySelector('.transaction-input').focus();
@@ -316,7 +317,7 @@ var TRANSACTIONS = (function(tr) {
 
         if (transactions['transactions'].length > 0) {
             for (let transaction of transactions['transactions']) {
-                transactions_table.appendChild(drawRow(transaction));
+                transactions_table.appendChild(tr.drawRow(transaction));
             }
         }
         else {
@@ -326,7 +327,7 @@ var TRANSACTIONS = (function(tr) {
         return transactions_table;
     }
 
-    const calculateBalance = (transaction) => {
+    tr.calculateBalance = (transaction) => {
         const amounts = transaction.querySelectorAll('.entry-amount');
 
         let unbalanced_amount = new Decimal(0);
@@ -356,8 +357,8 @@ var TRANSACTIONS = (function(tr) {
         return unbalanced_amount;
     }
 
-    const fillOutUnbalancedAmount = (transaction) => {
-        const unbalanced_amount = calculateBalance(transaction);
+    tr.fillOutUnbalancedAmount = (transaction) => {
+        const unbalanced_amount = tr.calculateBalance(transaction);
         const amounts = transaction.querySelectorAll('.entry-amount');
 
         let first_free_field = null;
@@ -374,7 +375,7 @@ var TRANSACTIONS = (function(tr) {
                 first_free_field.placeholder = formatNumber(unbalanced_amount);
             else {
                 addEntry(transaction);
-                fillOutUnbalancedAmount(transaction);
+                tr.fillOutUnbalancedAmount(transaction);
             }
         }
     }
@@ -398,7 +399,7 @@ var TRANSACTIONS = (function(tr) {
         transaction_row.classList.add('edited-transaction');
     }
 
-    const extractDataFromDOM = (row) => {
+    tr.extractDataFromDOM = (row) => {
         const inputs = row.querySelectorAll('.transaction-input');
         let values = []
 
@@ -425,7 +426,7 @@ var TRANSACTIONS = (function(tr) {
         return transaction;
     }
 
-    const validate = (transaction) => {
+    tr.validate = (transaction) => {
         const header = transaction.querySelector('.transaction-header-wrapper');
         const entries = transaction.querySelectorAll('.entry-row');
         const fields = header.querySelectorAll('.transaction-input');
