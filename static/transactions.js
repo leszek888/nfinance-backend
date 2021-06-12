@@ -488,7 +488,7 @@ var TRANSACTIONS = (function(tr) {
     }
 
     const save = (transaction) => {
-        sendRequest("POST", "/api/transaction/save",
+        sendRequest("POST", "/api/transaction",
                     transaction,
                     (data) => {
                         loadAndDisplayInParent();
@@ -507,7 +507,7 @@ var TRANSACTIONS = (function(tr) {
                 filter_args += '&';
             });
         }
-        sendRequest("GET", "/api/transaction/list"+filter_args,
+        sendRequest("GET", "/api/transaction"+filter_args,
                     null,
                     (data) => {
                         if (data != null)
@@ -520,7 +520,7 @@ var TRANSACTIONS = (function(tr) {
     }
 
     const remove = (transaction) => {
-        sendRequest("DELETE", "/api/transaction/remove",
+        sendRequest("DELETE", "/api/transaction",
                     transaction,
                     loadAndDisplayInParent);
     }

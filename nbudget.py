@@ -64,14 +64,14 @@ def create_balance():
 
     return jsonify({'balance_id' : new_balance.public_id})
 
-@app.route('/api/transaction/save', methods=['POST'])
+@app.route('/api/transaction', methods=['POST'])
 @cross_origin()
 def create_transaction():
     data = request.get_json()
 
     return jsonify(saveTransaction(data))
 
-@app.route('/api/transaction/list', methods=['GET'])
+@app.route('/api/transaction', methods=['GET'])
 @cross_origin()
 def get_transactions():
     balance_id = request.cookies.get('balance_id')
@@ -118,7 +118,7 @@ def get_transactions():
 
     return jsonify({'transactions' : formatted_transactions})
 
-@app.route('/api/transaction/delete', methods=['DELETE'])
+@app.route('/api/transaction', methods=['DELETE'])
 @cross_origin()
 def deleteTransaction():
     data = request.get_json()

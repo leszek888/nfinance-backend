@@ -51,7 +51,7 @@ class AccountsTest(unittest.TestCase):
                                                     {'account': 'Income:Revenue',
                                                      'amount': '-4'},
                                                     ])
-        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction', headers={"Content-Type":"application/json"},
                       data=transaction)
         transaction = self.create_transaction_json(entries = [
                                                     {'account': 'Assets',
@@ -63,7 +63,7 @@ class AccountsTest(unittest.TestCase):
                                                     ])
 
 
-        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction', headers={"Content-Type":"application/json"},
                       data=transaction)
 
         self.assertEqual(6, len(Entry.query.all()))
@@ -82,7 +82,7 @@ class AccountsTest(unittest.TestCase):
                                                     {'account': 'Expenses',
                                                      'amount': '-10'},
                                                     ])
-        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction', headers={"Content-Type":"application/json"},
                       data=transaction)
 
         transaction = self.create_transaction_json(entries = [
@@ -93,7 +93,7 @@ class AccountsTest(unittest.TestCase):
                                                     {'account': 'Capital',
                                                      'amount': '40'},
                                                     ])
-        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction', headers={"Content-Type":"application/json"},
                       data=transaction)
 
         response = self.app.post('/api/accounts', headers={"Content-Type":"application/json"},
@@ -115,7 +115,7 @@ class AccountsTest(unittest.TestCase):
                                                     {'account': 'Expenses:Groceries',
                                                      'amount': '-10'},
                                                     ])
-        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction', headers={"Content-Type":"application/json"},
                       data=transaction)
 
         transaction = self.create_transaction_json(entries = [
@@ -128,7 +128,7 @@ class AccountsTest(unittest.TestCase):
                                                     ],
                                                    date = '2020-01-02',
                                                    )
-        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction', headers={"Content-Type":"application/json"},
                       data=transaction)
 
         transaction = self.create_transaction_json(entries = [
@@ -141,7 +141,7 @@ class AccountsTest(unittest.TestCase):
                                                     ],
                                                    date = '2020-01-03'
                                                    )
-        self.app.post('/api/transaction/save', headers={"Content-Type":"application/json"},
+        self.app.post('/api/transaction', headers={"Content-Type":"application/json"},
                       data=transaction)
 
 
