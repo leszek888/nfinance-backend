@@ -11,7 +11,6 @@ var ACCOUNTS = (function(acc) {
 
     let loadFromJson = (accounts) => {
         let parsed_accounts = [];
-        BALANCE = Decimal('0');
 
         accounts.forEach(account => {
             let sub_accounts = account['name'].split(':');
@@ -19,11 +18,17 @@ var ACCOUNTS = (function(acc) {
             addAccount(sub_accounts, parseFloat(account['balance']), parsed_accounts, depth=0);
         });
 
-        parsed_accounts.forEach(account => {
-            BALANCE = BALANCE.plus(Decimal(account['balance']));
+        return parsed_accounts;
+    }
+
+    const calculateBalance = (accounts_list) => {
+        let balance = Decimal('0');
+
+        accounts_list.forEach(account => {
+            balance = balance.plus(Decimal(account['balance']))
         });
 
-        return parsed_accounts;
+        return balance;
     }
 
     let addAccount = (accounts, balance, array, depth) => {
@@ -90,8 +95,9 @@ var ACCOUNTS = (function(acc) {
 
         if (accounts != null) {
             accounts = loadFromJson(accounts['accounts']);
+            const balance = calculateBalance(accounts);
 
-            drawAccount({'name':'Suma','balance':BALANCE,'sub_accounts':[]}, 0, accounts_table);
+            drawAccount({'name':'Suma','balance':balance,'sub_accounts':[]}, 0, accounts_table);
             accounts.forEach(account => {
                 drawAccount(account, 0, accounts_table);
             });
