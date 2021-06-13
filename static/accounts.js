@@ -1,6 +1,5 @@
 var ACCOUNTS = (function(acc) {
 
-    let BALANCE = new Decimal('0');
     acc.PARENT_DIV = null;
 
     acc.loadFromJson = (accounts) => {
@@ -12,13 +11,13 @@ var ACCOUNTS = (function(acc) {
         accounts.forEach(account => {
             let sub_accounts = account['name'].split(':');
 
-            addAccount(sub_accounts, parseFloat(account['balance']), parsed_accounts, depth=0);
+            parseSubAccounts(sub_accounts, parseFloat(account['balance']), parsed_accounts, depth=0);
         });
 
         return parsed_accounts;
     }
 
-    let addAccount = (accounts, balance, array, depth) => {
+    let parseSubAccounts = (accounts, balance, array, depth) => {
         let account = {};
         let account_found = false;
 
@@ -30,14 +29,14 @@ var ACCOUNTS = (function(acc) {
             if (element['name'] == account['name']) {
                 account_found = true;
                 element['balance'] += account['balance'];
-                addAccount(accounts, balance, element['sub_accounts'], depth+1);
+                parseSubAccounts(accounts, balance, element['sub_accounts'], depth+1);
             }
         });
 
         if (!account_found) {
             array.push(account);
             if (accounts.length > 0)
-                addAccount(accounts, balance, account['sub_accounts'], depth+1);
+                parseSubAccounts(accounts, balance, account['sub_accounts'], depth+1);
         }
 
     }
@@ -63,12 +62,12 @@ var ACCOUNTS = (function(acc) {
 
         if (account['sub_accounts'].length > 0) {
             account['sub_accounts'].forEach(sub_account => {
-                drawAccount(sub_account, depth+1, parent);
+                drawAccount(sub_account, depth+1);
             });
         }
     }
 
-    let drawRow = (account_name, balance, parent) => {
+    let drawRow = (account_name, balance) => {
         const account_row = document.createElement('div');
         const account_row_name = document.createElement('div');
         const account_row_balance = document.createElement('div');
