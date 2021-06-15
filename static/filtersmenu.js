@@ -5,8 +5,8 @@ var FiltersMenu = function(fm) {
         filter_input.dispatchEvent(new CustomEvent('filters-updated', {bubbles: true}));
     }
 
-    function removeFilters(filter_input) {
-        filter_input.parentNode.parentNode.querySelectorAll('input').forEach(input => {
+    function removeFilters(filter_menu) {
+        filter_menu.querySelectorAll('input').forEach(input => {
             input.value = "";
         });
     }
