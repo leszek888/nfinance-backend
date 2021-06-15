@@ -293,7 +293,7 @@ class TransactionsTest(unittest.TestCase):
 
         self.app.set_cookie(key='balance_id', value=self.balance.json['balance_id'], server_name=None)
 
-        response = self.app.get('/api/transaction?from=2020-01-03&to=2020-01-04')
+        response = self.app.get('/api/transaction?date_from=2020-01-03&date_to=2020-01-04')
         self.assertEqual(len(response.json['transactions']), 2)
 
         response = self.app.get('/api/transaction?payee=first')

@@ -1,3 +1,5 @@
+@import url('https://css.gg/select.css');
+
 :root {
     --color-dark: #086788;
     --color-main: #06aed5;
@@ -28,6 +30,7 @@ body {
     border: 1px var(--color-grey) solid;
     padding: 0.5em;
     margin: 0.25em;
+    width: 100%;
 }
 
 .main-text-input:focus {
@@ -151,25 +154,54 @@ body {
     background-color: #f8f8f8;
 }
 */
+.account-row {
+    font-size: var(--font-big);
+    font-weight: none;
+    padding-left: 1em;
+    margin: 0px;
+    border-top: 1px solid #ddd;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #fdfdfd;
+    position: relative;
+}
 
 .account-depth-0 {
-    font-weight: bold;
-    border-top: 1px solid #000;
     background-color: #f5f5f5;
 }
 
-.account-row {
-    font-size: var(--font-big);
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-    padding-right: 1em;
-    display: grid;
-    grid-template-columns: 7fr 1fr;
-    border-top: 1px solid #ddd;
+.collapsed .account-row {
+    display: none;
 }
 
-.entry-amount {
+.collapsed-button-container {
+    opacity: 0.6;
+    color: #444;
+    margin: auto;
+}
+
+.account-collapsable:hover {
+    color: #111;
+    background-color: #eee;
+}
+
+.collapsed .collapsed-button-container {
+}
+
+.account-row-name {
+    text-align: left;
+}
+
+.account-row-balance {
     text-align: right;
+    padding-right: 1em;
+}
+
+.account-current-row-container {
+    display: grid;
+    grid-template-columns: 30px 8fr 2fr;
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
 }
 
 .popup-message {
@@ -270,14 +302,29 @@ body {
     */
 }
 
+/*
 .filter-menu {
+    position: relative;
     background-color: var(--color-grey);
     width: 100%;
     margin-top: 0.5em;
     margin-bottom: 0.5em;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: 25pt;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1.3fr 1.3fr 5.4fr 4fr 4fr;
 }
+
+.filter-toggle-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 20pt;
+}
+*/
+
 .footer {
     margin-top: 10em;
     height: auto;
@@ -397,10 +444,11 @@ body {
         display: none;
     }
 
-    .filter-menu input {
-        display: block;
-        width: 90%;
+    /*
+    .filter-menu {
+        grid-template-columns: 1fr;
     }
+    */
 
     #new_transaction_button {
         position: fixed;
@@ -412,6 +460,9 @@ body {
     .account-row {
         font-size: var(--font-medium);
     }
+
 }
 
-
+.gg-select {
+    transform: scale(0.6);
+}

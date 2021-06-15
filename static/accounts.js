@@ -51,35 +51,59 @@ var ACCOUNTS = (function(acc) {
         return balance;
     }
 
-    let drawAccount = (account, depth, parent) => {
-        const account_row = drawRow(account['name'], account['balance']);
-
-        account_row.style.paddingLeft = (depth+1)+'em';
-        if (depth > 1)
-            account_row.style.color = '#666666';
-        account_row.classList.add('account-depth-'+depth);
-        parent.appendChild(account_row);
-
-        if (account['sub_accounts'].length > 0) {
-            account['sub_accounts'].forEach(sub_account => {
-                drawAccount(sub_account, depth+1);
-            });
-        }
-    }
-
-    let drawRow = (account_name, balance) => {
+    let drawRow = (account, depth) => {
         const account_row = document.createElement('div');
+
+        const current_row_container = document.createElement('div');
+        const collapsed_button_container = document.createElement('div');
         const account_row_name = document.createElement('div');
         const account_row_balance = document.createElement('div');
 
-        account_row_balance.classList.add('entry-amount');
-        account_row.classList.add('account-row');
-        account_row_name.innerText = account_name;
-        account_row_balance.innerText = formatNumber(balance);
+        if (depth > 1)
+            account_row.classList.add('collapsed');
 
-        account_row.appendChild(account_row_name);
-        account_row.appendChild(account_row_balance);
+        account_row.addEventListener("click", (e) => {
+            e.stopPropagation();
+            console.log('clicked');
+            if (account_row.classList.contains('collapsed'))
+                account_row.classList.remove('collapsed');
+            else
+                account_row.classList.add('collapsed');
+        });
+
+        current_row_container.classList.add('account-current-row-container');
+        collapsed_button_container.classList.add('collapsed-button-container');
+
+        if (account['sub_accounts'].length > 0) {
+            collapsed_button_container.innerHTML = `<i class="gg-select"></i>`;
+            current_row_container.classList.add('account-collapsable');
+        }
+
+        account_row.classList.add('account-row');
+        account_row_name.classList.add('account-row-name');
+        account_row_balance.classList.add('account-row-balance');
+
+        account_row_balance.classList.add('entry-amount');
+        account_row_name.innerText = account.name;
+        account_row_balance.innerText = formatNumber(account.balance);
+
+        current_row_container.appendChild(collapsed_button_container);
+        current_row_container.appendChild(account_row_name);
+        current_row_container.appendChild(account_row_balance);
+        account_row.appendChild(current_row_container);
         
+        // account_row.style.paddingLeft = (depth+1)+'em';
+
+        if (depth > 1)
+            account_row.style.color = '#666666';
+        account_row.classList.add('account-depth-'+depth);
+
+        if (account['sub_accounts'].length > 0) {
+            account['sub_accounts'].forEach(sub_account => {
+                account_row.appendChild(drawRow(sub_account, depth+1));
+            });
+        }
+
         return account_row;
     }
 
@@ -93,9 +117,9 @@ var ACCOUNTS = (function(acc) {
             accounts = acc.loadFromJson(accounts['accounts']);
             const balance = acc.calculateBalance(accounts);
 
-            drawAccount({'name':'Suma','balance':balance,'sub_accounts':[]}, 0, accounts_table);
+            accounts_table.appendChild(drawRow({'name':'Suma','balance':balance,'sub_accounts':[]}, 0));
             accounts.forEach(account => {
-                drawAccount(account, 0, accounts_table);
+                accounts_table.appendChild(drawRow(account, 0, accounts_table));
             });
         }
 

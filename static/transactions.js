@@ -4,40 +4,24 @@ var TRANSACTIONS = (function(tr) {
     let LOADED_TRANSACTIONS = null;
     let LIST_DIV = null;
     tr.PARENT_DIV = null;
- 
-    const useAsFilter = (key, input, validator=null) => {
-        input.addEventListener("keyup", (e) => {
-            if (validator == null || validator(e.currentTarget)) {
-                updateFilters(key, e.currentTarget.value);
-            }
-            else
-                updateFilters(key, null);
-
-            loadAndDisplayInParent();
-        });
-    }
 
     tr.display = () => {
         const transactions_menu = document.createElement('div');
             const new_transaction_button = document.createElement('input');
 
-        const filter_menu = document.createElement('div');
-            const filter_by_payee = createTextInput('Payee');
-            const filter_by_date_from = createDateInput('From');
-            const filter_by_date_to = createDateInput('To');
-            const filter_by_account = createTextInput('Account');
-
         LIST_DIV = document.createElement('div');
 
-        useAsFilter("from", filter_by_date_from, validateDateInput);
-        useAsFilter("to", filter_by_date_to, validateDateInput);
-        useAsFilter("payee", filter_by_payee);
-        useAsFilter("account", filter_by_account);
+        const filter_menu = FiltersMenu.createMenu([
+            {'name': 'date', 'title': 'Date', 'type': 'date'},
+            {'name': 'payee', 'title': 'Payee'},
+            {'name': 'account', 'title': 'Account'}
+            ]);
 
-        transactions_menu.classList.add('sub-window');
+        filter_menu.addEventListener("filters-updated", () => {
 
-        filter_menu.classList.add('sub-window');
-        filter_menu.classList.add('filter-menu');
+            updateFilters(FiltersMenu.getFilterValues(filter_menu));
+            loadAndDisplayInParent();
+        });
 
         new_transaction_button.type = 'button';
         new_transaction_button.id = 'new_transaction_button';
@@ -48,10 +32,6 @@ var TRANSACTIONS = (function(tr) {
         });
 
         transactions_menu.appendChild(new_transaction_button);
-        filter_menu.appendChild(filter_by_date_from);
-        filter_menu.appendChild(filter_by_date_to);
-        filter_menu.appendChild(filter_by_payee);
-        filter_menu.appendChild(filter_by_account);
         tr.PARENT_DIV.appendChild(transactions_menu);
         tr.PARENT_DIV.appendChild(filter_menu);
         tr.PARENT_DIV.appendChild(LIST_DIV);
@@ -112,27 +92,16 @@ var TRANSACTIONS = (function(tr) {
         return button;
     }
 
-    const updateFilters = (key, value) => {
-        let updated = false;
+    const updateFilters = (filters) => {
+        console.log('called');
+        FILTERS = [];
 
-        for (let i=0; i!=FILTERS.length; i++) {
-            if (FILTERS[i]['key'] == key) {
-                if (value == null) {
-                    FILTERS.splice(i, 1);
-                    updated = true;
-                    break;
-                }
-                else {
-                    FILTERS[i]['value'] = value;
-                    updated = true;
-                    break;
-                }
-            }
-        }
+        filters.forEach(filter => {
+            if (filter.value.trim().length > 0)
+                FILTERS.push({'key': filter.name, 'value': filter.value});
+        });
 
-        if (!updated && value != null) {
-            FILTERS.push({'key':key, 'value': value});
-        }
+        console.log(FILTERS);
     };
 
     const drawEntryRow = (account, amount) => {

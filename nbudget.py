@@ -84,12 +84,12 @@ def get_transactions():
 
     transactions = Transactions.query.filter_by(balance_id=balance_id).order_by(Transactions.date.desc()).order_by(Transactions.id.desc());
 
-    if request.args.get('from') is not None:
+    if request.args.get('date_from') is not None:
         print('filtering date')
-        transactions = transactions.filter(Transactions.date >= request.args.get('from'))
+        transactions = transactions.filter(Transactions.date >= request.args.get('date_from'))
 
-    if request.args.get('to') is not None:
-        transactions = transactions.filter(Transactions.date <= request.args.get('to'))
+    if request.args.get('date_to') is not None:
+        transactions = transactions.filter(Transactions.date <= request.args.get('date_to'))
 
     if request.args.get('payee') is not None:
         transactions = transactions.filter(Transactions.payee.like('%'+request.args.get('payee')+'%'))
