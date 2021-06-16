@@ -106,7 +106,7 @@ def get_transactions():
         fetched_transaction['id'] = transaction.id
         fetched_transaction['date'] = str(transaction.date)
         fetched_transaction['payee'] = transaction.payee
-        entries = Entry.query.filter_by(transaction_id=transaction.id).all()
+        entries = Entry.query.filter_by(transaction_id=transaction.id).order_by(Entry.account).all()
         fetched_entries = []
         for entry in entries:
             fetched_entries.append({

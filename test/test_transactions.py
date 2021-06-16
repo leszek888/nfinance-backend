@@ -16,6 +16,17 @@ class TransactionsTest(unittest.TestCase):
     def tearDown(self):
         db.drop_all()
 
+    def get_transactions(self):
+        self.app.set_cookie(key='balance_id', value=self.balance.json['balance_id'], server_name=None)
+
+        return self.app.get('/api/transaction')
+
+
+    def save_transaction(self, transaction):
+        return self.app.post('/api/transaction',
+                        headers={"Content-Type":"application/json"},
+                        data=transaction)
+
     def create_entry(self, account, amount):
         return { 'account' : account, 'amount': amount }
 
@@ -60,9 +71,7 @@ class TransactionsTest(unittest.TestCase):
     def test_reject_transaction_with_wrong_balance_id(self):
         transaction = self.create_transaction_json(balance_id = "wrong-id")
 
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
+        response = self.save_transaction(transaction)
 
         self.assertEqual(200, response.status_code)
         self.assertTrue('error' in response.json)
@@ -70,9 +79,7 @@ class TransactionsTest(unittest.TestCase):
     def test_reject_transaction_without_payee(self):
         transaction = self.create_transaction_json(payee = '')
 
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
+        response = self.save_transaction(transaction)
 
         self.assertEqual(200, response.status_code)
         self.assertTrue('error' in response.json)
@@ -80,9 +87,7 @@ class TransactionsTest(unittest.TestCase):
     def test_reject_transaction_with_wrong_date(self):
         transaction = self.create_transaction_json(date = 'wrong')
 
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
+        response = self.save_transaction(transaction)
 
         self.assertEqual(200, response.status_code)
         self.assertTrue('error' in response.json)
@@ -95,9 +100,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : '-e' }
                                                    ])
 
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
+        response = self.save_transaction(transaction)
 
         self.assertEqual(200, response.status_code)
         self.assertTrue('error' in response.json)
@@ -112,9 +115,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : ''},
                                                    ])
 
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
+        response = self.save_transaction(transaction)
 
         self.assertEqual(200, response.status_code)
         self.assertFalse('error' in response.json)
@@ -129,9 +130,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : '' },
                                                    ])
 
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
+        response = self.save_transaction(transaction)
 
         self.assertEqual(200, response.status_code)
         self.assertTrue('error' in response.json)
@@ -146,9 +145,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : '-32,25' }
                                                    ])
 
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
+        response = self.save_transaction(transaction)
 
         self.assertEqual(200, response.status_code)
         self.assertFalse('error' in response.json)
@@ -161,10 +158,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : '' }
                                                    ])
 
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
-
+        response = self.save_transaction(transaction)
         balanced_entry = Entry.query.filter_by(account='Credit').first()
 
         self.assertEqual(200, response.status_code)
@@ -180,9 +174,7 @@ class TransactionsTest(unittest.TestCase):
                                                          'amount' : '5' }
                                                    ])
 
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
+        response = self.save_transaction(transaction)
 
         self.assertEqual(200, response.status_code)
         self.assertTrue('error' in response.json)
@@ -190,9 +182,7 @@ class TransactionsTest(unittest.TestCase):
     def test_update_existing_transactions(self):
         transaction = self.create_transaction_json()
 
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
+        response = self.save_transaction(transaction)
 
         transaction_id = Transactions.query.first().id;
         changed_transaction = self.create_transaction_json( payee = "EDITED PAYEE",
@@ -208,9 +198,7 @@ class TransactionsTest(unittest.TestCase):
                                                             transaction_id = transaction_id
                                                            )
 
-        new_response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=changed_transaction)
+        new_response = self.save_transaction(changed_transaction)
 
         transaction = Transactions.query.filter_by(id=transaction_id).first()
         entries = Entry.query.filter_by(transaction_id=transaction_id).all()
@@ -224,13 +212,8 @@ class TransactionsTest(unittest.TestCase):
     def test_delete_transaction(self):
         transaction = self.create_transaction_json()
 
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
-
-        response = self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
+        response = self.save_transaction(transaction)
+        response = self.save_transaction(transaction)
 
         self.assertEqual(2, len(Transactions.query.all()))
         self.assertEqual(4, len(Entry.query.all()))
@@ -248,48 +231,37 @@ class TransactionsTest(unittest.TestCase):
         self.assertEqual(2, len(Entry.query.all()))
 
     def test_list_all_transaction(self):
-        self.app.set_cookie(key='balance_id', value=self.balance.json['balance_id'], server_name=None)
-
         for i in range(0, 5):
             transaction = self.create_transaction_json()
-            response = self.app.post('/api/transaction',
-                                     headers={"Content-Type":"application/json"},
-                                     data=transaction)
+            response = self.save_transaction(transaction)
 
         self.assertEqual(10, len(Entry.query.all()))
-        response = self.app.get('/api/transaction')
+
+        response = self.get_transactions()
+
         self.assertEqual(200, response.status_code)
+
         if 'error' in response.json:
             print(response.json['error'])
+
         self.assertFalse('error' in response.json)
         self.assertEqual(5, len(response.json['transactions']))
 
     def test_filter_transactions(self):
         transaction = self.create_transaction_json(date='2020-01-01', payee='First')
-        self.app.post('/api/transaction',
-                                     headers={"Content-Type":"application/json"},
-                                     data=transaction)
 
+        response = self.save_transaction(transaction)
 
         transaction = self.create_transaction_json(date='2020-01-02', payee='Second', entries=[
                             {'account':'Income', 'amount':'32'}, {'account':'Equity', 'amount':'-32'}
                                     ])
-        self.app.post('/api/transaction',
-                                     headers={"Content-Type":"application/json"},
-                                     data=transaction)
-
+        response = self.save_transaction(transaction)
 
         transaction = self.create_transaction_json(date='2020-01-03', payee='First:Sub')
-        self.app.post('/api/transaction',
-                                     headers={"Content-Type":"application/json"},
-                                     data=transaction)
-
+        response = self.save_transaction(transaction)
 
         transaction = self.create_transaction_json(date='2020-01-04', payee='Sub:First')
-        self.app.post('/api/transaction',
-                                 headers={"Content-Type":"application/json"},
-                                 data=transaction)
-
+        response = self.save_transaction(transaction)
 
         self.app.set_cookie(key='balance_id', value=self.balance.json['balance_id'], server_name=None)
 
@@ -302,3 +274,17 @@ class TransactionsTest(unittest.TestCase):
         response = self.app.get('/api/transaction?account=debit')
         self.assertEqual(len(response.json['transactions']), 3)
 
+    def test_entries_are_sorted(self):
+        transaction = self.create_transaction_json(entries = [
+            self.create_entry('Equity', '10'),
+            self.create_entry('Assets', '-5'),
+            self.create_entry('Income', '-5')
+        ])
+
+        self.save_transaction(transaction)
+        response = self.get_transactions()
+        print(response.json['transactions'][0]['entries'][0])
+
+        self.assertEqual(response.json['transactions'][0]['entries'][0]['account'], 'Assets')
+        self.assertEqual(response.json['transactions'][0]['entries'][1]['account'], 'Equity')
+        self.assertEqual(response.json['transactions'][0]['entries'][2]['account'], 'Income')
