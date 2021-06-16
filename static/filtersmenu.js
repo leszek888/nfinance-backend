@@ -9,6 +9,7 @@ var FiltersMenu = function(fm) {
         filter_menu.querySelectorAll('input').forEach(input => {
             input.value = "";
         });
+        update(filter_menu);
     }
 
     class SimpleFilter extends HTMLElement {
@@ -127,6 +128,8 @@ var FiltersMenu = function(fm) {
                 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
                 .filters-parent {
                     width: 100%;
+                    padding-top: 10px;
+                    padding-bottom: 10px;
                 }
 
                 .filters-container {

@@ -48,7 +48,6 @@ body {
     font-size: var(--font-medium);
     border-radius: 3px;
 }
-
 .edited-transaction .transaction-input {
     border-color: #ddd;
     background: #fff;
@@ -424,6 +423,9 @@ body {
     color: var(--color-link);
 }
 
+.entry-amount {
+    text-align: right;
+}
 
 @media screen and (max-width: 640) {
     .navbar a {

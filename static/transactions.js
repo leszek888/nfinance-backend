@@ -10,6 +10,7 @@ var TRANSACTIONS = (function(tr) {
             const new_transaction_button = document.createElement('input');
 
         LIST_DIV = document.createElement('div');
+        FILTERS = [];
 
         const filter_menu = FiltersMenu.createMenu([
             {'name': 'date', 'title': 'Date', 'type': 'date'},
