@@ -45,10 +45,11 @@ var FiltersMenu = function(fm) {
                         <div class="date-filters filter">
                             <span class="filter-label">Period</span>
                             <select>
-                                <option selected="selected" value="all_time">All Time</option>
+                                <option value="last_week">Last 7 Days</option>
                                 <option value="month_current">This Month</option>
                                 <option value="month_last">Last Month</option>
                                 <option value="year_current">Current Year</option>
+                                <option selected="selected" value="all_time">All Time</option>
                                 <option value="custom">Custom Period</option>
                             </select>
                             <div class="date-from-to">
@@ -79,6 +80,10 @@ var FiltersMenu = function(fm) {
 
                 period_fields.style.maxHeight = period_fields.scrollHeight;
                 period_fields.querySelector('[name="date_from"]').focus();
+            }
+            else if (select_field.value == 'last_week') {
+                console.log('last_week');
+                start_date.setDate(start_date.getDate() - 7);
             }
             else if (select_field.value == 'month_current') {
                 start_date.setMonth(start_date.getMonth());
@@ -158,6 +163,8 @@ var FiltersMenu = function(fm) {
                     }
                     .filter {
                         max-width: 100%;
+                        padding-left: 25px;
+                        padding-right: 25px;
                     }
                 }
 
