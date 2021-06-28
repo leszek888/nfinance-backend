@@ -45,13 +45,11 @@ def tokenRequired(f):
         token = None
 
         if 'x-access-token' in request.headers:
-            print('It was in the headers tho')
             token = request.headers['x-access-token']
-            print(token)
+            print('Accessing with token: ', token)
 
         if not token:
             current_balance = None
-
 
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
@@ -59,6 +57,10 @@ def tokenRequired(f):
         except:
             print('invalid token')
             current_balance = None
+
+        if not current_balance:
+            print('Invalid Token')
+            return jsonify({'error': 'Token invalid'})
 
         return f(current_balance, *args, **kwargs)
     return decorated
@@ -91,8 +93,11 @@ def create_balance():
 
 @app.route('/api/transaction', methods=['POST'])
 @cross_origin()
-def create_transaction():
+@tokenRequired
+def create_transaction(current_balance):
     data = request.get_json()
+    if current_balance:
+        data['balance_id'] = current_balance.public_id;
     print(request.get_data())
 
     return jsonify(saveTransaction(data))
