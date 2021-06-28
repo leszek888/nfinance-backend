@@ -60,7 +60,6 @@ def tokenRequired(f):
 
         if not current_balance:
             print('Invalid Token')
-            return jsonify({'error': 'Token invalid'})
 
         return f(current_balance, *args, **kwargs)
     return decorated
