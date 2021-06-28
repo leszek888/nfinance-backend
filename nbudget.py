@@ -18,7 +18,6 @@ app.config['SECRET_KEY'] = os.environ['NB_KEY']
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['NB_DB_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
 db = SQLAlchemy(app)
 
 class Balance(db.Model):
@@ -68,13 +67,18 @@ def create_balance():
 @cross_origin()
 def create_transaction():
     data = request.get_json()
+    print(request.get_data())
 
     return jsonify(saveTransaction(data))
 
 @app.route('/api/transaction', methods=['GET'])
 @cross_origin()
 def get_transactions():
-    balance_id = request.cookies.get('balance_id')
+
+    if 'bal_id' in request.args:
+        balance_id = request.args['bal_id']
+    else:
+        balance_id = request.cookies.get('balance_id')
 
     if not balance_id or len(balance_id) != 36:
         return jsonify({'error' : 'Balance not found.'})
@@ -116,7 +120,8 @@ def get_transactions():
         fetched_transaction['entries'] = fetched_entries
         formatted_transactions.append(fetched_transaction)
 
-    return jsonify({'transactions' : formatted_transactions})
+    response = jsonify({'transactions' : formatted_transactions})
+    return response
 
 @app.route('/api/transaction', methods=['DELETE'])
 @cross_origin()
