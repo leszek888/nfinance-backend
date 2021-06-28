@@ -3,10 +3,12 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify, render_template, redirect
 from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
+from functools import wraps
 
 import datetime
 import os
 import uuid
+import jwt
 
 load_dotenv()
 
@@ -36,6 +38,30 @@ class Entry(db.Model):
     balance_id = db.Column(db.Integer)
     account = db.Column(db.String(50))
     amount = db.Column(db.Numeric)
+
+def tokenRequired(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+
+        if 'x-access-token' in request.headers:
+            print('It was in the headers tho')
+            token = request.headers['x-access-token']
+            print(token)
+
+        if not token:
+            current_balance = None
+
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            current_balance = Balance.query.filter_by(public_id=data['balance_id']).first()
+        except:
+            print('invalid token')
+            current_balance = None
+
+        return f(current_balance, *args, **kwargs)
+    return decorated
 
 def getFormattedDecimal(num):
     dec = str(num).split('.')
@@ -73,9 +99,12 @@ def create_transaction():
 
 @app.route('/api/transaction', methods=['GET'])
 @cross_origin()
-def get_transactions():
+@tokenRequired
+def get_transactions(current_balance):
 
-    if 'bal_id' in request.args:
+    if current_balance:
+        balance_id = current_balance.public_id
+    elif 'bal_id' in request.args:
         balance_id = request.args['bal_id']
     else:
         balance_id = request.cookies.get('balance_id')
@@ -351,6 +380,22 @@ def getAccounts():
         account['balance'] = getFormattedDecimal(account['balance'])
 
     return {'accounts' : accounts}
+
+@app.route('/api/auth')
+def authorize():
+    auth = request.authorization
+
+    if not auth or not auth.username or not auth.password:
+        return jsonify({'error': 'Authorization failed.'})
+
+    balance = Balance.query.filter_by(public_id=auth.username).first()
+
+    if not balance:
+        return jsonify({'error': 'Authorization failed.'})
+
+    token = jwt.encode({'balance_id':balance.public_id}, app.config['SECRET_KEY'], algorithm="HS256")
+
+    return jsonify({'token': token})
 
 if __name__ == "__main__":
     app.run(ssl_context='adhoc')
