@@ -53,7 +53,7 @@ def tokenRequired(f):
 
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            current_balance = Balance.query.filter_by(public_id=data['balance_id']).first()
+            current_balance = Balance.query.filter_by(public_id=data['balance_id']).first().public_id;
         except:
             print('invalid token')
             current_balance = None
@@ -97,7 +97,7 @@ def create_balance():
 def create_transaction(current_balance):
     data = request.get_json()
     if current_balance:
-        data['balance_id'] = current_balance.public_id;
+        data['balance_id'] = current_balance;
     print(request.get_data())
 
     return jsonify(saveTransaction(data))
@@ -108,7 +108,7 @@ def create_transaction(current_balance):
 def get_transactions(current_balance):
 
     if current_balance:
-        balance_id = current_balance.public_id
+        balance_id = current_balance
     elif 'bal_id' in request.args:
         balance_id = request.args['bal_id']
     else:
@@ -158,14 +158,18 @@ def get_transactions(current_balance):
     return response
 
 @app.route('/api/transaction', methods=['DELETE'])
+@tokenRequired
 @cross_origin()
-def deleteTransaction():
+def deleteTransaction(current_balance):
     data = request.get_json()
 
-    if 'balance_id' in data:
+    if current_balance:
+        balance = Balance.query.filter_by(public_id=current_balance).first()
+    elif 'balance_id' in data:
         balance = Balance.query.filter_by(public_id=data['balance_id']).first()
         if not balance:
             return {'error' : 'Balance not found.'}
+
     if 'id' in data:
         transaction = Transactions.query.filter_by(id=data['id']).first()
         if not transaction:
