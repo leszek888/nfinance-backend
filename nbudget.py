@@ -238,6 +238,9 @@ def saveTransaction(transaction):
         balance_amount = Decimal(0.0)
 
         for entry in entries:
+            if 'account' not in entry or 'amount' not in entry:
+                continue
+
             entry['account'] = str(entry['account']).strip(' ')
             entry['amount'] = str(entry['amount']).strip(' ')
 

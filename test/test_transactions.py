@@ -247,6 +247,13 @@ class TransactionsTest(unittest.TestCase):
         self.assertFalse('error' in response.json)
         self.assertEqual(5, len(response.json['transactions']))
 
+    def test_filter_params_are_decoded_before_use(self):
+        transaction = self.create_transaction_json(date='2020-01-01', payee='Jay&Jay: Company')
+        response = self.save_transaction(transaction)
+        self.app.set_cookie(key='balance_id', value=self.balance.json['balance_id'], server_name=None)
+        response = self.app.get('/api/transaction?payee=Jay%26Jay%3A%20Company')
+        self.assertEqual(len(response.json['transactions']), 1)
+
     def test_filter_transactions(self):
         transaction = self.create_transaction_json(date='2020-01-01', payee='First')
 
