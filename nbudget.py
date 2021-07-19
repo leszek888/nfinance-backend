@@ -363,21 +363,21 @@ def getFilteredAccounts(data):
 @tokenRequired
 def getAccounts(current_balance):
     data = request.get_json()
+    balance_id = None
 
     if current_balance:
-        data['balance_id'] = current_balance;
+        balance_id = current_balance
+    elif data and 'balance_id' in data:
+        balance_id = data['balance_id']
 
-    if not data:
+    else:
         return jsonify({'error': 'No balance specified.'})
 
-    if 'balance_id' not in data:
-        return jsonify({'error': 'No balance specified.'})
-
-    if 'filters' in data:
+    if data and 'filters' in data:
         if data['filters'] is not None:
             return getFilteredAccounts(data)
 
-    entries = Entry.query.filter_by(balance_id=data['balance_id']).order_by(Entry.account)
+    entries = Entry.query.filter_by(balance_id=balance_id).order_by(Entry.account)
 
     accounts = []
 
