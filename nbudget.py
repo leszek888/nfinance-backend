@@ -360,8 +360,12 @@ def getFilteredAccounts(data):
 
 @app.route('/api/accounts', methods=['POST'])
 @cross_origin()
-def getAccounts():
+@tokenRequired
+def getAccounts(current_balance):
     data = request.get_json()
+
+    if current_balance:
+        data['balance_id'] = current_balance;
 
     if not data:
         return jsonify({'error': 'No balance specified.'})
