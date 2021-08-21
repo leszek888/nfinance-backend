@@ -4,17 +4,84 @@
     "date": "2021-01-01",
     "entries":
     [
-      { "account": "Equity:Start Capital", "amount": "-1000" },
-      { "account": "Assets:Current:Bank", "amount": "1000" }
+      { "account": "Equity:Opening Balance", "amount": "-101350" },
+      { "account": "Assets:Current:Bank", "amount": "2000" },
+      { "account": "Assets:Current:Cash", "amount": "150" },
+      { "account": "Assets:Fixed:Home", "amount": "300000" },
+      { "account": "Liabilities:Mortgage", "amount": "-200000" },
+      { "account": "Liabilities:Credit Card", "amount": "-800" }
     ]
   },
   {
-    "payee": "Bank",
-    "date": "2021-02-01",
+    "payee": "Grocery Store",
+    "date": "2021-07-05",
     "entries":
     [
-      { "account": "Assets:Fixed:Home", "amount": "200000" },
-      { "account": "Liabilities:Mortgage", "amount": "-200000" }
+      { "account": "Expenses:Groceries", "amount": "32.30" },
+      { "account": "Assets:Current:Cash", "amount": "-32.30" }
+    ]
+  },
+  {
+    "payee": "Electricity Provider",
+    "date": "2021-07-10",
+    "entries":
+    [
+      { "account": "Expenses:Utilities:Electricity", "amount": "85" },
+      { "account": "Assets:Current:Bank", "amount": "-85" }
+    ]
+  },
+  {
+    "payee": "Employer",
+    "date": "2021-07-30",
+    "entries":
+    [
+      { "account": "Income:Salary", "amount": "-4238.14" },
+      { "account": "Assets:Current:Bank", "amount": "4238.14" }
+    ]
+  },
+  {
+    "payee": "Restaurant",
+    "date": "2021-08-03",
+    "entries":
+    [
+      { "account": "Expenses:Dining Out", "amount": "120" },
+      { "account": "Assets:Current:Cash", "amount": "-120" }
+    ]
+  },
+  {
+    "payee": "Transfer",
+    "date": "2021-08-01",
+    "entries":
+    [
+      { "account": "Assets:Current:Cash", "amount": "500" },
+      { "account": "Assets:Current:Bank", "amount": "-500" }
+    ]
+  },
+  {
+    "payee": "Car Service",
+    "date": "2021-08-11",
+    "entries":
+    [
+      { "account": "Expenses:Car:Repairs", "amount": "350" },
+      { "account": "Assets:Current:Bank", "amount": "-350" }
+    ]
+  },
+  {
+    "payee": "Gas Station",
+    "date": "2021-08-15",
+    "entries":
+    [
+      { "account": "Expenses:Transportation:Gas", "amount": "102.33" },
+      { "account": "Liabilities:Credit Card", "amount": "-102.33" }
+    ]
+  },
+  {
+    "payee": "Parking Lot",
+    "date": "2021-07-22",
+    "entries":
+    [
+      { "account": "Expenses:Transportation:Parking Lot", "amount": "3.50" },
+      { "account": "Assets:Current:Cash", "amount": "-3.50" }
     ]
   }
 ]
