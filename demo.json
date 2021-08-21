@@ -1,0 +1,20 @@
+[
+  {
+    "payee": "Opening Balance",
+    "date": "2021-01-01",
+    "entries":
+    [
+      { "account": "Equity:Start Capital", "amount": "-1000" },
+      { "account": "Assets:Current:Bank", "amount": "1000" }
+    ]
+  },
+  {
+    "payee": "Bank",
+    "date": "2021-02-01",
+    "entries":
+    [
+      { "account": "Assets:Fixed:Home", "amount": "200000" },
+      { "account": "Liabilities:Mortgage", "amount": "-200000" }
+    ]
+  }
+]

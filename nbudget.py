@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 
 import datetime
+import json
 import os
 import uuid
 import jwt
@@ -87,6 +88,9 @@ def create_balance():
     new_balance = Balance(public_id=str(uuid.uuid4()))
     db.session.add(new_balance)
     db.session.commit()
+
+    if request.args.get('template'):
+        populate_balance(new_balance.public_id)
 
     return jsonify({'balance_id' : new_balance.public_id})
 
@@ -414,3 +418,17 @@ def authorize():
 
 if __name__ == "__main__":
     app.run(ssl_context='adhoc')
+
+def populate_balance(balance_id):
+    try:
+        with open('demo.json', 'r') as demo:
+            data = demo.read()
+
+        transactions = json.loads(data)
+    except:
+        print("Loading demo template failed")
+
+    for transaction in transactions:
+        transaction['balance_id'] = balance_id
+        saveTransaction(transaction)
+

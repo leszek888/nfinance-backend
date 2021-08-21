@@ -290,7 +290,6 @@ class TransactionsTest(unittest.TestCase):
 
         self.save_transaction(transaction)
         response = self.get_transactions()
-        print(response.json['transactions'][0]['entries'][0])
 
         self.assertEqual(response.json['transactions'][0]['entries'][0]['account'], 'Assets')
         self.assertEqual(response.json['transactions'][0]['entries'][1]['account'], 'Equity')
