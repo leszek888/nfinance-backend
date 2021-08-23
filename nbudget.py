@@ -40,7 +40,7 @@ class Entry(db.Model):
     account = db.Column(db.String(255))
     amount = db.Column(db.Numeric)
 
-def tokenRequired(f):
+def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
@@ -65,7 +65,7 @@ def tokenRequired(f):
         return f(current_balance, *args, **kwargs)
     return decorated
 
-def getFormattedDecimal(num):
+def get_formatted_decimal(num):
     dec = str(num).split('.')
     formatted_number = None
 
@@ -96,25 +96,23 @@ def create_balance():
 
 @app.route('/api/transaction', methods=['POST'])
 @cross_origin()
-@tokenRequired
+@token_required
 def create_transaction(current_balance):
     data = request.get_json()
     if current_balance:
         data['balance_id'] = current_balance;
     print(request.get_data())
 
-    return jsonify(saveTransaction(data))
+    return jsonify(save_transaction(data))
 
 @app.route('/api/transaction', methods=['GET'])
 @cross_origin()
-@tokenRequired
+@token_required
 def get_transactions(current_balance):
 
     if current_balance:
         balance_id = current_balance
-    elif 'bal_id' in request.args:
-        balance_id = request.args['bal_id']
-    else:
+    elif request.cookies.get('balance_id'):
         balance_id = request.cookies.get('balance_id')
 
     if not balance_id or len(balance_id) != 36:
@@ -152,7 +150,7 @@ def get_transactions(current_balance):
         for entry in entries:
             fetched_entries.append({
                 'account' : entry.account,
-                'amount' : getFormattedDecimal(entry.amount)
+                'amount' : get_formatted_decimal(entry.amount)
             })
         fetched_transaction['entries'] = fetched_entries
         formatted_transactions.append(fetched_transaction)
@@ -161,9 +159,9 @@ def get_transactions(current_balance):
     return response
 
 @app.route('/api/transaction', methods=['DELETE'])
-@tokenRequired
+@token_required
 @cross_origin()
-def deleteTransaction(current_balance):
+def delete_transaction(current_balance):
     data = request.get_json()
 
     if current_balance:
@@ -200,7 +198,7 @@ def index():
 def sub_index():
     return render_template('login.html')
 
-def saveTransaction(transaction):
+def save_transaction(transaction):
     # Validate Balance
     if 'balance_id' in transaction:
         balance = Balance.query.filter_by(public_id=transaction['balance_id']).first()
@@ -321,29 +319,41 @@ def saveTransaction(transaction):
     db.session.commit()
     return {'message' : 'Transaction saved.'}
 
-def getFilteredAccounts(data):
-    data = request.get_json()
+@app.route('/api/accounts', methods=['GET'])
+@cross_origin()
+@token_required
+def get_accounts(current_balance):
+    filters = request.args
+    accounts = request.args.getlist('account')
+    balance_id = None
 
-    if not data:
+    if current_balance:
+        balance_id = current_balance
+    elif request.cookies.get('balance_id'):
+        balance_id = request.cookies.get('balance_id')
+
+    else:
         return jsonify({'error': 'No balance specified.'})
 
-    if 'balance_id' not in data:
-        return jsonify({'error': 'No balance specified.'})
-
-    transactions = Transactions.query.filter(Transactions.balance_id == data['balance_id'])
+    transactions = Transactions.query.filter(Transactions.balance_id == balance_id)
     entries = []
     filtered_entries = []
 
-    if 'date' in data['filters']:
-        transactions = transactions.filter(Transactions.date >= data['filters']['date']['from']).all() \
-                     + transactions.filter(Transactions.date <= data['filters']['date']['to']).all()
+    if 'date_from' in filters:
+        transactions = transactions.filter(Transactions.date >= filters['date_from'])
+    if 'date_to' in filters:
+        transactions = transactions.filter(Transactions.date <= filters['date_to'])
 
     entries = Entry.query.filter(Entry.transaction_id.in_(
-        [t.id for t in transactions]))
+        [t.id for t in transactions.all()])).order_by(Entry.account)
 
-    if 'account' in data['filters']:
-        for account in data['filters']['account']:
-            filtered_entries = filtered_entries + entries.filter(Entry.account.like('%'+account+'%')).all()
+    if 'account' in filters:
+        for account in accounts:
+            print('FOR THE ACCOUNT => ' + account)
+            filtered_entries += entries.filter(Entry.account.like('%'+account+'%')).all()
+            print('FILTER ENTRIES NOW => ' + str(filtered_entries))
+    else:
+        filtered_entries = entries
 
     accounts = []
 
@@ -358,45 +368,7 @@ def getFilteredAccounts(data):
                              'balance':entry.amount})
 
     for account in accounts:
-        account['balance'] = getFormattedDecimal(account['balance'])
-
-    return {'accounts' : accounts}
-
-@app.route('/api/accounts', methods=['POST'])
-@cross_origin()
-@tokenRequired
-def getAccounts(current_balance):
-    data = request.get_json()
-    balance_id = None
-
-    if current_balance:
-        balance_id = current_balance
-    elif data and 'balance_id' in data:
-        balance_id = data['balance_id']
-
-    else:
-        return jsonify({'error': 'No balance specified.'})
-
-    if data and 'filters' in data:
-        if data['filters'] is not None:
-            return getFilteredAccounts(data)
-
-    entries = Entry.query.filter_by(balance_id=balance_id).order_by(Entry.account)
-
-    accounts = []
-
-    for entry in entries:
-        account_found = False
-        for account in accounts:
-            if account['name'] == entry.account:
-                account['balance'] += entry.amount
-                account_found = True
-        if not account_found:
-            accounts.append({'name':entry.account,
-                             'balance':entry.amount})
-
-    for account in accounts:
-        account['balance'] = getFormattedDecimal(account['balance'])
+        account['balance'] = get_formatted_decimal(account['balance'])
 
     return {'accounts' : accounts}
 
@@ -430,5 +402,5 @@ def populate_balance(balance_id):
 
     for transaction in transactions:
         transaction['balance_id'] = balance_id
-        saveTransaction(transaction)
+        save_transaction(transaction)
 

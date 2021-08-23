@@ -1,5 +1,5 @@
 from decimal import *
-from nbudget import getFormattedDecimal
+from nbudget import get_formatted_decimal
 
 import unittest
 
@@ -12,9 +12,9 @@ class HelpersTest(unittest.TestCase):
         dec5 = Decimal('1.100000000')
         dec6 = Decimal('1.000000000')
 
-        self.assertEqual('1.00', getFormattedDecimal(dec1))
-        self.assertEqual('1.10', getFormattedDecimal(dec2))
-        self.assertEqual('1.01', getFormattedDecimal(dec3))
-        self.assertEqual('1.000001', getFormattedDecimal(dec4))
-        self.assertEqual('1.10', getFormattedDecimal(dec5))
-        self.assertEqual('1.00', getFormattedDecimal(dec6))
+        self.assertEqual('1.00', get_formatted_decimal(dec1))
+        self.assertEqual('1.10', get_formatted_decimal(dec2))
+        self.assertEqual('1.01', get_formatted_decimal(dec3))
+        self.assertEqual('1.000001', get_formatted_decimal(dec4))
+        self.assertEqual('1.10', get_formatted_decimal(dec5))
+        self.assertEqual('1.00', get_formatted_decimal(dec6))

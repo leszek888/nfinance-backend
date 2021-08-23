@@ -12,6 +12,7 @@ class AccountsTest(unittest.TestCase):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////media/fast_wh/Projects/flask/nbudget/test-nbudget.db'
         db.create_all()
         self.balance = self.app.get('/api/balance/new')
+        self.app.set_cookie(key='balance_id', value=self.balance.json['balance_id'], server_name=None)
 
     def tearDown(self):
         db.drop_all()
@@ -68,8 +69,7 @@ class AccountsTest(unittest.TestCase):
 
         self.assertEqual(6, len(Entry.query.all()))
 
-        response = self.app.post('/api/accounts', headers={"Content-Type":"application/json"},
-                      data=json.dumps({'balance_id':self.balance.json['balance_id']}))
+        response = self.app.get('/api/accounts')
 
         self.assertEqual(200, response.status_code)
         self.assertTrue('accounts' in response.json)
@@ -96,8 +96,7 @@ class AccountsTest(unittest.TestCase):
         self.app.post('/api/transaction', headers={"Content-Type":"application/json"},
                       data=transaction)
 
-        response = self.app.post('/api/accounts', headers={"Content-Type":"application/json"},
-                      data=json.dumps({'balance_id':self.balance.json['balance_id']}))
+        response = self.app.get('/api/accounts')
 
         accounts = response.json['accounts']
 
@@ -145,15 +144,8 @@ class AccountsTest(unittest.TestCase):
                       data=transaction)
 
 
-        response = self.app.post('/api/accounts', headers={"Content-Type":"application/json"},
-                      data=json.dumps({'balance_id':self.balance.json['balance_id'],
-                                       'filters': {
-                                            'date': { 'from': '2020-01-02','to':'2020-01-03' },
-                                            'account': [ 'Assets', 'Liabilities' ],
-                                       }
-                                       }))
+        response = self.app.get('/api/accounts?date_from=2020-01-02&date_to=2020-01-03&account=Assets&account=Liabilities')
 
         accounts = response.json['accounts']
 
         self.assertEqual(len(accounts), 3)
-
