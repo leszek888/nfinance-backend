@@ -37,7 +37,7 @@ class Entry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     transaction_id = db.Column(db.Integer)
     balance_id = db.Column(db.Integer)
-    account = db.Column(db.String(50))
+    account = db.Column(db.String(255))
     amount = db.Column(db.Numeric)
 
 def tokenRequired(f):
