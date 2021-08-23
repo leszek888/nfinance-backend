@@ -109,6 +109,7 @@ def create_transaction(current_balance):
 @cross_origin()
 @token_required
 def get_transactions(current_balance):
+    balance_id = None
 
     if current_balance:
         balance_id = current_balance
@@ -349,9 +350,7 @@ def get_accounts(current_balance):
 
     if 'account' in filters:
         for account in accounts:
-            print('FOR THE ACCOUNT => ' + account)
             filtered_entries += entries.filter(Entry.account.like('%'+account+'%')).all()
-            print('FILTER ENTRIES NOW => ' + str(filtered_entries))
     else:
         filtered_entries = entries
 

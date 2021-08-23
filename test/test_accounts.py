@@ -43,6 +43,12 @@ class AccountsTest(unittest.TestCase):
 
         return json.dumps(transaction)
 
+    def test_fetch_empty_accounts_list(self):
+        response = self.app.get('/api/accounts')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(0, len(response.json['accounts']))
+
     def test_fetch_accounts_with_balances(self):
         transaction = self.create_transaction_json(entries = [
                                                     {'account': 'Assets',
