@@ -91,8 +91,7 @@
     "entries":
     [
       { "account": "Expenses:Groceries", "amount": "3.50" },
-      { "account": "Expenses:Alcohol", "amount": "10.22" },
-      { "account": "Assets:Current:Cash", "amount": "-13.72" }
+      { "account": "Assets:Current:Cash", "amount": "-3.50" }
     ]
   },
   {
