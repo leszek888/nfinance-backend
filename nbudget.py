@@ -363,11 +363,11 @@ def get_accounts(current_balance):
         account_found = False
         for account in accounts:
             if account['name'] == entry.account:
-                account['balance'] += entry.amount
+                account['balance'] += Decimal(entry.amount)
                 account_found = True
         if not account_found:
             accounts.append({'name':entry.account,
-                             'balance':entry.amount})
+                             'balance':Decimal(entry.amount)})
 
     for account in accounts:
         account['balance'] = get_formatted_decimal(account['balance'])
