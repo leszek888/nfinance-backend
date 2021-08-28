@@ -163,7 +163,7 @@ class TransactionsTest(unittest.TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertFalse('error' in response.json)
-        self.assertEqual(-32.25, balanced_entry.amount)
+        self.assertEqual('-32.25', balanced_entry.amount)
 
 
     def test_reject_unbalanced_transaction(self):

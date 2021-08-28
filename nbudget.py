@@ -38,7 +38,7 @@ class Entry(db.Model):
     transaction_id = db.Column(db.Integer)
     balance_id = db.Column(db.Integer)
     account = db.Column(db.String(255))
-    amount = db.Column(db.Numeric)
+    amount = db.Column(db.String(32))
 
 def token_required(f):
     @wraps(f)
@@ -315,7 +315,7 @@ def save_transaction(transaction):
             new_entry = Entry(transaction_id = submitted_transaction.id,
                               balance_id = transaction['balance_id'],
                               account = entry['account'],
-                              amount = entry['amount'])
+                              amount = str(entry['amount']))
             db.session.add(new_entry)
     db.session.commit()
     return {'message' : 'Transaction saved.'}
@@ -349,11 +349,14 @@ def get_accounts(current_balance):
         [t.id for t in transactions.all()])).order_by(Entry.account)
 
     if 'account' in filters:
+        print('Accounts in filters!\n')
         for account in accounts:
+            print(account)
             filtered_entries += entries.filter(Entry.account.like('%'+account+'%')).all()
     else:
         filtered_entries = entries
 
+    print('filtered_entries: ', filtered_entries)
     accounts = []
 
     for entry in filtered_entries:
