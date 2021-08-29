@@ -47,7 +47,6 @@ def token_required(f):
 
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
-            print('Accessing with token: ', token)
 
         if not token:
             current_balance = None
@@ -56,11 +55,7 @@ def token_required(f):
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
             current_balance = Balance.query.filter_by(public_id=data['balance_id']).first().public_id;
         except:
-            print('invalid token')
             current_balance = None
-
-        if not current_balance:
-            print('Invalid Token')
 
         return f(current_balance, *args, **kwargs)
     return decorated
@@ -101,7 +96,6 @@ def create_transaction(current_balance):
     data = request.get_json()
     if current_balance:
         data['balance_id'] = current_balance;
-    print(request.get_data())
 
     return jsonify(save_transaction(data))
 
@@ -354,14 +348,11 @@ def get_accounts(current_balance):
         [t.id for t in transactions.all()])).order_by(Entry.account)
 
     if 'account' in filters:
-        print('Accounts in filters!\n')
         for account in accounts:
-            print(account)
             filtered_entries += entries.filter(Entry.account.like('%'+account+'%')).all()
     else:
         filtered_entries = entries
 
-    print('filtered_entries: ', filtered_entries)
     accounts = []
 
     for entry in filtered_entries:
