@@ -125,7 +125,6 @@ def get_transactions(current_balance):
     transactions = Transactions.query.filter_by(balance_id=balance_id).order_by(Transactions.date.desc()).order_by(Transactions.id.desc());
 
     if request.args.get('date_from') is not None:
-        print('filtering date')
         transactions = transactions.filter(Transactions.date >= request.args.get('date_from'))
 
     if request.args.get('date_to') is not None:
@@ -164,13 +163,15 @@ def get_transactions(current_balance):
 @cross_origin()
 def delete_transaction(current_balance):
     data = request.get_json()
+    balance = None
 
     if current_balance:
         balance = Balance.query.filter_by(public_id=current_balance).first()
     elif 'balance_id' in data:
         balance = Balance.query.filter_by(public_id=data['balance_id']).first()
-        if not balance:
-            return {'error' : 'Balance not found.'}
+
+    if not balance:
+        return {'error' : 'Balance not found.'}
 
     if 'id' in data:
         transaction = Transactions.query.filter_by(id=data['id']).first()
@@ -185,19 +186,6 @@ def delete_transaction(current_balance):
             db.session.commit()
             return jsonify({'message' : 'Transaction deleted.'})
     return jsonify({'error' : 'Query not understood.'})
-
-@app.route('/')
-@app.route('/transactions')
-@app.route('/balance')
-def index():
-    if 'balance_id' not in request.cookies:
-        return redirect('/login')
-
-    return render_template('index.html')
-
-@app.route('/login')
-def sub_index():
-    return render_template('login.html')
 
 def save_transaction(transaction):
     # Validate Balance
