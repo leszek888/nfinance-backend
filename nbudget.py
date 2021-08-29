@@ -288,7 +288,6 @@ def save_transaction(transaction):
     if valid_entries < 2:
         return {'error' : 'At least 2 entries have to be specified. Transaction rejected.'}
 
-
     # Submit Transaction
     submitted_transaction = None
     if 'id' in transaction:
