@@ -187,37 +187,56 @@ def delete_transaction(current_balance):
             return jsonify({'message' : 'Transaction deleted.'})
     return jsonify({'error' : 'Query not understood.'})
 
-def save_transaction(transaction):
-    # Validate Balance
-    if 'balance_id' in transaction:
-        balance = Balance.query.filter_by(public_id=transaction['balance_id']).first()
-        if not balance:
-            return {'error' : 'Balance not found. Transaction rejected.'}
+def validate_balance(balance_id):
+    if not balance_id:
+        return False
+
+    balance = Balance.query.filter_by(public_id=balance_id).first()
+    if not balance:
+        return False
+    return True
+
+def validate_payee(payee):
+    if len(payee) == 0:
+        return False
+    return True
+
+def format_date(date):
+    if not date:
+        return False
+
+    date = date.split('-')
+
+    if len(date) == 3:
+        try:
+            date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+            return date
+        except ValueError:
+            return False
     else:
+        return False
+
+    return True
+
+def validate_accounts(accounts):
+    for sub_account in accounts:
+        if len(str(sub_account).strip(' ')) == 0:
+            return False
+    return True
+
+def save_transaction(transaction):
+    if not validate_balance(transaction.get('balance_id', None)):
         return {'error' : 'Balance not found. Transaction rejected.'}
 
     # Validate Payee
     transaction['payee'] = str(transaction['payee']).strip(' ')
-    if 'payee' in transaction:
-        if len(transaction['payee']) == 0:
-            return {'error' : 'Payee not specified. Transaction rejected.'}
-    else:
+    if not validate_payee(transaction.get('payee', None)):
         return {'error' : 'Payee not specified. Transaction rejected.'}
 
     # Validate Date
-    if 'date' in transaction:
-        date = transaction['date']
-        date = date.split('-')
-
-        if len(date) == 3:
-            try:
-                date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
-            except ValueError:
-                return {'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'}
-        else:
-            return {'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'}
-    else:
-        return {'error' : 'Date in wrong format (req. YYYY-MM-DD). Transaction rejected.'}
+    date = format_date(transaction.get('date', None))
+    if not date:
+        return {'error' : 'Date in wrong format, accepted format: YYYY-MM-DD'}
 
     entries = None
     valid_entries = 0
@@ -229,6 +248,7 @@ def save_transaction(transaction):
         balance_amount = Decimal(0.0)
 
         for entry in entries:
+            # Skip empty entries
             if 'account' not in entry or 'amount' not in entry:
                 continue
 
@@ -239,9 +259,9 @@ def save_transaction(transaction):
                 continue
 
             sub_accounts = entry['account'].split(':')
-            for sub_account in sub_accounts:
-                if len(str(sub_account).strip(' ')) == 0:
-                    return {'error' : 'Couldnt read the account. Transaction rejected.'}
+
+            if not validate_accounts(sub_accounts):
+                return {'error' : 'Couldnt read the account. Transaction rejected.'}
 
             entry_amount = None
             entry['amount'] = str(entry.get('amount', 0.0)).replace(',', '.')
@@ -260,9 +280,6 @@ def save_transaction(transaction):
                 return {'error' : 'Couldnt read the amount. Transaction rejected.'}
 
             balance_amount += entry_amount
-
-            if len(entry.get('account', '')) == 0:
-                return {'error' : 'Account not specified. Transaction rejected.'}
             valid_entries += 1
 
         if missing_amount:
