@@ -85,7 +85,7 @@ def create_balance():
     db.session.commit()
 
     if request.args.get('template'):
-        populate_balance(new_balance.public_id)
+        populate_balance(new_balance.public_id, request.args.get('template'))
 
     return jsonify({'balance_id' : new_balance.public_id})
 
@@ -388,9 +388,11 @@ def authorize():
 if __name__ == "__main__":
     app.run(ssl_context='adhoc')
 
-def populate_balance(balance_id):
+def populate_balance(balance_id, template):
+    print('populating...')
     try:
-        with open('demo.json', 'r') as demo:
+        print('opening: '+template+'.json')
+        with open(template+'.json', 'r') as demo:
             data = demo.read()
 
         transactions = json.loads(data)

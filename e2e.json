@@ -1,0 +1,29 @@
+[
+  {
+    "payee": "Shop A",
+    "date": "2021-08-01",
+    "entries":
+    [
+      { "account": "Expenses:Groceries", "amount": "32.30" },
+      { "account": "Assets:Current:Cash", "amount": "-32.30" }
+    ]
+  },
+  {
+    "payee": "Shop B",
+    "date": "2021-08-02",
+    "entries":
+    [
+      { "account": "Expenses:Utilities:Electricity", "amount": "85" },
+      { "account": "Assets:Current:Bank", "amount": "-85" }
+    ]
+  },
+  {
+    "payee": "Shop C",
+    "date": "2021-08-03",
+    "entries":
+    [
+      { "account": "Income:Salary", "amount": "-4238.14" },
+      { "account": "Assets:Current:Bank", "amount": "4238.14" }
+    ]
+  }
+]
