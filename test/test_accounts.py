@@ -43,11 +43,11 @@ class AccountsTest(unittest.TestCase):
 
         return json.dumps(transaction)
 
-    def test_fetch_empty_accounts_list(self):
+    def test_fetch_empty_accounts_list_includes_five_base_accounts(self):
         response = self.app.get('/api/accounts')
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(0, len(response.json['accounts']))
+        self.assertEqual(5, len(response.json['accounts']))
 
     def test_fetch_accounts_with_balances(self):
         transaction = self.create_transaction_json(entries = [
@@ -73,41 +73,21 @@ class AccountsTest(unittest.TestCase):
         self.app.post('/api/transaction', headers={"Content-Type":"application/json"},
                       data=transaction)
 
-        self.assertEqual(6, len(Entry.query.all()))
+        self.assertEqual(11, len(Entry.query.all()))
 
         response = self.app.get('/api/accounts')
 
         self.assertEqual(200, response.status_code)
         self.assertTrue('accounts' in response.json)
-        self.assertEqual(5, len(response.json['accounts']))
+        self.assertEqual(9, len(response.json['accounts']))
 
     def test_fetched_accounts_are_sorted(self):
-        transaction = self.create_transaction_json(entries = [
-                                                    {'account': 'Assets',
-                                                     'amount': '10'},
-                                                    {'account': 'Expenses',
-                                                     'amount': '-10'},
-                                                    ])
-        self.app.post('/api/transaction', headers={"Content-Type":"application/json"},
-                      data=transaction)
-
-        transaction = self.create_transaction_json(entries = [
-                                                    {'account': 'Liabilities',
-                                                     'amount': '-100'},
-                                                    {'account': 'Income',
-                                                     'amount': '60'},
-                                                    {'account': 'Capital',
-                                                     'amount': '40'},
-                                                    ])
-        self.app.post('/api/transaction', headers={"Content-Type":"application/json"},
-                      data=transaction)
-
         response = self.app.get('/api/accounts')
 
         accounts = response.json['accounts']
 
         self.assertEqual('Assets', accounts[0]['name'])
-        self.assertEqual('Capital', accounts[1]['name'])
+        self.assertEqual('Equity', accounts[1]['name'])
         self.assertEqual('Expenses', accounts[2]['name'])
         self.assertEqual('Income', accounts[3]['name'])
         self.assertEqual('Liabilities', accounts[4]['name'])

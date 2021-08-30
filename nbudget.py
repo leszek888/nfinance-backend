@@ -86,6 +86,8 @@ def create_balance():
     db.session.add(new_balance)
     db.session.commit()
 
+    create_base_accounts(new_balance.id)
+
     if request.args.get('template'):
         populate_balance(new_balance.public_id, request.args.get('template'))
 
@@ -343,7 +345,7 @@ def get_accounts(current_balance):
         return jsonify({'error': 'No balance specified.'})
 
     transactions = Transaction.query.filter(Transaction.balance_id == balance_id)
-    entries = []
+    entries = Entry.query.filter(balance_id == balance_id).order_by(Entry.account)
     filtered_entries = []
 
     if 'date_from' in filters:
@@ -351,8 +353,9 @@ def get_accounts(current_balance):
     if 'date_to' in filters:
         transactions = transactions.filter(Transaction.date <= filters['date_to'])
 
-    entries = Entry.query.filter(Entry.transaction_id.in_(
-        [t.id for t in transactions.all()])).order_by(Entry.account)
+    if 'date_from' in filters or 'date_to' in filters:
+        entries = Entry.query.filter(Entry.transaction_id.in_(
+            [t.id for t in transactions.all()]))
 
     if 'account' in filters:
         for account in accounts:
@@ -411,3 +414,10 @@ def populate_balance(balance_id, template):
         transaction['balance_id'] = balance_id
         save_transaction(transaction)
 
+def create_base_accounts(balance_id):
+    base_accounts = [ 'Assets', 'Liabilities', 'Equity', 'Income', 'Expenses' ]
+
+    for account in base_accounts:
+        new_account = Entry(balance_id=balance_id, account=account, amount='0')
+        db.session.add(new_account)
+    db.session.commit()

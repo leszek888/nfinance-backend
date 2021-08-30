@@ -1,4 +1,4 @@
-from nbudget import app, db, Balance, Transaction
+from nbudget import app, db, Balance, Transaction, Entry
 
 import json
 import os
@@ -32,3 +32,8 @@ class BalanceTest(unittest.TestCase):
         new_balance = self.app.get('/api/balance/new?template=demo')
 
         self.assertTrue(len(Transaction.query.filter(Transaction.balance_id == new_balance.json['balance_id']).all()) > 0)
+
+    def test_balance_is_created_with_base_accounts(self):
+        new_balance = self.app.get('/api/balance/new')
+
+        self.assertEqual(5, len(Entry.query.all()))
