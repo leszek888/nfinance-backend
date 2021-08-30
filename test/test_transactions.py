@@ -1,11 +1,11 @@
-from nbudget import app, db, Balance, Transactions, Entry
+from nbudget import app, db, Balance, Transaction, Entry
 
 import datetime
 import json
 import os
 import unittest
 
-class TransactionsTest(unittest.TestCase):
+class TransactionTest(unittest.TestCase):
 
     def setUp(self):
         self.app = app.test_client()
@@ -64,9 +64,9 @@ class TransactionsTest(unittest.TestCase):
                                  data=transaction)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(Transactions.query.all()))
+        self.assertEqual(1, len(Transaction.query.all()))
         self.assertEqual(2, len(Entry.query.all()))
-        self.assertEqual(Entry.query.first().transaction_id, Transactions.query.first().id)
+        self.assertEqual(Entry.query.first().transaction_id, Transaction.query.first().id)
 
     def test_reject_transaction_with_wrong_balance_id(self):
         transaction = self.create_transaction_json(balance_id = "wrong-id")
@@ -119,7 +119,7 @@ class TransactionsTest(unittest.TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertFalse('error' in response.json)
-        self.assertEqual(1, len(Transactions.query.all()))
+        self.assertEqual(1, len(Transaction.query.all()))
         self.assertEqual(2, len(Entry.query.all()))
 
     def test_dont_save_transaction_with_empty_entries(self):
@@ -134,7 +134,7 @@ class TransactionsTest(unittest.TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertTrue('error' in response.json)
-        self.assertEqual(0, len(Transactions.query.all()))
+        self.assertEqual(0, len(Transaction.query.all()))
         self.assertEqual(0, len(Entry.query.all()))
 
     def test_allow_amounts_with_both_commas_and_dots(self):
@@ -184,7 +184,7 @@ class TransactionsTest(unittest.TestCase):
 
         response = self.save_transaction(transaction)
 
-        transaction_id = Transactions.query.first().id;
+        transaction_id = Transaction.query.first().id;
         changed_transaction = self.create_transaction_json( payee = "EDITED PAYEE",
                                                             date = "2020-12-31",
                                                             entries = [
@@ -200,11 +200,11 @@ class TransactionsTest(unittest.TestCase):
 
         new_response = self.save_transaction(changed_transaction)
 
-        transaction = Transactions.query.filter_by(id=transaction_id).first()
+        transaction = Transaction.query.filter_by(id=transaction_id).first()
         entries = Entry.query.filter_by(transaction_id=transaction_id).all()
 
         self.assertEqual(200, new_response.status_code)
-        self.assertEqual(1, len(Transactions.query.all()))
+        self.assertEqual(1, len(Transaction.query.all()))
         self.assertEqual(transaction.payee, "EDITED PAYEE")
         self.assertEqual(str(transaction.date), "2020-12-31")
         self.assertEqual(3, len(entries))
@@ -215,11 +215,11 @@ class TransactionsTest(unittest.TestCase):
         response = self.save_transaction(transaction)
         response = self.save_transaction(transaction)
 
-        self.assertEqual(2, len(Transactions.query.all()))
+        self.assertEqual(2, len(Transaction.query.all()))
         self.assertEqual(4, len(Entry.query.all()))
 
-        transaction_to_delete = json.dumps({ 'id' : Transactions.query.first().id,
-                                  'balance_id' : Transactions.query.first().balance_id })
+        transaction_to_delete = json.dumps({ 'id' : Transaction.query.first().id,
+                                  'balance_id' : Transaction.query.first().balance_id })
 
         response = self.app.delete('/api/transaction',
                                  headers={"Content-Type":"application/json"},
@@ -227,7 +227,7 @@ class TransactionsTest(unittest.TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertFalse('error' in response.json)
-        self.assertEqual(1, len(Transactions.query.all()))
+        self.assertEqual(1, len(Transaction.query.all()))
         self.assertEqual(2, len(Entry.query.all()))
 
     def test_list_all_transaction(self):

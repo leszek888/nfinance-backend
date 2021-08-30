@@ -27,7 +27,7 @@ class Balance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True)
 
-class Transactions(db.Model):
+class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     payee = db.Column(db.String(100))
     date = db.Column(db.Date)
@@ -116,16 +116,16 @@ def get_transactions(current_balance):
     if not Balance.query.filter_by(public_id=balance_id).first():
         return jsonify({'error' : 'Balance not found.'})
 
-    transactions = Transactions.query.filter_by(balance_id=balance_id).order_by(Transactions.date.desc()).order_by(Transactions.id.desc());
+    transactions = Transaction.query.filter_by(balance_id=balance_id).order_by(Transaction.date.desc()).order_by(Transaction.id.desc());
 
     if request.args.get('date_from') is not None:
-        transactions = transactions.filter(Transactions.date >= request.args.get('date_from'))
+        transactions = transactions.filter(Transaction.date >= request.args.get('date_from'))
 
     if request.args.get('date_to') is not None:
-        transactions = transactions.filter(Transactions.date <= request.args.get('date_to'))
+        transactions = transactions.filter(Transaction.date <= request.args.get('date_to'))
 
     if request.args.get('payee') is not None:
-        transactions = transactions.filter(Transactions.payee.like('%'+request.args.get('payee')+'%'))
+        transactions = transactions.filter(Transaction.payee.like('%'+request.args.get('payee')+'%'))
 
     formatted_transactions = []
 
@@ -168,7 +168,7 @@ def delete_transaction(current_balance):
         return {'error' : 'Balance not found.'}
 
     if 'id' in data:
-        transaction = Transactions.query.filter_by(id=data['id']).first()
+        transaction = Transaction.query.filter_by(id=data['id']).first()
         if not transaction:
             return {'error' : 'Transaction not found.'}
         else:
@@ -291,7 +291,7 @@ def save_transaction(transaction):
     # Submit Transaction
     submitted_transaction = None
     if 'id' in transaction:
-        submitted_transaction = Transactions.query.filter_by(id=transaction['id']).first()
+        submitted_transaction = Transaction.query.filter_by(id=transaction['id']).first()
         if submitted_transaction:
             submitted_transaction.payee = transaction['payee']
             submitted_transaction.date = date
@@ -299,7 +299,7 @@ def save_transaction(transaction):
         for old_entry in old_entries:
             db.session.delete(old_entry)
     else:
-        submitted_transaction = Transactions(balance_id = transaction['balance_id'],
+        submitted_transaction = Transaction(balance_id = transaction['balance_id'],
                               payee = transaction['payee'],
                               date = date)
         db.session.add(submitted_transaction)
@@ -334,14 +334,14 @@ def get_accounts(current_balance):
     else:
         return jsonify({'error': 'No balance specified.'})
 
-    transactions = Transactions.query.filter(Transactions.balance_id == balance_id)
+    transactions = Transaction.query.filter(Transaction.balance_id == balance_id)
     entries = []
     filtered_entries = []
 
     if 'date_from' in filters:
-        transactions = transactions.filter(Transactions.date >= filters['date_from'])
+        transactions = transactions.filter(Transaction.date >= filters['date_from'])
     if 'date_to' in filters:
-        transactions = transactions.filter(Transactions.date <= filters['date_to'])
+        transactions = transactions.filter(Transaction.date <= filters['date_to'])
 
     entries = Entry.query.filter(Entry.transaction_id.in_(
         [t.id for t in transactions.all()])).order_by(Entry.account)
@@ -397,7 +397,7 @@ def populate_balance(balance_id, template):
 
         transactions = json.loads(data)
     except:
-        print("Loading demo template failed")
+        print("Loading template failed")
 
     for transaction in transactions:
         transaction['balance_id'] = balance_id
