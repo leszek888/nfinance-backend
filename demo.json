@@ -111,6 +111,41 @@
       { "account": "Liabilities:Credit Card", "amount": "150" },
       { "account": "Assets:Current:Bank", "amount": "-150" }
     ]
+  },
+  {
+    "payee": "Electronics Shop",
+    "date": "2021-09-01",
+    "entries":
+    [
+      { "account": "Expenses:Electronics:Monitor", "amount": "250" },
+      { "account": "Assets:Current:Bank", "amount": "-250" }
+    ]
+  },
+  {
+    "payee": "Employer",
+    "date": "2021-09-01",
+    "entries":
+    [
+      { "account": "Assets:Current:Cash", "amount": "3212" },
+      { "account": "Income:Salary", "amount": "-3212" }
+    ]
+  },
+  {
+    "payee": "Electricity Provider",
+    "date": "2021-09-02",
+    "entries":
+    [
+      { "account": "Expenses:Utilities:Electricity", "amount": "53.33" },
+      { "account": "Assets:Current:Bank", "amount": "-53.33" }
+    ]
+  },
+  {
+    "payee": "Transfer",
+    "date": "2021-09-03",
+    "entries":
+    [
+      { "account": "Assets:Current:Cash", "amount": "200" },
+      { "account": "Assets:Current:Bank", "amount": "-200" }
+    ]
   }
-
 ]
