@@ -32,13 +32,15 @@ class Transaction(db.Model):
     payee = db.Column(db.String(100))
     date = db.Column(db.Date)
     balance_id = db.Column(db.Integer)
+    entries = relationship("Entry", back_populates="transaction")
 
 class Entry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    transaction_id = db.Column(db.Integer)
     balance_id = db.Column(db.Integer)
     account = db.Column(db.String(255))
     amount = db.Column(db.String(32))
+    transaction_id = db.Column(db.Integer, db.ForeignKey("transaction.id"))
+    transaction = db.relationship("Transaction", back_populates="entries")
 
 def token_required(f):
     @wraps(f)
