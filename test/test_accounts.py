@@ -133,5 +133,10 @@ class AccountsTest(unittest.TestCase):
         response = self.app.get('/api/accounts?date_from=2020-01-02&date_to=2020-01-03&account=Assets&account=Liabilities')
 
         accounts = response.json['accounts']
+        nonzero_accounts = []
 
-        self.assertEqual(len(accounts), 3)
+        for account in accounts:
+            if account['balance'] != '0.00':
+                nonzero_accounts.append(account)
+
+        self.assertEqual(len(nonzero_accounts), 3)

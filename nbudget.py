@@ -333,7 +333,7 @@ def save_transaction(transaction):
 @token_required
 def get_accounts(current_balance):
     filters = request.args
-    accounts = request.args.getlist('account')
+    filter_accounts = request.args.getlist('account')
     balance_id = None
 
     if current_balance:
@@ -347,6 +347,16 @@ def get_accounts(current_balance):
     transactions = Transaction.query.filter(Transaction.balance_id == balance_id)
     entries = Entry.query.filter(Entry.balance_id == balance_id).order_by(Entry.account)
 
+    accounts = []
+    for entry in entries.all():
+        account_found = False
+        for account in accounts:
+            if account['name'] == entry.account:
+                account_found = True
+        if not account_found:
+            accounts.append({'name':entry.account,
+                             'balance':Decimal(0)})
+
     if 'date_from' in filters:
         transactions = transactions.filter(Transaction.date >= filters['date_from'])
     if 'date_to' in filters:
@@ -358,22 +368,15 @@ def get_accounts(current_balance):
 
     filtered_entries = []
     if 'account' in filters:
-        for account in accounts:
+        for account in request.args.getlist('account'):
             filtered_entries += entries.filter(Entry.account.like('%'+account+'%')).all()
     else:
-        filtered_entries = entries
-
-    accounts = []
+        filtered_entries = entries.all()
 
     for entry in filtered_entries:
-        account_found = False
         for account in accounts:
             if account['name'] == entry.account:
                 account['balance'] += Decimal(entry.amount)
-                account_found = True
-        if not account_found:
-            accounts.append({'name':entry.account,
-                             'balance':Decimal(entry.amount)})
 
     for account in accounts:
         account['balance'] = get_formatted_decimal(account['balance'])
