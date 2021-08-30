@@ -32,7 +32,7 @@ class Transaction(db.Model):
     payee = db.Column(db.String(100))
     date = db.Column(db.Date)
     balance_id = db.Column(db.Integer)
-    entries = relationship("Entry", back_populates="transaction")
+    entries = db.relationship("Entry", back_populates="transaction")
 
 class Entry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -290,6 +290,19 @@ def save_transaction(transaction):
     if valid_entries < 2:
         return {'error' : 'At least 2 entries have to be specified. Transaction rejected.'}
 
+    new_entries = []
+    if entries is not None:
+        for entry in entries:
+            if len(entry['account']) == 0 and len(entry['amount']) == 0:
+                continue
+
+            new_entries.append(
+                            Entry(
+                              balance_id = transaction['balance_id'],
+                              account = entry['account'],
+                              amount = str(entry['amount'])
+                            ))
+
     # Submit Transaction
     submitted_transaction = None
     if 'id' in transaction:
@@ -304,20 +317,13 @@ def save_transaction(transaction):
         submitted_transaction = Transaction(balance_id = transaction['balance_id'],
                               payee = transaction['payee'],
                               date = date)
-        db.session.add(submitted_transaction)
+
+    submitted_transaction.entries.extend(new_entries)
+
+    db.session.add(submitted_transaction)
+    db.session.add_all(new_entries)
     db.session.commit()
 
-    if entries is not None:
-        for entry in entries:
-            if len(entry['account']) == 0 and len(entry['amount']) == 0:
-                continue
-
-            new_entry = Entry(transaction_id = submitted_transaction.id,
-                              balance_id = transaction['balance_id'],
-                              account = entry['account'],
-                              amount = str(entry['amount']))
-            db.session.add(new_entry)
-    db.session.commit()
     return {'message' : 'Transaction saved.'}
 
 @app.route('/api/accounts', methods=['GET'])
