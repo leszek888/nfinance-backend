@@ -31,12 +31,12 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     payee = db.Column(db.String(100))
     date = db.Column(db.Date)
-    balance_id = db.Column(db.Integer)
+    balance_id = db.Column(db.String(36))
     entries = db.relationship("Entry", back_populates="transaction")
 
 class Entry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    balance_id = db.Column(db.Integer)
+    balance_id = db.Column(db.String(36))
     account = db.Column(db.String(255))
     amount = db.Column(db.String(32))
     transaction_id = db.Column(db.Integer, db.ForeignKey("transaction.id"))
@@ -86,7 +86,7 @@ def create_balance():
     db.session.add(new_balance)
     db.session.commit()
 
-    create_base_accounts(new_balance.id)
+    create_base_accounts(new_balance.public_id)
 
     if request.args.get('template'):
         populate_balance(new_balance.public_id, request.args.get('template'))
@@ -345,8 +345,7 @@ def get_accounts(current_balance):
         return jsonify({'error': 'No balance specified.'})
 
     transactions = Transaction.query.filter(Transaction.balance_id == balance_id)
-    entries = Entry.query.filter(balance_id == balance_id).order_by(Entry.account)
-    filtered_entries = []
+    entries = Entry.query.filter(Entry.balance_id == balance_id).order_by(Entry.account)
 
     if 'date_from' in filters:
         transactions = transactions.filter(Transaction.date >= filters['date_from'])
@@ -354,9 +353,10 @@ def get_accounts(current_balance):
         transactions = transactions.filter(Transaction.date <= filters['date_to'])
 
     if 'date_from' in filters or 'date_to' in filters:
-        entries = Entry.query.filter(Entry.transaction_id.in_(
+        entries = entries.filter(Entry.transaction_id.in_(
             [t.id for t in transactions.all()]))
 
+    filtered_entries = []
     if 'account' in filters:
         for account in accounts:
             filtered_entries += entries.filter(Entry.account.like('%'+account+'%')).all()
