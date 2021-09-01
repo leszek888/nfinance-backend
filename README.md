@@ -108,11 +108,11 @@ List of possible filters:
 ## Auth
 
 Authorization is still in development. As of now, Basic Auth is used, use balance_id as login, and send empty password, encode with base64.
-JWT Token without expiry date will be generated for requeted balance_id, which has to sent in each subsequent request as 'x-access-token'
+JWT Token without expiry date will be generated for requested balance_id, which has to sent in each subsequent request as 'x-access-token'
 
 Use the following requets to get the token:
 
 ```
 [GET] /api/auth
-Headers: 'Authorization': 'Basic balance_id:pw'
+Headers: 'Authorization': 'Basic base64(balance_id:pw)'
 ```
