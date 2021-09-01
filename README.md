@@ -5,6 +5,7 @@
 
 # General info
 nFinance is a personal accounting software inspired by commad line tool "ledger-cli"
+
 You're viewing the backend github page, to visint frontend go to https://github.com/leszek888/nfinance-frontend
 
 You can find the current demo version of nFinance on https://nbudget.eu/
@@ -106,7 +107,7 @@ List of possible filters:
 
 ## Auth
 
-Authorization is still in development. As of now, Basic Auth is used, use balance_id as login, and send empty password.
+Authorization is still in development. As of now, Basic Auth is used, use balance_id as login, and send empty password, encode with base64.
 JWT Token without expiry date will be generated for requeted balance_id, which has to sent in each subsequent request as 'x-access-token'
 
 Use the following requets to get the token:
