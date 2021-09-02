@@ -62,23 +62,6 @@ def token_required(f):
         return f(current_balance, *args, **kwargs)
     return decorated
 
-def get_formatted_decimal(num):
-    dec = str(num).split('.')
-    formatted_number = None
-
-    if len(dec) > 1:
-        dec[1] = dec[1].rstrip('0')
-        formatted_number = dec[0] + '.' + dec[1]
-
-        if len(dec[1]) == 0:
-            formatted_number += '00'
-        if len(dec[1]) == 1:
-            formatted_number += '0'
-    else:
-        formatted_number = dec[0] + '.00'
-
-    return formatted_number
-
 @app.route('/api/balance/new', methods=['GET'])
 @cross_origin()
 def create_balance():
@@ -148,7 +131,7 @@ def get_transactions(current_balance):
         for entry in entries:
             fetched_entries.append({
                 'account' : entry.account,
-                'amount' : get_formatted_decimal(entry.amount)
+                'amount' : str(entry.amount)
             })
         fetched_transaction['entries'] = fetched_entries
         formatted_transactions.append(fetched_transaction)
@@ -379,7 +362,7 @@ def get_accounts(current_balance):
                 account['balance'] += Decimal(entry.amount)
 
     for account in accounts:
-        account['balance'] = get_formatted_decimal(account['balance'])
+        account['balance'] = str(account['balance'])
 
     return {'accounts' : accounts}
 

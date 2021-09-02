@@ -136,7 +136,7 @@ class AccountsTest(unittest.TestCase):
         nonzero_accounts = []
 
         for account in accounts:
-            if account['balance'] != '0.00':
+            if account['balance'] != '0':
                 nonzero_accounts.append(account)
 
         self.assertEqual(len(nonzero_accounts), 3)
