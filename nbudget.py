@@ -389,3 +389,6 @@ def create_base_accounts(balance_id):
         new_account = Entry(balance_id=balance_id, account=account, amount='0')
         db.session.add(new_account)
     db.session.commit()
+
+def api_error(message):
+    return jsonify({'error': message})
