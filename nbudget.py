@@ -45,21 +45,22 @@ class Entry(db.Model):
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = None
+        balance_id = None
 
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
+            try:
+                data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+                balance_id = data['balance_id']
+            except:
+                balance_id = None
+        else:
+            balance_id = request.cookies.get('balance_id', None)
 
-        if not token:
-            current_balance = None
+        if not validate_balance(balance_id):
+            balance_id = None
 
-        try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            current_balance = Balance.query.filter_by(public_id=data['balance_id']).first().public_id;
-        except:
-            current_balance = None
-
-        return f(current_balance, *args, **kwargs)
+        return f(balance_id, *args, **kwargs)
     return decorated
 
 @app.route('/api/balance/new', methods=['GET'])
@@ -79,21 +80,24 @@ def create_balance():
 @app.route('/api/transaction', methods=['POST'])
 @cross_origin()
 @token_required
-def create_transaction(current_balance):
+def create_transaction(balance_id):
     data = request.get_json()
-    if current_balance:
-        data['balance_id'] = current_balance;
+
+    if not balance_id:
+        return api_error('Balance not found')
+
+    data['balance_id'] = balance_id;
 
     return jsonify(save_transaction(data))
 
 @app.route('/api/transaction', methods=['GET'])
 @cross_origin()
 @token_required
-def get_transactions(current_balance):
+def get_transactions(balance_id):
     balance_id = None
 
-    if current_balance:
-        balance_id = current_balance
+    if balance_id:
+        balance_id = balance_id
     elif request.cookies.get('balance_id'):
         balance_id = request.cookies.get('balance_id')
 
@@ -142,12 +146,12 @@ def get_transactions(current_balance):
 @app.route('/api/transaction', methods=['DELETE'])
 @token_required
 @cross_origin()
-def delete_transaction(current_balance):
+def delete_transaction(balance_id):
     data = request.get_json()
     balance = None
 
-    if current_balance:
-        balance = Balance.query.filter_by(public_id=current_balance).first()
+    if balance_id:
+        balance = Balance.query.filter_by(public_id=balance_id).first()
     elif 'balance_id' in data:
         balance = Balance.query.filter_by(public_id=data['balance_id']).first()
 
@@ -314,13 +318,13 @@ def save_transaction(transaction):
 @app.route('/api/accounts', methods=['GET'])
 @cross_origin()
 @token_required
-def get_accounts(current_balance):
+def get_accounts(balance_id):
     filters = request.args
     filter_accounts = request.args.getlist('account')
     balance_id = None
 
-    if current_balance:
-        balance_id = current_balance
+    if balance_id:
+        balance_id = balance_id
     elif request.cookies.get('balance_id'):
         balance_id = request.cookies.get('balance_id')
 
