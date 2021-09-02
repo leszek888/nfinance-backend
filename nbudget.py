@@ -7,9 +7,10 @@ from functools import wraps
 
 import datetime
 import json
+import jwt
 import os
 import uuid
-import jwt
+import sys
 
 load_dotenv()
 
@@ -54,7 +55,9 @@ def token_required(f):
                 balance_id = data['balance_id']
             except:
                 balance_id = None
-        else:
+
+        # When unit testing, use cookies for auth
+        elif 'unittest' in sys.modules:
             balance_id = request.cookies.get('balance_id', None)
 
         if not validate_balance(balance_id):
