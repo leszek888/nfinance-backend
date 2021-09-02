@@ -12,13 +12,12 @@ class TransactionTest(unittest.TestCase):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////media/fast_wh/Projects/flask/nbudget/test-nbudget.db'
         db.create_all()
         self.balance = self.app.get('/api/balance/new')
+        self.app.set_cookie(key='balance_id', value=self.balance.json['balance_id'], server_name=None)
 
     def tearDown(self):
         db.drop_all()
 
     def get_transactions(self):
-        self.app.set_cookie(key='balance_id', value=self.balance.json['balance_id'], server_name=None)
-
         return self.app.get('/api/transaction')
 
 
@@ -68,6 +67,7 @@ class TransactionTest(unittest.TestCase):
         self.assertEqual(7, len(Entry.query.all()))
 
     def test_reject_transaction_with_wrong_balance_id(self):
+        self.app.set_cookie(key='balance_id', value='wrong_balance_id', server_name=None)
         transaction = self.create_transaction_json(balance_id = "wrong-id")
 
         response = self.save_transaction(transaction)
