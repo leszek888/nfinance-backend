@@ -94,18 +94,8 @@ def create_transaction(balance_id):
 @cross_origin()
 @token_required
 def get_transactions(balance_id):
-    balance_id = None
-
-    if balance_id:
-        balance_id = balance_id
-    elif request.cookies.get('balance_id'):
-        balance_id = request.cookies.get('balance_id')
-
-    if not balance_id or len(balance_id) != 36:
-        return jsonify({'error' : 'Balance not found.'})
-
-    if not Balance.query.filter_by(public_id=balance_id).first():
-        return jsonify({'error' : 'Balance not found.'})
+    if not balance_id:
+        return api_error('Balance not found')
 
     transactions = Transaction.query.filter_by(balance_id=balance_id).order_by(Transaction.date.desc()).order_by(Transaction.id.desc());
 
@@ -147,16 +137,10 @@ def get_transactions(balance_id):
 @token_required
 @cross_origin()
 def delete_transaction(balance_id):
+    if not balance_id:
+        return api_error('Balance not found')
+
     data = request.get_json()
-    balance = None
-
-    if balance_id:
-        balance = Balance.query.filter_by(public_id=balance_id).first()
-    elif 'balance_id' in data:
-        balance = Balance.query.filter_by(public_id=data['balance_id']).first()
-
-    if not balance:
-        return {'error' : 'Balance not found.'}
 
     if 'id' in data:
         transaction = Transaction.query.filter_by(id=data['id']).first()
@@ -319,17 +303,11 @@ def save_transaction(transaction):
 @cross_origin()
 @token_required
 def get_accounts(balance_id):
+    if not balance_id:
+        return api_error('Balance not found')
+
     filters = request.args
     filter_accounts = request.args.getlist('account')
-    balance_id = None
-
-    if balance_id:
-        balance_id = balance_id
-    elif request.cookies.get('balance_id'):
-        balance_id = request.cookies.get('balance_id')
-
-    else:
-        return jsonify({'error': 'No balance specified.'})
 
     transactions = Transaction.query.filter(Transaction.balance_id == balance_id)
     entries = Entry.query.filter(Entry.balance_id == balance_id).order_by(Entry.account)
